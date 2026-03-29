@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第1回 ガイダンス | ゲーム1</title>
+  <style>
+    /* ===========================
+       リセット・基本
+    =========================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: #111;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* ===========================
+       スライドコンテナ
+    =========================== */
+    #slideshow {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 4rem 6rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      text-align: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ===========================
+       共通テキスト
+    =========================== */
+    .slide h1 {
+      font-size: 2.8rem;
+      font-weight: bold;
+      line-height: 1.3;
+      margin-bottom: 0.6rem;
+    }
+    .slide h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1.2rem;
+      line-height: 1.3;
+    }
+    .slide h3 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 0.8rem;
+      opacity: 0.8;
+    }
+    .slide p {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      max-width: 760px;
+    }
+    .slide ul {
+      list-style: none;
+      text-align: left;
+      max-width: 760px;
+      width: 100%;
+    }
+    .slide ul li {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      padding: 0.35rem 0 0.35rem 1.6rem;
+      position: relative;
+    }
+    .slide ul li::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      font-size: 0.7rem;
+      top: 0.6rem;
+      opacity: 0.6;
+    }
+
+    /* ===========================
+       スライド背景テーマ
+    =========================== */
+    /* タイトル */
+    .theme-title {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    }
+    .theme-title::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 30%, rgba(100,160,255,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* セクション区切り */
+    .theme-section {
+      background: linear-gradient(135deg, #1a3a5c, #1a6bbf);
+    }
+
+    /* 通常コンテンツ */
+    .theme-content {
+      background: linear-gradient(160deg, #1a1a2e, #16213e);
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    /* 注目・警告 */
+    .theme-accent {
+      background: linear-gradient(135deg, #1a1a1a, #2d1f0e);
+    }
+
+    /* ===========================
+       装飾パーツ
+    =========================== */
+    .tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+    }
+
+    .tag.blue  { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+    .tag.orange{ background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+
+    .divider {
+      width: 60px;
+      height: 3px;
+      background: rgba(100,160,255,0.6);
+      border-radius: 2px;
+      margin: 1rem 0 1.5rem;
+    }
+
+    .divider.left { margin-left: 0; }
+
+    /* カード */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 1rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 1.2rem 1rem;
+      text-align: center;
+    }
+    .card .num {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #64b4ff;
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .card .label {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    /* 評価表 */
+    .eval-table {
+      width: 100%;
+      max-width: 700px;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .eval-table th, .eval-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      text-align: left;
+      font-size: 1rem;
+    }
+    .eval-table th {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      font-weight: normal;
+    }
+    .eval-table .pct {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #64b4ff;
+    }
+
+    /* ステップ */
+    .steps {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin-top: 0.5rem;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+    }
+    .step-num {
+      min-width: 1.8rem;
+      height: 1.8rem;
+      background: #1a6bbf;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .step-body {
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .step-body strong {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 0.1rem;
+    }
+
+    /* ハイライトボックス */
+    .highlight-box {
+      background: rgba(26,107,191,0.2);
+      border: 1px solid rgba(100,160,255,0.4);
+      border-radius: 10px;
+      padding: 1.2rem 1.8rem;
+      max-width: 760px;
+      width: 100%;
+      margin-top: 0.8rem;
+    }
+    .highlight-box p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .warn-box {
+      background: rgba(230,81,0,0.15);
+      border: 1px solid rgba(255,160,80,0.4);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      max-width: 760px;
+      width: 100%;
+      margin-top: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    /* 週テーブル */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 0.8rem;
+    }
+    .week-cell {
+      background: rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 0.5rem 0.4rem;
+      text-align: center;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+    .week-cell .wn {
+      font-size: 0.7rem;
+      opacity: 0.5;
+      margin-bottom: 0.2rem;
+    }
+    .week-cell.highlight {
+      background: rgba(26,107,191,0.35);
+      border: 1px solid rgba(100,160,255,0.4);
+    }
+    .week-cell.soft {
+      background: rgba(46,125,50,0.25);
+      border: 1px solid rgba(100,200,100,0.3);
+    }
+
+    /* 大きいテキスト */
+    .big { font-size: 1.4rem; margin-bottom: 1rem; }
+    .muted { opacity: 0.6; }
+
+    /* ===========================
+       ナビゲーション
+    =========================== */
+    #nav {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      z-index: 100;
+    }
+
+    #nav button {
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      backdrop-filter: blur(4px);
+    }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+
+    #slide-counter {
+      font-size: 0.8rem;
+      opacity: 0.5;
+      min-width: 4rem;
+      text-align: center;
+    }
+
+    /* プログレスバー */
+    #progress {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: #1a6bbf;
+      transition: width 0.35s ease;
+      z-index: 100;
+    }
+
+    /* ===========================
+       レスポンシブ（プロジェクター想定）
+    =========================== */
+    @media (max-width: 900px) {
+      .slide { padding: 2.5rem 2.5rem; }
+      .slide h1 { font-size: 2rem; }
+      .slide h2 { font-size: 1.5rem; }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .week-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- ===== 01 タイトル ===== -->
+  <div class="slide theme-title active">
+    <span class="tag blue">名古屋音楽大学 ／ 2026年度 春学期</span>
+    <h1>ゲーム1</h1>
+    <div class="divider"></div>
+    <h3>第1回　ガイダンス</h3>
+    <p class="muted" style="margin-top:2rem; font-size:0.9rem;">← → キーまたは画面下のボタンでスライドを操作できます</p>
+  </div>
+
+  <!-- ===== 02 今日の内容 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">今日の内容</span>
+    <h2>本日のアジェンダ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>この授業で何をするのか</li>
+      <li>授業の進め方・スケジュール</li>
+      <li>評価方法</li>
+      <li>Unityとは何か</li>
+      <li>開発環境のセットアップ（Unityインストール）</li>
+      <li>インストール確認・動作チェック</li>
+    </ul>
+  </div>
+
+  <!-- ===== 03 この授業で何をするか ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">授業概要</span>
+    <h1>この授業で何を学ぶか</h1>
+  </div>
+
+  <!-- ===== 04 授業概要 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">ゲーム1とは</span>
+    <h2>Unityでゲームを作る授業です</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>対象</strong>：プログラミング経験ゼロでもOK</li>
+      <li><strong>使うツール</strong>：Unity（無料）+ Visual Studio Code</li>
+      <li><strong>言語</strong>：C#（シーシャープ）</li>
+      <li><strong>目標</strong>：自分で企画したゲームを完成させて発表する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.5rem;">
+      <p>🎵 音楽大学の強みを活かして、<strong>「音」や「音楽」を使ったゲーム</strong>も大歓迎です！</p>
+    </div>
+  </div>
+
+  <!-- ===== 05 ゲームと音楽 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">なぜゲーム制作を学ぶのか</span>
+    <h2>ゲームと音楽は切り離せない</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>ゲームサウンドの市場は年々拡大中（BGM・SE・ボイス）</li>
+      <li>インタラクティブな音楽表現の手段としてのゲームエンジン</li>
+      <li>音楽×プログラミングで生まれるオリジナルな表現</li>
+      <li>就職・フリーランス・個人制作など幅広い活用の場</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.5rem;">
+      <p>プログラミングは「楽器」と同じ。<br>最初は難しくても、練習すれば必ず弾けるようになります。</p>
+    </div>
+  </div>
+
+  <!-- ===== 06 スケジュール（セクション） ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">スケジュール</span>
+    <h1>15回の流れ</h1>
+  </div>
+
+  <!-- ===== 07 スケジュール一覧 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">全15回のスケジュール</span>
+    <h2>授業の流れ</h2>
+    <div class="week-grid">
+      <div class="week-cell highlight">
+        <div class="wn">第1回</div>ガイダンス
+      </div>
+      <div class="week-cell">
+        <div class="wn">第2回</div>基本操作
+      </div>
+      <div class="week-cell">
+        <div class="wn">第3〜5回</div>Unityの基礎
+      </div>
+      <div class="week-cell">
+        <div class="wn">第6回</div>UIの基礎
+      </div>
+      <div class="week-cell">
+        <div class="wn">第7回</div>当たり判定
+      </div>
+      <div class="week-cell">
+        <div class="wn">第8回</div>音と<br>インタラクション
+      </div>
+      <div class="week-cell">
+        <div class="wn">第9〜10回</div>ゲーム制作<br>基礎
+      </div>
+      <div class="week-cell">
+        <div class="wn">第11回</div>音と演出
+      </div>
+      <div class="week-cell soft">
+        <div class="wn">第12〜14回</div>総合制作
+      </div>
+      <div class="week-cell soft">
+        <div class="wn">第15回</div>作品発表
+      </div>
+    </div>
+    <p style="font-size:0.85rem; opacity:0.55; margin-top:0.8rem;">青：基礎学習　緑：制作・発表</p>
+  </div>
+
+  <!-- ===== 08 評価方法（セクション） ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">評価方法</span>
+    <h1>どうやって評価されるか</h1>
+  </div>
+
+  <!-- ===== 09 評価 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">成績評価</span>
+    <h2>評価の内訳</h2>
+    <div class="divider left"></div>
+    <table class="eval-table">
+      <tr>
+        <th>評価項目</th>
+        <th>割合</th>
+        <th>内容</th>
+      </tr>
+      <tr>
+        <td>授業への参加・取り組み</td>
+        <td class="pct">40%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">毎回の授業での作業・進捗</td>
+      </tr>
+      <tr>
+        <td>課題提出</td>
+        <td class="pct">30%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">各回の課題ファイルの提出</td>
+      </tr>
+      <tr>
+        <td>最終作品・発表</td>
+        <td class="pct">30%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">第15回の作品発表</td>
+      </tr>
+    </table>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠️ 欠席が多いと大きく減点されます。遅刻・欠席は事前に連絡してください。
+    </div>
+  </div>
+
+  <!-- ===== 10 受講にあたって ===== -->
+  <div class="slide theme-content">
+    <span class="tag orange">受講にあたってのお願い</span>
+    <h2>授業のルール</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>毎回PCを持参してください（必須）</li>
+      <li>授業中は授業に関係のないアプリを閉じる</li>
+      <li>分からないことはその場で質問してOK</li>
+      <li>作業が早く終わった人は自由に発展してOK</li>
+      <li>AIツール（ChatGPT等）の活用はOK、ただし中身を理解すること</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>「完璧なゲームを作ること」より「少しずつ理解しながら進めること」が大切です。</p>
+    </div>
+  </div>
+
+  <!-- ===== 11 Unityとは（セクション） ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">Unityとは？</span>
+    <h1>まず道具を知ろう</h1>
+  </div>
+
+  <!-- ===== 12 Unityとは ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">Unity とは</span>
+    <h2>世界で最も使われているゲームエンジン</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>2D・3Dゲームを作れるソフトウェア（無料で使える）</li>
+      <li>スマートフォン・PC・コンソール・Webに書き出せる</li>
+      <li>プログラミング言語は <strong>C#（シーシャープ）</strong></li>
+      <li>世界中で使われており、参考資料・動画が豊富</li>
+    </ul>
+    <div class="cards" style="margin-top:1.2rem;">
+      <div class="card">
+        <div class="num">50%+</div>
+        <div class="label">モバイルゲームの<br>シェア</div>
+      </div>
+      <div class="card">
+        <div class="num">2D / 3D</div>
+        <div class="label">どちらも<br>対応</div>
+      </div>
+      <div class="card">
+        <div class="num">無料</div>
+        <div class="label">個人・学生は<br>無料で使える</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 13 有名なゲーム ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">Unityで作られたゲーム</span>
+    <h2>実はUnityで作られています</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Among Us（アモングアス）</li>
+      <li>Cuphead（カップヘッド）</li>
+      <li>Pokémon GO（ポケモンGO）</li>
+      <li>原神（Genshin Impact）</li>
+      <li>Fall Guys（フォールガイズ）</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>インディーゲームから大作まで、Unityは幅広い規模の開発に使われています。</p>
+    </div>
+  </div>
+
+  <!-- ===== 14 セットアップ（セクション） ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">セットアップ</span>
+    <h1>開発環境を整えよう</h1>
+  </div>
+
+  <!-- ===== 15 インストール手順 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">インストール手順</span>
+    <h2>Unity のインストール</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Unity Hub をダウンロード</strong>
+          unity.com → 「Unity をダウンロード」→「Unity Hub」を選択
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Unity Hub をインストール・起動</strong>
+          ダウンロードしたインストーラーを実行して起動
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Unity アカウントを作成（または既存アカウントでサインイン）</strong>
+          無料の Personal ライセンスでOK
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Unity Editor をインストール</strong>
+          Unity Hub → 「インストール」→ LTS 版（推奨版）を選択 → 「Visual Studio」も一緒にチェック
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 16 注意点 ===== -->
+  <div class="slide theme-content">
+    <span class="tag orange">インストール時の注意</span>
+    <h2>つまずきやすいポイント</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>インストール先のパスに<strong>日本語・スペースを含めない</strong>（例：<code style="background:rgba(255,255,255,0.1); padding:0.1rem 0.4rem; border-radius:3px;">C:\Unity</code> など）</li>
+      <li>ストレージの空き容量は最低 <strong>10GB 以上</strong>必要</li>
+      <li>インストールには時間がかかります（20〜60分）</li>
+      <li>途中でエラーが出たら遠慮なく呼んでください</li>
+    </ul>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠️ もし今日インストールが終わらない場合は、次回までに自宅で完了させてきてください。
+    </div>
+  </div>
+
+  <!-- ===== 17 確認 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">動作確認</span>
+    <h2>インストール確認</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Unity Hub を起動する</strong>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>「新しいプロジェクト」をクリック</strong>
+          テンプレートは「3D（コア）」を選択
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>プロジェクト名を入力して「プロジェクトを作成」</strong>
+          名前は何でもOK（例：<em>MyFirstGame</em>）
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Unityのエディター画面が起動すれば成功！</strong>
+          Scene ビューに広場のようなものが見えればOK
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 18 まとめ ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">今日のまとめ</span>
+    <h2>第1回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>この授業では Unity を使って自分のゲームを作る</li>
+      <li>評価は「参加40% ／ 課題30% ／ 発表30%」</li>
+      <li>Unity Hub + Unity Editor のインストール完了</li>
+      <li>エディター画面が起動することを確認した</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p><strong>次回（第2回）：</strong>Unityの画面構成を学び、オブジェクトを配置してみます。<br>
+      PCと Unity を必ず持参してください。</p>
+    </div>
+  </div>
+
+  <!-- ===== 19 質問 ===== -->
+  <div class="slide theme-title">
+    <h1 style="font-size:3.5rem; margin-bottom:0.5rem;">質問はありますか？</h1>
+    <div class="divider"></div>
+    <p class="muted">次回：第2回　Unityの基本操作</p>
+  </div>
+
+</div><!-- /slideshow -->
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button id="btn-prev" onclick="changeSlide(-1)" title="前へ (←)">‹</button>
+  <span id="slide-counter">1 / 19</span>
+  <button id="btn-next" onclick="changeSlide(1)" title="次へ (→)">›</button>
+</div>
+
+<div id="progress"></div>
+
+<script>
+  const slides = document.querySelectorAll(".slide");
+  let current = 0;
+
+  function showSlide(n) {
+    slides[current].classList.remove("active");
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides[current].classList.add("active");
+    document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+    document.getElementById("btn-prev").disabled = current === 0;
+    document.getElementById("btn-next").disabled = current === slides.length - 1;
+    document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+  }
+
+  function changeSlide(dir) { showSlide(current + dir); }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+    if (e.key === "ArrowLeft"  || e.key === "ArrowUp")                     changeSlide(-1);
+    if (e.key === "Home") showSlide(0);
+    if (e.key === "End")  showSlide(slides.length - 1);
+  });
+
+  // タッチ操作
+  let touchStartX = 0;
+  document.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].clientX; });
+  document.addEventListener("touchend", e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+  });
+
+  showSlide(0);
+</script>
+</body>
+</html>

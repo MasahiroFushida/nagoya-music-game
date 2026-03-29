@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>授業詳細 | 名古屋音楽大学</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <span class="site-title" id="header-site-title"></span>
+  <span class="separator">›</span>
+  <span class="page-title" id="header-page-title"></span>
+</header>
+
+<div class="breadcrumb" id="breadcrumb"></div>
+
+<main>
+  <div id="week-header" class="week-header">
+    <p class="course-label" id="week-label"></p>
+    <h1 id="week-title"></h1>
+    <p id="week-description" style="font-size:0.9rem; color:#555; margin-top:0.5rem;"></p>
+  </div>
+
+  <div class="week-content-grid">
+
+    <!-- スライド -->
+    <div class="content-card" id="slides-card">
+      <h2><span class="icon">📄</span> 授業スライド</h2>
+      <ul></ul>
+    </div>
+
+    <!-- Unityプロジェクト -->
+    <div class="content-card" id="project-card">
+      <h2><span class="icon">📦</span> Unityプロジェクト（配布ファイル）</h2>
+      <ul></ul>
+    </div>
+
+    <!-- 課題 -->
+    <div class="content-card" id="assignment-card">
+      <h2><span class="icon">📝</span> 課題</h2>
+      <div class="assignment-box">
+        <div class="content"></div>
+        <p class="deadline"></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="week-nav">
+    <a href="#" id="nav-prev">← 前のコマ</a>
+    <a href="#" id="nav-next">次のコマ →</a>
+  </div>
+</main>
+
+<footer>
+  &copy; 名古屋音楽大学
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/week.js"></script>
+</body>
+</html>
