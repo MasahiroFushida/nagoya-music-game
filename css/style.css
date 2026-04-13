@@ -184,6 +184,12 @@ main {
   background: #1b5e20;
 }
 
+.btn.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 /* ===========================
    コース一覧ページ
 =========================== */
@@ -284,6 +290,12 @@ main {
   text-decoration: none;
 }
 
+.week-title a.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .week-icons {
   display: flex;
   gap: 0.5rem;
@@ -300,6 +312,16 @@ main {
 .icon-badge.active {
   background: #d0e8ff;
   color: #1a6bbf;
+}
+
+.icon-badge.active.clickable {
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.icon-badge.active.clickable:hover {
+  background: #b8deff;
+  box-shadow: 0 2px 6px rgba(26, 107, 191, 0.25);
 }
 
 .icon-badge.active.assignment {

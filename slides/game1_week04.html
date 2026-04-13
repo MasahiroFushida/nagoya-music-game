@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第4回 Unityの基礎② | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+  </style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">ゲームプログラミング1 — 第4回</div>
+    <h1>Unityの基礎②</h1>
+    <h3>オブジェクトを動かす</h3>
+    <div class="divider"></div>
+    <p class="muted">名古屋音楽大学 2026年度</p>
+  </div>
+
+  <!-- 2. アジェンダ -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第4回 学習ロードマップ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Transform コンポーネントをスクリプトから操作する</li>
+      <li>Update() を使って毎フレーム移動させる</li>
+      <li>キーボード入力（Input.GetKey）を受け取る</li>
+      <li>上下左右キーでオブジェクトを操作する</li>
+      <li>Time.deltaTime でフレームレートに依存しない移動を実現する</li>
+      <li>public 変数を使って Inspector からスピードを調整する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>目標：キーボードで Cube を自由に動かせるようになる</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 01</div>
+    <h1>Transformを使って動かす</h1>
+    <p class="muted">スクリプトから位置・回転・スケールを制御する</p>
+  </div>
+
+  <!-- 4. Transformの復習 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Transform の復習</div>
+    <h2>position / rotation / scale</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>position</strong>（位置）：Vector3 型の座標 (x, y, z)</li>
+      <li><strong>rotation</strong>（回転）：Quaternion 型（内部的に4つの数値）</li>
+      <li><strong>scale</strong>（拡縮）：Vector3 型のサイズ倍率</li>
+      <li>スクリプトからは <code>transform</code> という変数名でアクセスできる</li>
+    </ul>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>Vector3 とは</h3>
+        <p>X・Y・Z の3つの値をまとめた型。<br>new Vector3(1f, 0f, 0f) のように書く</p>
+      </div>
+      <div class="col-card">
+        <h3>World vs Local</h3>
+        <p>transform.position はワールド座標。<br>transform.localPosition は親からの相対座標</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. transformを操作するコード -->
+  <div class="slide theme-content">
+    <div class="tag blue">Transform 操作</div>
+    <h2>スクリプトから Transform を変える</h2>
+    <div class="divider left"></div>
+    <div class="code-block">// 位置を直接セットする
+transform.position = new Vector3(0f, 1f, 0f);
+
+// 現在の位置から少しずらす
+transform.position += new Vector3(0.1f, 0f, 0f);
+
+// Translate を使って相対移動（よく使う）
+transform.Translate(0.1f, 0f, 0f);
+
+// 回転を加える
+transform.Rotate(0f, 1f, 0f);</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>transform.Translate(x, y, z) は「今いる位置からの相対移動」なので直感的に使いやすい。</p>
+    </div>
+  </div>
+
+  <!-- 6. Updateとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">Update メソッド</div>
+    <h2>毎フレーム呼ばれる処理</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Playモード中、Unity は1秒間に約60回（フレーム）ループする</li>
+      <li>Update() はそのたびに呼ばれる ＝ 毎秒約60回実行される</li>
+      <li>「少しずつ動かす」処理を Update に書くとなめらかなアニメーションになる</li>
+      <li>Start は初期化のみ、動き続ける処理は Update に書くのが基本</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Update() の中で毎フレーム「0.01 だけ移動」を繰り返すと、オブジェクトがスムーズに動き続けます。</p>
+    </div>
+  </div>
+
+  <!-- 7. 毎フレーム移動コード -->
+  <div class="slide theme-content">
+    <div class="tag blue">コード例</div>
+    <h2>毎フレーム少しずつ右に移動する</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public class MoveObject : MonoBehaviour
+{
+    void Update()
+    {
+        // 毎フレーム X 方向に 0.05 移動
+        transform.Translate(0.05f, 0f, 0f);
+    }
+}</div>
+    <ul style="margin-top:0.8rem;">
+      <li>このままだと画面外に飛んでいってしまう</li>
+      <li>次はキー入力と組み合わせて「押している間だけ動く」ようにする</li>
+    </ul>
+    <div class="warn-box">
+      ⚠ フレームレートは環境によって変わる。後で Time.deltaTime を使って補正します。
+    </div>
+  </div>
+
+  <!-- 8. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>キーボード入力を受け取る</h1>
+    <p class="muted">Input クラスを使ったキー入力処理</p>
+  </div>
+
+  <!-- 9. Input.GetKey -->
+  <div class="slide theme-content">
+    <div class="tag blue">Input.GetKey</div>
+    <h2>キーが押されているか判定する</h2>
+    <div class="divider left"></div>
+    <div class="code-block">// キーを押している間ずっと true
+if (Input.GetKey(KeyCode.RightArrow))
+{
+    // 右矢印キーを押しているとき
+}
+
+// キーを押した瞬間だけ true
+if (Input.GetKeyDown(KeyCode.Space))
+{
+    // スペースキーを押した瞬間
+}
+
+// キーを離した瞬間だけ true
+if (Input.GetKeyUp(KeyCode.RightArrow))
+{
+    // 右矢印キーを離した瞬間
+}</div>
+  </div>
+
+  <!-- 10. 上下左右移動コード -->
+  <div class="slide theme-content">
+    <div class="tag blue">コード例</div>
+    <h2>上下左右キーで Cube を動かす</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public class PlayerMove : MonoBehaviour
+{
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.RightArrow))
+            transform.Translate( 0.05f, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.LeftArrow))
+            transform.Translate(-0.05f, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.UpArrow))
+            transform.Translate(0f,  0.05f, 0f);
+
+        if (Input.GetKey(KeyCode.DownArrow))
+            transform.Translate(0f, -0.05f, 0f);
+    }
+}</div>
+  </div>
+
+  <!-- 11. Time.deltaTime -->
+  <div class="slide theme-content">
+    <div class="tag blue">Time.deltaTime</div>
+    <h2>フレームレートに依存しない移動</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>フレームレートが高い PC では Update が多く呼ばれ → 速く動きすぎる</li>
+      <li>フレームレートが低い PC では遅くなる ＝ 環境によって速さが変わる</li>
+      <li><strong>Time.deltaTime</strong>：前フレームからの経過時間（秒）。高FPS時は小さく、低FPS時は大きい</li>
+      <li>移動量に掛け算することで「1秒あたりの移動距離」が一定になる</li>
+    </ul>
+    <div class="code-block" style="margin-top:0.8rem;">// speed = 3 なら 1秒で 3ユニット移動（FPS に関係なく一定）
+transform.Translate(3f * Time.deltaTime, 0f, 0f);</div>
+  </div>
+
+  <!-- 12. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>動きを確認しよう</h1>
+    <p class="muted">Playモードと Inspector での調整</p>
+  </div>
+
+  <!-- 13. Playモードで確認 -->
+  <div class="slide theme-content">
+    <div class="tag blue">動作確認</div>
+    <h2>Playモードで実際に動かす</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>スクリプトを Cube にアタッチする</strong>前回の復習：Project から Inspector にドラッグ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>▶ ボタンで Playモード開始</strong>Game ビューがアクティブになる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>キーボードの矢印キーを押す</strong>Cube が上下左右に動くことを確認</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>動きが速すぎたり遅すぎたら Stop して調整</strong>移動量の数値を変えてみる</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. public float speed -->
+  <div class="slide theme-content">
+    <div class="tag blue">public 変数</div>
+    <h2>Inspector からスピードを調整する</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public class PlayerMove : MonoBehaviour
+{
+    // public にすると Inspector で値を変えられる
+    public float speed = 3f;
+
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.RightArrow))
+            transform.Translate(speed * Time.deltaTime, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.LeftArrow))
+            transform.Translate(-speed * Time.deltaTime, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.UpArrow))
+            transform.Translate(0f, speed * Time.deltaTime, 0f);
+
+        if (Input.GetKey(KeyCode.DownArrow))
+            transform.Translate(0f, -speed * Time.deltaTime, 0f);
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.5rem;">
+      <p>Inspector の「Speed」フィールドを変えるだけでコードを書き直さずにスピード調整できる！</p>
+    </div>
+  </div>
+
+  <!-- 15. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>キーボードで Cube を動かそう</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>新しいシーンに Cube を置く</strong>地面として Plane も追加すると見やすい</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>PlayerMove スクリプトを作成・アタッチ</strong>public float speed = 3f; を宣言する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>矢印キーで動くことを確認</strong>Time.deltaTime を使った移動に仕上げる</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>余裕がある人：W/A/S/D キーでも動くように改造してみよう。（KeyCode.W / A / S / D を使う）</p>
+    </div>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>transform.Translate(x, y, z) でオブジェクトを相対移動できる</li>
+      <li>Update() の中に書くことで毎フレーム動き続ける処理を作れる</li>
+      <li>Input.GetKey(KeyCode.XXX) でキーが押されているか判定できる</li>
+      <li>Time.deltaTime を掛けることでFPSに関係なく一定速度で動かせる</li>
+      <li>public 変数にすると Inspector で値をリアルタイムに変更できる</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次回（第5回）：Unityの基礎③ ― Prefab とステージ作り。同じオブジェクトを量産してステージを組み立てよう！</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 16</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End")  showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

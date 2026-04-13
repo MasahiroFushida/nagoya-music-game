@@ -22,8 +22,8 @@ const SITE_DATA = {
           { label: "第1回 ガイダンス スライド", url: "slides/game1_week01.html" }
         ],
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "以下のスクリーンショットを提出してください：\n1. Unity Hub でプロジェクトを作成した画面\n2. Unity Editor の起動画面\n3. VS Code を開いた画面（C#拡張機能のインストール確認）\n4. Debug.Logで簡単なメッセージを表示した画面",
+        deadline: "第2回授業開始時"
       },
       {
         week: 2,

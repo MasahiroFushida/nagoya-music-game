@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第14回 総合制作③ ― 仕上げと発表準備</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #1a0533, #3a1060, #1a0533); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.checklist { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; }
+.check-item { display: flex; align-items: center; gap: 0.8rem; background: rgba(255,255,255,0.06); border-radius: 6px; padding: 0.7rem 1rem; font-size: 0.95rem; }
+.check-item::before { content: "□"; font-size: 1.1rem; color: #64b4ff; flex-shrink: 0; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- スライド1: タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">ゲーム1 — 第14回</div>
+    <h1>総合制作③</h1>
+    <h2 style="font-size:1.6rem; opacity:0.85;">仕上げと発表準備</h2>
+    <div class="divider"></div>
+    <p class="muted">名古屋音楽大学 ／ Unity ゲーム制作入門</p>
+  </div>
+
+  <!-- スライド2: 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第14回でやること</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>ゲームを完成させる（最終仕上げ）</li>
+      <li>完成チェックリストで抜け漏れを確認する</li>
+      <li>不具合（バグ）を修正する</li>
+      <li>発表の準備・話す内容を整理する</li>
+      <li>通しプレイで最終確認をする</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>次回（第15回）がいよいよ<strong>作品発表</strong>です。今日が実質最後の制作時間です。</p>
+    </div>
+  </div>
+
+  <!-- スライド3: セクション「今日で完成させる」 -->
+  <div class="slide theme-section">
+    <div class="tag">Section</div>
+    <h1>今日で完成させる</h1>
+    <p style="opacity:0.8;">仕上げのポイントと完成チェック</p>
+  </div>
+
+  <!-- スライド4: 残り1回という意識 -->
+  <div class="slide theme-content">
+    <div class="tag orange">意識しよう</div>
+    <h2>次回が発表 ― 今日が最後の制作日</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">!</div>
+        <div class="step-body">
+          <strong>新機能を追加しない</strong>
+          今日は「足す」より「整える」日です。新しいアイデアは秋学期に取っておきましょう。
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">!</div>
+        <div class="step-body">
+          <strong>完成を最優先に</strong>
+          80点で完成させる方が、120点を目指して未完成より100倍価値があります。
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">!</div>
+        <div class="step-body">
+          <strong>こまめに保存・バックアップ</strong>
+          制作中はこまめに Ctrl+S。プロジェクトフォルダをコピーしてバックアップも忘れずに。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド5: 完成チェックリスト -->
+  <div class="slide theme-content">
+    <div class="tag green">完成チェックリスト</div>
+    <h2>提出・発表前に確認しよう</h2>
+    <div class="divider left"></div>
+    <div class="checklist">
+      <div class="check-item">ゲームが最初から最後まで遊べる</div>
+      <div class="check-item">クリア・ゲームオーバー画面がある</div>
+      <div class="check-item">BGM・効果音が設定されている</div>
+      <div class="check-item">UIが整っている（スコア・ライフ表示など）</div>
+      <div class="check-item">不具合（バグ）がない</div>
+    </div>
+  </div>
+
+  <!-- スライド6: セクション「不具合を修正する」 -->
+  <div class="slide theme-section">
+    <div class="tag">Section</div>
+    <h1>不具合を修正する</h1>
+    <p style="opacity:0.8;">デバッグの優先順位とよくあるバグ</p>
+  </div>
+
+  <!-- スライド7: デバッグの優先順位 -->
+  <div class="slide theme-content">
+    <div class="tag orange">デバッグ</div>
+    <h2>修正する順番がある</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num" style="background:#c0392b;">1</div>
+        <div class="step-body">
+          <strong>致命的なバグ（最優先）</strong>
+          ゲームが止まる・クラッシュする・そもそも起動しない ― これを先に潰す
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:#e67e22;">2</div>
+        <div class="step-body">
+          <strong>軽微なバグ（次に対処）</strong>
+          スコアが正しく表示されない・音が二重に鳴る・UIがずれる
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:#27ae60;">3</div>
+        <div class="step-body">
+          <strong>改善・ブラッシュアップ（余裕があれば）</strong>
+          難易度調整・演出の追加・見た目の微調整
+        </div>
+      </div>
+    </div>
+    <div class="warn-box">時間は有限です。優先順位を意識して作業しましょう。</div>
+  </div>
+
+  <!-- スライド8: よくある最終バグ -->
+  <div class="slide theme-content">
+    <div class="tag orange">よくある最終バグ</div>
+    <h2>これだけは確認しよう</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>シーン遷移ミス</strong> ― Build Settings にすべてのシーンが登録されているか？</li>
+      <li><strong>音が鳴らない</strong> ― AudioSource の Play On Awake・ミュート設定を確認</li>
+      <li><strong>スコアがリセットされない</strong> ― ゲームオーバー後にスコア変数を初期化しているか？</li>
+      <li><strong>オブジェクトが残り続ける</strong> ― Destroy() の呼び忘れ・シーンをまたいでの重複生成</li>
+      <li><strong>ゲームが終わらない</strong> ― クリア・失敗判定の条件を再確認</li>
+    </ul>
+  </div>
+
+  <!-- スライド9: セクション「発表の準備」 -->
+  <div class="slide theme-section">
+    <div class="tag">Section</div>
+    <h1>発表の準備</h1>
+    <p style="opacity:0.8;">何を話すか・どう見せるか</p>
+  </div>
+
+  <!-- スライド10: 発表で話すこと -->
+  <div class="slide theme-content">
+    <div class="tag blue">発表内容</div>
+    <h2>発表で話すこと</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>ゲームの紹介</strong>
+          どんなゲームか・ジャンル・操作方法を簡単に説明する
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>工夫した点</strong>
+          自分が特に頑張ったこと・こだわったポイントを伝える
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>苦労した点</strong>
+          難しかった部分・どう解決したかのエピソード
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>使用した音楽・効果音</strong>
+          どんな音を使ったか・なぜその音を選んだか
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド11: 発表時間の目安 -->
+  <div class="slide theme-content">
+    <div class="tag blue">発表時間</div>
+    <h2>1人あたりの目安：3〜5分</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>ゲーム説明（30秒〜1分）</li>
+      <li>実際にプレイして見せる（1〜2分）</li>
+      <li>工夫・苦労した点を話す（1〜2分）</li>
+    </ul>
+    <div class="highlight-box">
+      <p>台本を丸読みするより、<strong>自分の言葉</strong>で話す方が伝わります。<br>
+      発表メモを手元に用意しておくと安心です。</p>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      時間を超えないように、事前に一度声に出して練習しておきましょう。
+    </div>
+  </div>
+
+  <!-- スライド12: ビルドの確認 -->
+  <div class="slide theme-content">
+    <div class="tag green">最終確認</div>
+    <h2>通しプレイで仕上げる</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:1rem;">Playモードで最初から最後まで一度通してプレイしましょう。</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Unity エディタで Play ボタンを押す</strong>
+          タイトル画面から順番にすべてのシーンを通過する
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>クリアとゲームオーバー両方を確認</strong>
+          どちらのルートも正しく動くか確かめる
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>音・UIを最終チェック</strong>
+          BGMが正しく流れるか、スコアが正しく表示されるかを確認
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スライド13: 今日のタスク -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のタスク</div>
+    <h2>この授業時間にやること</h2>
+    <div class="divider left"></div>
+    <div class="checklist">
+      <div class="check-item">完成チェックリストをすべて満たす</div>
+      <div class="check-item">バグを修正して通しプレイを確認する</div>
+      <div class="check-item">発表メモ（話す内容のメモ）を作成する</div>
+      <div class="check-item">プロジェクトを保存・バックアップする</div>
+    </div>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>困ったことがあれば遠慮なく質問してください。今日が最後のサポートタイムです。</p>
+    </div>
+  </div>
+
+  <!-- スライド14: 次回予告 -->
+  <div class="slide theme-title">
+    <div class="tag purple">次回 第15回</div>
+    <h1>いよいよ発表！</h1>
+    <div class="divider"></div>
+    <p style="font-size:1.2rem; opacity:0.9; max-width:600px;">
+      皆さんがこの春学期で作り上げたゲームを<br>お互いに見せ合いましょう。<br><br>
+      楽しんで発表してください！
+    </p>
+    <p class="muted" style="margin-top:2rem; font-size:0.9rem;">お疲れさまでした。また来週。</p>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 14</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第2回 Unityの基本操作 | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+  </style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">ゲームプログラミング1 — 第2回</div>
+    <h1>Unityの基本操作</h1>
+    <div class="divider"></div>
+    <p class="muted">名古屋音楽大学 2026年度</p>
+  </div>
+
+  <!-- 2. アジェンダ -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第2回 学習ロードマップ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Unityエディターの5つのエリアを覚える</li>
+      <li>各ビュー（Scene / Game / Hierarchy / Inspector / Project）の役割を理解する</li>
+      <li>実際にオブジェクトを追加・配置してみる</li>
+      <li>Transformで位置・回転・スケールを変更する</li>
+      <li>プロジェクトとシーンを正しく保存する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>目標：Unityを開いたとき「どこに何があるか」が分かるようになる</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 01</div>
+    <h1>Unityの画面を知ろう</h1>
+    <p class="muted">エディターの各エリアと役割</p>
+  </div>
+
+  <!-- 4. エディター全体 -->
+  <div class="slide theme-content">
+    <div class="tag blue">エディター概要</div>
+    <h2>5つのエリア</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Scene ビュー</h3>
+        <p>3D空間を自由に見回しながらオブジェクトを配置・編集する作業エリア</p>
+      </div>
+      <div class="col-card">
+        <h3>Game ビュー</h3>
+        <p>実際にゲームを動かしたときのカメラ映像。Playボタンで確認する</p>
+      </div>
+      <div class="col-card">
+        <h3>Hierarchy</h3>
+        <p>シーン内のオブジェクトが一覧表示される。親子関係もここで管理</p>
+      </div>
+      <div class="col-card">
+        <h3>Inspector</h3>
+        <p>選択中のオブジェクトの詳細設定（位置・コンポーネントなど）を表示</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>＋ <strong>Project</strong>：プロジェクト内のファイル（アセット）を管理するブラウザ</p>
+    </div>
+  </div>
+
+  <!-- 5. Sceneビュー -->
+  <div class="slide theme-content">
+    <div class="tag blue">Scene ビュー</div>
+    <h2>オブジェクトを配置する作業台</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>マウスホイールでズームイン・アウト</li>
+      <li>右ドラッグ（またはAlt+ドラッグ）で視点を回転</li>
+      <li>中ボタンドラッグ（またはAlt+右ドラッグ）でパン（平行移動）</li>
+      <li>オブジェクトをクリックで選択 → 矢印ツールで移動</li>
+      <li>ツールバーの W・E・R で 移動・回転・スケール を切り替え</li>
+    </ul>
+    <div class="warn-box">
+      ⚠ Scene ビューで動かしてもゲームは動きません。あくまで「配置の作業台」です。
+    </div>
+  </div>
+
+  <!-- 6. Gameビュー -->
+  <div class="slide theme-content">
+    <div class="tag blue">Game ビュー</div>
+    <h2>実際のゲーム画面を確認する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>▶（Play）ボタンを押すとゲームが始まり、Game ビューに映像が映る</li>
+      <li>カメラオブジェクトの向き・位置がそのまま映像になる</li>
+      <li>Playモード中でも一時停止（⏸）やコマ送り（⏭）ができる</li>
+      <li>解像度・アスペクト比を上部ドロップダウンで変更可能</li>
+    </ul>
+    <div class="highlight-box">
+      <p>Game ビューは「プレイヤーが見る画面」のプレビューです。カメラを動かすと映像も変わります。</p>
+    </div>
+  </div>
+
+  <!-- 7. Hierarchy -->
+  <div class="slide theme-content">
+    <div class="tag blue">Hierarchy</div>
+    <h2>シーン内オブジェクトの一覧</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>シーンに存在するすべてのオブジェクトが表示される</li>
+      <li>左の▶アイコンで子オブジェクトを展開・折りたたみ</li>
+      <li>右クリック → 各種メニューからオブジェクトを追加・削除</li>
+      <li>オブジェクトをドラッグして別のオブジェクトの下に入れると「子」になる</li>
+      <li>親が動けば子も一緒に動く（親子関係の基本）</li>
+    </ul>
+    <div class="highlight-box">
+      <p>Hierarchy上のオブジェクトをクリックすると Scene ビューで選択状態になります。</p>
+    </div>
+  </div>
+
+  <!-- 8. Inspector -->
+  <div class="slide theme-content">
+    <div class="tag blue">Inspector</div>
+    <h2>選択オブジェクトの詳細設定</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Hierarchy でオブジェクトを選択すると Inspector に詳細が表示される</li>
+      <li><strong>Transform</strong>：位置（Position）・回転（Rotation）・拡縮（Scale）</li>
+      <li><strong>コンポーネント</strong>：Mesh Renderer、Rigidbody など、機能の追加単位</li>
+      <li>「Add Component」ボタンで新しい機能を追加できる</li>
+      <li>数値フィールドに直接入力、またはドラッグで変更</li>
+    </ul>
+    <div class="highlight-box">
+      <p>Unityでは「コンポーネントを組み合わせてオブジェクトの動作を決める」という考え方が基本です。</p>
+    </div>
+  </div>
+
+  <!-- 9. Project -->
+  <div class="slide theme-content">
+    <div class="tag blue">Project ウィンドウ</div>
+    <h2>ファイル（アセット）の管理</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>プロジェクトフォルダ内のファイルをすべて表示するブラウザ</li>
+      <li>スクリプト / 画像 / 音声 / 3Dモデル などがここに集まる</li>
+      <li>右クリック → Create でスクリプトやフォルダを作成</li>
+      <li>ファイルを Scene や Hierarchy にドラッグして使用する</li>
+      <li>フォルダで整理する習慣をつけると後が楽（Scripts / Materials / Prefabs など）</li>
+    </ul>
+    <div class="warn-box">
+      ⚠ Project ウィンドウ外（Finderや Explorer）でファイルを移動すると参照が壊れます。必ずUnity上で操作しましょう。
+    </div>
+  </div>
+
+  <!-- 10. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>オブジェクトを置いてみよう</h1>
+    <p class="muted">3D オブジェクトの追加と Transform 編集</p>
+  </div>
+
+  <!-- 11. オブジェクト追加 -->
+  <div class="slide theme-content">
+    <div class="tag blue">オブジェクトの追加</div>
+    <h2>Cubeをシーンに置く手順</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy を右クリック</strong>コンテキストメニューを開く</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>3D Object → Cube</strong>（Sphere / Plane / Cylinder なども同様）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Scene ビューに Cube が現れる</strong>Hierarchy にも追加されていることを確認</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>オブジェクト名を変更する</strong>Hierarchy 上でダブルクリックして分かりやすい名前に</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Transform確認 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Transform</div>
+    <h2>位置・回転・スケールを変える</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>Position</strong>（位置）：X / Y / Z 軸の座標。原点は (0, 0, 0)</li>
+      <li><strong>Rotation</strong>（回転）：各軸まわりの角度（度数）</li>
+      <li><strong>Scale</strong>（拡縮）：各軸方向のサイズ倍率。初期値は (1, 1, 1)</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Inspector の数値フィールドに直接入力するか、Scene ビューのギズモ（矢印・弧）をドラッグして変更できます。</p>
+    </div>
+    <div class="warn-box">
+      ⚠ Rotation の数値が「Euler 角」であることに注意。90° ずつ変えるとわかりやすい。
+    </div>
+  </div>
+
+  <!-- 13. セクション保存 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>保存しよう</h1>
+    <p class="muted">プロジェクト保存とシーン保存</p>
+  </div>
+
+  <!-- 14. 保存の説明 -->
+  <div class="slide theme-content">
+    <div class="tag blue">保存の種類</div>
+    <h2>プロジェクト保存 ＆ シーン保存</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>シーンを保存する（重要！）</strong>Ctrl + S（Windows） / Cmd + S（Mac）で現在のシーンを上書き保存。初回は保存先を選ぶダイアログが出る（Assets フォルダ内に Scenes フォルダを作って保存）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>プロジェクト全体を保存する</strong>メニュー File → Save Project。スクリプトや設定ファイルなど、シーン以外の変更も保存される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>こまめに保存する習慣を</strong>Unity はクラッシュすると保存前の変更が消えます。作業の節目に必ず Ctrl/Cmd+S を！</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      ⚠ Hierarchy のオブジェクト名の横に「*」が付いていたら未保存のサインです。
+    </div>
+  </div>
+
+  <!-- 15. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Unityエディターは Scene / Game / Hierarchy / Inspector / Project の5エリアで構成される</li>
+      <li>Scene ビューで配置・視点操作、Game ビューでゲーム映像を確認する</li>
+      <li>Hierarchy でオブジェクトを管理し、Inspector で詳細設定を行う</li>
+      <li>右クリック → 3D Object で Cube などを簡単に追加できる</li>
+      <li>Transform の Position / Rotation / Scale でオブジェクトの形を決める</li>
+      <li>Ctrl/Cmd+S でシーンをこまめに保存する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次回（第3回）：C# スクリプト入門 ― コードを書いてオブジェクトに「動き」を与えよう</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 15</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End")  showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

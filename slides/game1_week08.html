@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第8回 音とインタラクション</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第8回 音とインタラクション</h1>
+    <div class="divider"></div>
+    <p class="muted">SE・BGMをUnityで実装しゲームに生命を吹き込む</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第8回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>SE・BGM・ジングルの違いと役割を理解する</li>
+      <li>AudioSourceコンポーネントを追加・設定できる</li>
+      <li>スクリプトから Play() / PlayOneShot() で音を再生できる</li>
+      <li>接触イベントと組み合わせて効果音を鳴らせる</li>
+      <li>音量・ピッチをスクリプトから制御できる</li>
+    </ul>
+  </div>
+
+  <!-- 3. セクション：ゲームにおける音の役割 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>ゲームにおける<br>音の役割</h1>
+    <p class="muted">音楽大学生の視点でゲームサウンドを考える</p>
+  </div>
+
+  <!-- 4. SE・BGM・ジングルの違い -->
+  <div class="slide theme-content">
+    <div class="tag blue">ゲームサウンド</div>
+    <h2>SE・BGM・ジングルの違いと役割</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">SE</div>
+        <div class="step-body"><strong>サウンドエフェクト（効果音）</strong>ジャンプ音、コイン取得音、ダメージ音など。プレイヤーの行動や状態変化を即座にフィードバックする短い音。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">BGM</div>
+        <div class="step-body"><strong>バックグラウンドミュージック（背景音楽）</strong>ゲームプレイ中にループ再生される楽曲。場面の雰囲気・テンション・世界観を作る。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">JG</div>
+        <div class="step-body"><strong>ジングル（ステートミュージック）</strong>ゲームクリア・ゲームオーバーなど特定の状態遷移で1回だけ鳴らす短い楽曲。</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>音はゲームの「体験」を作る重要な要素。音がないゲームは感情的な手がかりを失います。</p>
+    </div>
+  </div>
+
+  <!-- 5. 音声フォーマット -->
+  <div class="slide theme-content">
+    <div class="tag blue">音声フォーマット</div>
+    <h2>Unityで使える音声フォーマット</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>.wav（非圧縮）</h3>
+        <p>ファイルサイズが大きいが高音質。短い効果音に最適。メモリに展開して即時再生できるため、SEに推奨。</p>
+      </div>
+      <div class="col-card">
+        <h3>.mp3（圧縮）</h3>
+        <p>ファイルサイズが小さい。BGMなど長い楽曲に向いている。ただしループポイントがずれる場合がある。</p>
+      </div>
+    </div>
+    <div class="col-card" style="margin-top:1rem; max-width:900px;">
+      <h3>.ogg（Vorbis圧縮）</h3>
+      <p style="font-size:0.88rem;">ゲーム開発での標準的な圧縮フォーマット。音質と圧縮率のバランスが良く、ループも正確。BGMにはmpよりoggを推奨。</p>
+    </div>
+    <div class="warn-box">
+      Unityでは Import Settings の Load Type・Compression Format でメモリ使用量と品質を調整できます。
+    </div>
+  </div>
+
+  <!-- 6. セクション：AudioSourceを使おう -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>AudioSourceを使おう</h1>
+    <p class="muted">音を鳴らすためのコンポーネントを設定する</p>
+  </div>
+
+  <!-- 7. AudioSourceの追加 -->
+  <div class="slide theme-content">
+    <div class="tag blue">AudioSource</div>
+    <h2>AudioSourceコンポーネントの追加</h2>
+    <div class="divider left"></div>
+    <p>AudioSource は「スピーカー」の役割を果たすコンポーネントです。音を鳴らしたいオブジェクトにアタッチします。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>オブジェクトを選択</strong>音を鳴らしたいGameObjectをHierarchyで選ぶ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Add Component</strong>InspectorのAdd Component → Audio → Audio Source を選択</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>AudioClipを設定</strong>プロジェクトの音声ファイルをAudio Clipフィールドにドラッグ&ドロップ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. AudioSourceの主要設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">AudioSource 設定</div>
+    <h2>AudioSourceの主要設定</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>基本設定</h3>
+        <ul>
+          <li><strong>Audio Clip</strong>：再生する音声ファイル</li>
+          <li><strong>Volume</strong>：音量（0〜1）</li>
+          <li><strong>Pitch</strong>：ピッチ（1 = 標準）</li>
+          <li><strong>Loop</strong>：ループ再生するか</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>再生タイミング</h3>
+        <ul>
+          <li><strong>Play On Awake</strong>：ゲーム開始時に自動再生</li>
+          <li><strong>Priority</strong>：再生優先度（0=高〜256=低）</li>
+          <li><strong>Spatial Blend</strong>：0=2D音源、1=3D空間音響</li>
+          <li>BGMは通常 2D（Spatial Blend = 0）にする</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. BGMの設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">BGM設定</div>
+    <h2>BGMのループ再生設定</h2>
+    <div class="divider left"></div>
+    <p>空のGameObjectを作成してBGM専用のAudioSourceをアタッチするのが一般的です。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>空のGameObjectを作成</strong>Hierarchy右クリック → Create Empty → 名前を「BGMManager」等に変更</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>AudioSourceを追加</strong>BGM用音声ファイルをAudio Clipに設定する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>LoopをON、Play On AwakeをON</strong>これだけでゲーム開始と同時にBGMがループ再生される</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>Spatial Blend を 0（2D）に設定しないと、カメラから離れると音量が下がってしまいます。BGMは必ず 0 にしてください。</p>
+    </div>
+  </div>
+
+  <!-- 10. セクション：スクリプトから音を再生 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>スクリプトから<br>音を再生する</h1>
+    <p class="muted">Play() と PlayOneShot() を使い分ける</p>
+  </div>
+
+  <!-- 11. Play / PlayOneShot -->
+  <div class="slide theme-content">
+    <div class="tag blue">Play / PlayOneShot</div>
+    <h2>AudioSource.Play() / PlayOneShot()</h2>
+    <div class="divider left"></div>
+    <div class="code-block">using UnityEngine;
+
+public class SoundTest : MonoBehaviour
+{
+    private AudioSource audioSource;
+    public AudioClip seClip;   // Inspector でSEをセット
+
+    void Start()
+    {
+        audioSource = GetComponent&lt;AudioSource&gt;();
+    }
+
+    void Update()
+    {
+        // Spaceキーで再生（途中で呼ぶと最初からになる）
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            audioSource.Play();
+        }
+
+        // Enterキーで重ね再生（同時に複数鳴らせる）
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            audioSource.PlayOneShot(seClip);
+        }
+    }
+}</div>
+  </div>
+
+  <!-- 12. 効果音を接触時に鳴らす -->
+  <div class="slide theme-content">
+    <div class="tag blue">SE + Trigger</div>
+    <h2>効果音を接触時に鳴らす</h2>
+    <div class="divider left"></div>
+    <p>OnTriggerEnter と組み合わせてアイテム取得SEを実装します。</p>
+    <div class="code-block">using UnityEngine;
+
+public class ItemWithSound : MonoBehaviour
+{
+    public AudioClip pickupSound;  // Inspector でSEをセット
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent&lt;AudioSource&gt;();
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // 音を鳴らしてからオブジェクトを消す
+            AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            Destroy(gameObject);
+        }
+    }
+}</div>
+    <div class="warn-box">
+      Destroy する前に audioSource.Play() を呼んでも、オブジェクトと一緒に AudioSource も消えます。PlayClipAtPoint は一時的なオブジェクトを自動生成して再生するので安全です。
+    </div>
+  </div>
+
+  <!-- 13. セクション：音量・ピッチの制御 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 4</div>
+    <h1>音量・ピッチの制御</h1>
+    <p class="muted">スクリプトから動的にサウンドパラメータを変える</p>
+  </div>
+
+  <!-- 14. 音量・ピッチをスクリプトから変える -->
+  <div class="slide theme-content">
+    <div class="tag blue">Volume / Pitch</div>
+    <h2>音量・ピッチをスクリプトから変える</h2>
+    <div class="divider left"></div>
+    <div class="code-block">using UnityEngine;
+
+public class AudioController : MonoBehaviour
+{
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent&lt;AudioSource&gt;();
+    }
+
+    // 音量を変える（0.0 〜 1.0）
+    public void SetVolume(float volume)
+    {
+        audioSource.volume = Mathf.Clamp01(volume);
+    }
+
+    // ピッチを変える（0.5 = 半音下、2.0 = 1オクターブ上）
+    public void SetPitch(float pitch)
+    {
+        audioSource.pitch = pitch;
+    }
+
+    // 一時停止と再開
+    public void TogglePause()
+    {
+        if (audioSource.isPlaying) audioSource.Pause();
+        else audioSource.UnPause();
+    }
+}</div>
+  </div>
+
+  <!-- 15. 音楽大学生へのヒント -->
+  <div class="slide theme-content">
+    <div class="tag blue">音楽×ゲーム</div>
+    <h2>音楽大学生へのヒント</h2>
+    <div class="divider left"></div>
+    <p>音楽の知識はゲームサウンドデザインの大きな強みになります。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>ピッチでバリエーションを出す</strong>同じSEでも pitch をランダム（0.9〜1.1）にするだけで繰り返しの単調さがなくなる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>音量でフィードバックを伝える</strong>強い攻撃は大きく、遠くの音は小さく。音量差でゲームの情報を伝える</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>インタラクティブミュージック</strong>ゲームの状態（緊張・解放）に合わせてBGMのテンポや音量を動的に変化させると体験が深まる</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>自分で作った音源をUnityに入れてゲームと組み合わせることができます。ぜひオリジナルサウンドに挑戦してみてください。</p>
+    </div>
+  </div>
+
+  <!-- 16. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>今日の練習課題</h2>
+    <div class="divider left"></div>
+    <p>ジャンプ音・BGMをゲームに設定しよう。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>BGMを設定する</strong>空オブジェクトにAudioSourceを追加。Loop ON・Play On Awake ONにしてBGMをセットする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>ジャンプSEを追加</strong>プレイヤースクリプトのジャンプ処理にPlayOneShot()を追加する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>アイテム取得SEを追加</strong>PlayClipAtPoint()を使ってアイテムが消える瞬間に音を鳴らす</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>チャレンジ：ランダムピッチ</strong>SEのpitchをRandom.Range(0.9f, 1.1f)にして毎回微妙に変える</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag orange">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>SE / BGM / ジングル</strong>：それぞれ役割が異なる。用途に合わせて使い分ける</li>
+      <li><strong>AudioSource</strong>：音を鳴らすコンポーネント。AudioClipをセットして再生する</li>
+      <li><strong>Play()</strong>：AudioSourceのClipを再生（重ね再生不可）</li>
+      <li><strong>PlayOneShot(clip)</strong>：指定Clipを重ね再生できる。SEに最適</li>
+      <li><strong>PlayClipAtPoint()</strong>：オブジェクトが消えてもその場所で音だけ鳴らす</li>
+      <li><strong>volume / pitch</strong>：プロパティを代入するだけで動的に変更できる</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>次回：第9回 ゲーム制作基礎①</strong><br>
+      変数・条件分岐の復習から始め、スコアシステムと GameManager を実装。ミニゲームの形を作り上げます。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter"></span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第3回 Unityの基礎① | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+  </style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">ゲームプログラミング1 — 第3回</div>
+    <h1>Unityの基礎①</h1>
+    <h3>C# でコードを書く</h3>
+    <div class="divider"></div>
+    <p class="muted">名古屋音楽大学 2026年度</p>
+  </div>
+
+  <!-- 2. アジェンダ -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第3回 学習ロードマップ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>スクリプトとは何か・何ができるかを理解する</li>
+      <li>C#（シーシャープ）の基本的な位置づけを知る</li>
+      <li>Project ウィンドウでスクリプトを作成する</li>
+      <li>Start と Update の役割を理解する</li>
+      <li>Debug.Log でコンソールに文字を出力する</li>
+      <li>スクリプトをオブジェクトにアタッチしてPlayモードで確認する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>目標：「コードを書いてUnityに動作を伝える」という流れを体験する</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 01</div>
+    <h1>スクリプトとは何か</h1>
+    <p class="muted">オブジェクトに「頭脳」を与えるしくみ</p>
+  </div>
+
+  <!-- 4. スクリプトの役割 -->
+  <div class="slide theme-content">
+    <div class="tag blue">スクリプトの役割</div>
+    <h2>オブジェクトに「動き」と「ルール」を与える</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Unityのオブジェクトは初期状態では「置いてあるだけ」で何もしない</li>
+      <li>スクリプトを使うことで「キーを押したら動く」「敵と当たったら減点」などを実現できる</li>
+      <li>スクリプトはコンポーネントの一種 ― Inspector から追加・削除できる</li>
+      <li>1つのオブジェクトに複数のスクリプトを付けることも可能</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>スクリプト ＝ オブジェクトへの「指示書き」。書いた内容がゲームの動作に直結します。</p>
+    </div>
+  </div>
+
+  <!-- 5. C#とは -->
+  <div class="slide theme-content">
+    <div class="tag blue">C# とは</div>
+    <h2>Unityが使うプログラミング言語</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>読み方</strong>：「シーシャープ」（C-Sharp）</li>
+      <li>Microsoft が開発した汎用プログラミング言語で、Unityの公式スクリプト言語</li>
+      <li>「.cs」という拡張子のファイルに書く（例：PlayerController.cs）</li>
+      <li>文法は英語ベース。大文字・小文字が区別される</li>
+      <li>セミコロン（;）で文の終わりを表す</li>
+    </ul>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>C# でできること</h3>
+        <p>オブジェクトの移動・回転、当たり判定、スコア管理、UI更新、音の再生…</p>
+      </div>
+      <div class="col-card">
+        <h3>今日のゴール</h3>
+        <p>コードを1行書いてコンソールに文字を表示する。まずはここから！</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>スクリプトを作ってみよう</h1>
+    <p class="muted">作成 → 編集 → アタッチの流れ</p>
+  </div>
+
+  <!-- 7. 作成手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">スクリプト作成</div>
+    <h2>C# スクリプトの作り方</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Project ウィンドウを右クリック</strong>Assets フォルダ（または Scripts フォルダ）の空白エリアで右クリック</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Create → C# Script</strong>メニューから選択する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>ファイル名を入力してEnter</strong>例：「HelloScript」。作成直後に名前を変更すること！（後から変えると不整合が起きる）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>ダブルクリックで Visual Studio（またはRider）を開く</strong>コードエディターが起動してテンプレートが表示される</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. 基本構造 -->
+  <div class="slide theme-content">
+    <div class="tag blue">スクリプトの基本構造</div>
+    <h2>Start と Update</h2>
+    <div class="divider left"></div>
+    <div class="code-block">using UnityEngine;
+
+public class HelloScript : MonoBehaviour
+{
+    // ゲーム開始時に1回だけ呼ばれる
+    void Start()
+    {
+        // ここに初期化処理を書く
+    }
+
+    // 毎フレーム呼ばれる（約60回/秒）
+    void Update()
+    {
+        // ここに毎フレームの処理を書く
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p><strong>Start</strong>：ゲーム開始時に1度だけ実行。初期設定に使う。<br><strong>Update</strong>：毎フレーム（毎秒約60回）実行。動きやチェックに使う。</p>
+    </div>
+  </div>
+
+  <!-- 9. Debug.Log -->
+  <div class="slide theme-content">
+    <div class="tag blue">Debug.Log</div>
+    <h2>コンソールに文字を出力する</h2>
+    <div class="divider left"></div>
+    <div class="code-block">void Start()
+{
+    Debug.Log("Hello, Unity!");
+    Debug.Log("自分の名前: 山田 太郎");
+}</div>
+    <ul style="margin-top:1rem;">
+      <li>Debug.Log( ) の括弧内に文字列（"…"で囲む）や変数を書く</li>
+      <li>実行すると Unity の <strong>Console</strong> ウィンドウに出力される</li>
+      <li>エラーではなく「開発者向けのメモ」として使う機能</li>
+      <li>完成したゲームには影響しない（パフォーマンス上は多用を避ける）</li>
+    </ul>
+  </div>
+
+  <!-- 10. アタッチ手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">アタッチ</div>
+    <h2>スクリプトをオブジェクトに付ける</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy でオブジェクトを選択</strong>例：Cube をクリックして選択状態にする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Project の .cs ファイルを Inspector にドラッグ</strong>またはInspector の「Add Component」→ スクリプト名を検索</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Inspector にスクリプトが表示されれば成功</strong>コンポーネントとして追加されたことを確認する</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      ⚠ スクリプト名とクラス名（class の後ろ）が一致していないとアタッチできません。
+    </div>
+  </div>
+
+  <!-- 11. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>Playモードで確認しよう</h1>
+    <p class="muted">実行・コンソール・よくあるエラー</p>
+  </div>
+
+  <!-- 12. Playモード -->
+  <div class="slide theme-content">
+    <div class="tag blue">Playモード</div>
+    <h2>ゲームを実行して確認する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>エディター上部の ▶（Play）ボタンをクリックでPlayモード開始</li>
+      <li>もう一度クリックで停止。Pause（⏸）で一時停止も可能</li>
+      <li>Playモード中は Game ビューがアクティブになる</li>
+    </ul>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠ <strong>Playモード中に変更した内容は保存されません！</strong><br>
+      Stop してから編集するのが基本。必ずPlayモードを終了してから変更・保存しましょう。
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>エディターが青っぽく光っている間は Playモード中のサインです。</p>
+    </div>
+  </div>
+
+  <!-- 13. コンソール -->
+  <div class="slide theme-content">
+    <div class="tag blue">Console ウィンドウ</div>
+    <h2>Debug.Log の出力を確認する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>メニュー Window → General → Console で開く（またはエラー発生時に自動で開く）</li>
+      <li>Debug.Log の出力は白いテキストで表示される</li>
+      <li><strong>黄色い警告（Warning）</strong>：問題になりそうな状況を知らせる</li>
+      <li><strong>赤いエラー（Error）</strong>：コードに問題があり、ゲームが止まる可能性がある</li>
+      <li>ログをクリックすると、どのスクリプトの何行目かが表示される</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Console はデバッグの最強の味方。エラーが出たらまずここを読む習慣を！</p>
+    </div>
+  </div>
+
+  <!-- 14. よくあるエラー -->
+  <div class="slide theme-content">
+    <div class="tag orange">よくあるエラー</div>
+    <h2>スペルミス・大文字小文字に注意</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>よくある間違い例</h3>
+        <ul>
+          <li style="font-size:0.85rem;">debug.log → Debug.Log（大文字！）</li>
+          <li style="font-size:0.85rem;">Void → void（小文字！）</li>
+          <li style="font-size:0.85rem;">セミコロン忘れ（文末の ;）</li>
+          <li style="font-size:0.85rem;">括弧の対応ミス { } ( )</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>対処法</h3>
+        <ul>
+          <li style="font-size:0.85rem;">Console のエラーメッセージを読む</li>
+          <li style="font-size:0.85rem;">何行目(line XX)かを確認する</li>
+          <li style="font-size:0.85rem;">Visual Studio の赤い下線を確認</li>
+          <li style="font-size:0.85rem;">コピー＆ペーストを活用する</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      ⚠ C# は大文字・小文字が完全に区別されます。Debug.Log と debug.log は別物です。
+    </div>
+  </div>
+
+  <!-- 15. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>Debug.Log で自分の名前を出力しよう</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>C# スクリプトを新規作成する</strong>名前は「MyFirstScript」にする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Start() の中に Debug.Log を書く</strong>例：Debug.Log("私の名前は〇〇です！");</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Cube にアタッチして Playモードで確認</strong>Console に自分の名前が表示されれば完成！</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>できた人は、Update() の中にも書いて Console がどう変わるか観察してみよう。</p>
+    </div>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>スクリプトはオブジェクトに動きとルールを与えるコンポーネント</li>
+      <li>Unity のスクリプト言語は C#（シーシャープ）</li>
+      <li>Project → Create → C# Script で作成し、ダブルクリックで編集</li>
+      <li>Start()：開始時に1回だけ実行 / Update()：毎フレーム実行</li>
+      <li>Debug.Log("…") でコンソールに出力して動作を確認できる</li>
+      <li>Playモード中の変更は保存されない！必ず Stop してから編集する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次回（第4回）：Unityの基礎② ― スクリプトでオブジェクトを実際に動かしてみよう！</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 16</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End")  showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

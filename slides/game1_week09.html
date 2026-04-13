@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9回 ゲーム制作基礎①</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第9回 ゲーム制作基礎①<br><span style="font-size:0.65em; opacity:0.8;">― 得点とルール</span></h1>
+    <div class="divider"></div>
+    <p class="muted">スコアシステムと GameManager でゲームの骨格を作る</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第9回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>int・float・bool・string 変数の使い方を復習する</li>
+      <li>if文の条件分岐を正しく書けるようになる</li>
+      <li>スコア変数を作り、加算してUIに反映できる</li>
+      <li>GameManager スクリプトの役割と作り方を理解する</li>
+      <li>static を使ったグローバルなスコア管理を実装できる</li>
+    </ul>
+  </div>
+
+  <!-- 3. セクション：変数と条件分岐 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>変数と条件分岐の復習</h1>
+    <p class="muted">ゲームロジックを書くための基本文法</p>
+  </div>
+
+  <!-- 4. 変数の種類 -->
+  <div class="slide theme-content">
+    <div class="tag blue">変数</div>
+    <h2>変数の種類</h2>
+    <div class="divider left"></div>
+    <p>C#でよく使う4種類の変数です。ゲームのデータを保持するために使います。</p>
+    <div class="code-block">using UnityEngine;
+
+public class VariableExample : MonoBehaviour
+{
+    // int：整数（スコア・残機・カウント）
+    int score = 0;
+    int lives = 3;
+
+    // float：小数（移動速度・タイマー・体力）
+    float speed = 5.0f;
+    float hp = 100.0f;
+
+    // bool：真偽値（ゲーム中か・ジャンプ中か）
+    bool isGameOver = false;
+    bool isJumping = false;
+
+    // string：文字列（プレイヤー名・メッセージ）
+    string playerName = "Player";
+    string message = "Game Start!";
+}</div>
+  </div>
+
+  <!-- 5. if文の基本 -->
+  <div class="slide theme-content">
+    <div class="tag blue">if文</div>
+    <h2>if文の基本</h2>
+    <div class="divider left"></div>
+    <p>条件が成立したときだけ処理を実行します。ゲームのルール判定の基本です。</p>
+    <div class="code-block">void Update()
+{
+    // スコアが100以上ならメッセージを表示
+    if (score >= 100)
+    {
+        Debug.Log("100点達成！");
+    }
+
+    // ゲームオーバー判定
+    if (hp <= 0)
+    {
+        isGameOver = true;
+        Debug.Log("ゲームオーバー");
+    }
+    else if (hp <= 30)
+    {
+        Debug.Log("HP残り少ない！");
+    }
+    else
+    {
+        Debug.Log("まだ余裕あり");
+    }
+}</div>
+  </div>
+
+  <!-- 6. セクション：スコアシステム -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>スコアシステムを作る</h1>
+    <p class="muted">変数・UI・アイテム取得をつなぎ合わせる</p>
+  </div>
+
+  <!-- 7. スコア変数を作る -->
+  <div class="slide theme-content">
+    <div class="tag blue">Score 変数</div>
+    <h2>スコア変数を作る</h2>
+    <div class="divider left"></div>
+    <p>スコアを管理するためのシンプルなスクリプトを作成します。</p>
+    <div class="code-block">using UnityEngine;
+
+public class ScoreSystem : MonoBehaviour
+{
+    // スコア変数（privateで外部から直接変更させない）
+    private int score = 0;
+
+    // スコアを加算するメソッド
+    public void AddScore(int amount)
+    {
+        score += amount;
+        Debug.Log("現在のスコア: " + score);
+    }
+
+    // スコアを取得するメソッド（読み取り専用）
+    public int GetScore()
+    {
+        return score;
+    }
+
+    // スコアをリセット
+    public void ResetScore()
+    {
+        score = 0;
+    }
+}</div>
+  </div>
+
+  <!-- 8. アイテム取得でスコアを加算 -->
+  <div class="slide theme-content">
+    <div class="tag blue">アイテム取得</div>
+    <h2>アイテム取得でスコアを加算する</h2>
+    <div class="divider left"></div>
+    <p>OnTriggerEnter でアイテムを取得したとき、ScoreSystem を呼び出します。</p>
+    <div class="code-block">using UnityEngine;
+
+public class CollectibleItem : MonoBehaviour
+{
+    public int scoreValue = 10;  // このアイテムの得点
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            // プレイヤーのScoreSystemを取得してスコア加算
+            ScoreSystem scoreSystem =
+                other.GetComponent&lt;ScoreSystem&gt;();
+
+            if (scoreSystem != null)
+            {
+                scoreSystem.AddScore(scoreValue);
+            }
+
+            Destroy(gameObject);  // アイテムを消す
+        }
+    }
+}</div>
+  </div>
+
+  <!-- 9. UIにスコアを表示 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Score UI</div>
+    <h2>UIにスコアを表示する（TextMeshPro連携）</h2>
+    <div class="divider left"></div>
+    <p>ScoreSystem を更新するたびに TextMeshProUGUI を書き換えます。</p>
+    <div class="code-block">using TMPro;
+using UnityEngine;
+
+public class ScoreSystem : MonoBehaviour
+{
+    private int score = 0;
+
+    // InspectorでTextMeshProUGUIを紐づける
+    public TextMeshProUGUI scoreText;
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        UpdateScoreUI();
+    }
+
+    void UpdateScoreUI()
+    {
+        // スコアをテキストに反映
+        scoreText.text = "Score: " + score.ToString();
+    }
+
+    void Start()
+    {
+        UpdateScoreUI();  // 初期表示
+    }
+}</div>
+  </div>
+
+  <!-- 10. セクション：GameManager -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>GameManagerを作る</h1>
+    <p class="muted">ゲーム全体の状態を一元管理するスクリプト</p>
+  </div>
+
+  <!-- 11. GameManagerとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">GameManager</div>
+    <h2>GameManagerとは</h2>
+    <div class="divider left"></div>
+    <p>ゲーム全体の状態（スコア・残機・ゲームオーバーフラグなど）を一か所で管理する専用スクリプトです。</p>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>GameManagerが管理するもの</h3>
+        <ul>
+          <li>スコア・ハイスコア</li>
+          <li>残機数・ライフ</li>
+          <li>ゲームの状態（開始・プレイ中・ゲームオーバー）</li>
+          <li>シーン遷移の制御</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>なぜ一元管理するのか</h3>
+        <ul>
+          <li>スコアが「どこにあるか」を一か所で把握できる</li>
+          <li>複数のスクリプトから同じデータに安全にアクセスできる</li>
+          <li>デバッグ・修正が楽になる</li>
+          <li>ゲームの規模が大きくなっても管理しやすい</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>まず空のGameObjectを作成し、名前を「GameManager」にしてからスクリプトをアタッチしましょう。</p>
+    </div>
+  </div>
+
+  <!-- 12. staticを使ったスコア管理 -->
+  <div class="slide theme-content">
+    <div class="tag blue">static</div>
+    <h2>staticを使ったスコア管理</h2>
+    <div class="divider left"></div>
+    <p>static 変数はどのスクリプトからも <code style="background:rgba(255,255,255,0.1); padding:0.1em 0.4em; border-radius:4px;">GameManager.score</code> でアクセスできます。</p>
+    <div class="code-block">using TMPro;
+using UnityEngine;
+
+public class GameManager : MonoBehaviour
+{
+    // static にすることでどこからでもアクセス可能
+    public static int score = 0;
+    public static bool isGameOver = false;
+
+    public TextMeshProUGUI scoreText;
+
+    // 他スクリプトからスコアを加算するときに呼ぶ
+    public static void AddScore(int amount)
+    {
+        score += amount;
+    }
+
+    void Update()
+    {
+        // UIを毎フレーム更新（本来はイベント駆動が望ましい）
+        scoreText.text = "Score: " + score;
+    }
+}
+
+// --- 別スクリプトからの呼び出し例 ---
+// GameManager.AddScore(10);  // どこからでも呼べる</div>
+  </div>
+
+  <!-- 13. セクション：ミニゲームを作ろう -->
+  <div class="slide theme-section">
+    <div class="tag">Section 4</div>
+    <h1>ミニゲームを作ろう</h1>
+    <p class="muted">動くキャラ・アイテム・スコアをつなげて完成させる</p>
+  </div>
+
+  <!-- 14. シンプルなコレクションゲームの設計 -->
+  <div class="slide theme-content">
+    <div class="tag blue">ゲーム設計</div>
+    <h2>シンプルなコレクションゲームの設計</h2>
+    <div class="divider left"></div>
+    <p>今回作るミニゲームの構成要素を整理します。</p>
+    <div class="steps" style="margin-top:0.8rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>動くキャラクター（Player）</strong>Rigidbody + Collider + 移動スクリプト。WASDまたは矢印キーで移動する。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>アイテム（Collectible）</strong>Is Trigger ON のCollider。OnTriggerEnterでスコアを加算して自分を消す。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>スコア表示（Canvas + TextMeshPro）</strong>GameManagerのstatic変数をTextに反映する。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>ゲームオーバー条件</strong>タイマーが0になるか、HPが0になったらisGameOver = true にする。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>今日の練習課題</h2>
+    <div class="divider left"></div>
+    <p>アイテムを集めてスコアを表示するゲームを作ろう。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>プレイヤーを動かす</strong>Rigidbodyを使いWASDキーで移動できるスクリプトを作成する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>アイテムを複数配置</strong>SphereにIs Trigger ColliderをつけてCollectibleItemスクリプトをアタッチ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>GameManagerを作成</strong>static score変数とAddScore()メソッドをGameManagerに実装する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>スコアUIを更新</strong>アイテム取得のたびにTextMeshProのテキストが更新されることを確認する</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag orange">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>int / float / bool / string</strong>：ゲームデータを保持する基本的な変数の種類</li>
+      <li><strong>if文</strong>：条件に応じて処理を分岐させるゲームロジックの基本</li>
+      <li><strong>AddScore()</strong>：スコアを加算しUIに反映する一連の流れ</li>
+      <li><strong>GameManager</strong>：ゲーム全体の状態を一元管理する専用スクリプト</li>
+      <li><strong>static変数</strong>：どのスクリプトからも GameManager.score でアクセスできる</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>次回：第10回 ゲーム制作基礎②</strong><br>
+      シーン遷移・ゲームオーバー画面・タイマーの実装を学び、完成度の高いミニゲームに仕上げます。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter"></span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

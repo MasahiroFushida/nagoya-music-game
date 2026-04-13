@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第11回 音と演出の基礎</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,0,180,0.4); border-color: rgba(200,100,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.music-box { background: rgba(100,0,180,0.2); border: 1px solid rgba(200,100,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.music-box p { font-size: 1rem; opacity: 0.9; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第11回 音と演出の基礎</h1>
+    <div class="divider"></div>
+    <h3>AudioSource / Animator / Coroutine / ParticleSystem</h3>
+    <p class="muted" style="margin-top:2rem;">名古屋音楽大学 &nbsp;|&nbsp; 2026年度</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第11回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>ゲームにおける音の役割とインタラクティブ音楽を理解する</li>
+      <li>AudioSource / AudioClip を使って BGM・SE を再生できる</li>
+      <li>Animator Controller を作りアニメーションを設定できる</li>
+      <li>スクリプトからアニメーションをトリガーできる</li>
+      <li>Invoke・Coroutine で時間差処理を実装できる</li>
+      <li>ParticleSystem で簡単な視覚エフェクトを作れる</li>
+    </ul>
+    <div class="music-box">
+      <p>音楽大学ならではの強みを活かして、<strong>「聴かせるゲーム」</strong>を目指しましょう！</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション：音楽とゲーム演出 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>音楽とゲーム演出</h1>
+    <p style="margin-top:1rem; opacity:0.8;">音楽大学生ならではの視点で<br>ゲームの「音」を考えてみよう</p>
+  </div>
+
+  <!-- 4. インタラクティブ音楽とは -->
+  <div class="slide theme-content">
+    <div class="tag purple">音楽大学生の視点</div>
+    <h2>インタラクティブ音楽とは</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">ゲームの状態に応じて音楽が変化する仕組みのこと。映画やコンサートの「一方向」な音楽と異なり、プレイヤーの行動が音楽を変える。</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>状態連動の例</h3>
+        <ul>
+          <li>戦闘中 → テンポが上がる</li>
+          <li>HP が低い → 音楽が不安定に</li>
+          <li>クリア時 → ファンファーレ</li>
+          <li>水中 → 音がこもった感じに</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Unity での実現方法</h3>
+        <ul>
+          <li>AudioSource の pitch を変える</li>
+          <li>複数 BGM を CrossFade する</li>
+          <li>AudioMixer でエフェクトを切替</li>
+          <li>Wwise・FMOD 等の外部ツール</li>
+        </ul>
+      </div>
+    </div>
+    <div class="music-box">
+      <p>まずは<strong>「効果音を鳴らす」→「BGM を流す」→「状態で切り替える」</strong>の順で実装していきましょう。</p>
+    </div>
+  </div>
+
+  <!-- 5. アニメーションとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">Animation</div>
+    <h2>アニメーションとは（Unity のシステム）</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>Animation Clip</strong> ― オブジェクトの動きを記録したデータ（.anim ファイル）</li>
+      <li><strong>Animator Controller</strong> ― クリップを状態機械（ステートマシン）で管理するグラフ</li>
+      <li><strong>Animator コンポーネント</strong> ― GameObject に付けてコントローラーを駆動する</li>
+    </ul>
+    <div class="highlight-box">
+      <p>音楽と同様に「<strong>状態遷移</strong>」の考え方が重要です。<br>
+      "待機 → 走る → ジャンプ" はまるで楽曲の「A メロ → サビ → アウトロ」のような構造です。</p>
+    </div>
+  </div>
+
+  <!-- 6. セクション：Animator を使う -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>Animator を使う</h1>
+    <p style="margin-top:1rem; opacity:0.8;">キャラクターに「待機」「走る」などの<br>アニメーションをつけてみよう</p>
+  </div>
+
+  <!-- 7. Animator Controller の作り方 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Animator Controller</div>
+    <h2>Animator Controller の作り方</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Animator Controller を作成</strong>Project ウィンドウで右クリック → Create &gt; Animator Controller</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Animation Clip をドロップ</strong>Animator ウィンドウを開き、クリップをドラッグ＆ドロップ → ステートが自動生成される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>トランジションを設定</strong>ステートを右クリック → "Make Transition" で矢印を引き、Conditions（条件）を設定する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>GameObject に割り当て</strong>Animator コンポーネントの "Controller" 欄に作った Controller をセットする</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. アニメーションクリップの作成 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Animation Clip</div>
+    <h2>アニメーションクリップの作成</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Animation ウィンドウを開く</strong>Window &gt; Animation &gt; Animation（Ctrl+6）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>オブジェクトを選択して録画開始</strong>対象の GameObject を選択し、"Create" → クリップを保存 → ● 録画ボタンをオン</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>キーフレームを打つ</strong>タイムラインを移動しながら Transform や色などを変更すると自動でキーフレームが追加される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>録画終了 → 再生確認</strong>● ボタンをオフ → Play ボタンでプレビュー</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. スクリプトからアニメーションを再生する -->
+  <div class="slide theme-content">
+    <div class="tag blue">コード</div>
+    <h2>スクリプトからアニメーションを再生する</h2>
+    <div class="divider left"></div>
+    <div class="code-block">using UnityEngine;
+
+public class PlayerAnimator : MonoBehaviour
+{
+    private Animator anim;
+
+    void Start()
+    {
+        anim = GetComponent&lt;Animator&gt;();
+    }
+
+    void Update()
+    {
+        // 移動速度に応じてブレンドツリーを切替
+        float speed = GetComponent&lt;Rigidbody&gt;().velocity.magnitude;
+        anim.SetFloat("Speed", speed);
+
+        // ジャンプボタンでトリガーを発火
+        if (Input.GetButtonDown("Jump"))
+        {
+            anim.SetTrigger("Jump");
+        }
+    }
+
+    // アイテム取得時にアニメーション再生
+    public void PlayPickup()
+    {
+        anim.SetTrigger("Pickup");
+    }
+}</div>
+  </div>
+
+  <!-- 10. セクション：タイミングに合わせた演出 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>タイミングに合わせた演出</h1>
+    <p style="margin-top:1rem; opacity:0.8;">Invoke と Coroutine で<br>時間差・連続処理を実装しよう</p>
+  </div>
+
+  <!-- 11. Invoke・InvokeRepeating -->
+  <div class="slide theme-content">
+    <div class="tag blue">Invoke</div>
+    <h2>Invoke・InvokeRepeating で時間差処理</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public class TimingExample : MonoBehaviour
+{
+    void Start()
+    {
+        // 2秒後に ShowEffect を1回呼ぶ
+        Invoke("ShowEffect", 2.0f);
+
+        // 1秒後から0.5秒ごとに繰り返し呼ぶ
+        InvokeRepeating("SpawnEnemy", 1.0f, 0.5f);
+    }
+
+    void ShowEffect()
+    {
+        Debug.Log("エフェクト発動！");
+    }
+
+    void SpawnEnemy()
+    {
+        Debug.Log("敵をスポーン");
+    }
+
+    void OnDestroy()
+    {
+        CancelInvoke();  // すべての Invoke をキャンセル
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>シンプルな遅延処理は <code>Invoke</code>、複雑な流れは次のスライドの <strong>Coroutine</strong> が便利。</p>
+    </div>
+  </div>
+
+  <!-- 12. Coroutine の基本 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Coroutine</div>
+    <h2>Coroutine（コルーチン）の基本</h2>
+    <div class="divider left"></div>
+    <div class="code-block">using UnityEngine;
+using System.Collections;
+
+public class CoroutineExample : MonoBehaviour
+{
+    void Start()
+    {
+        StartCoroutine(PlaySequence());
+    }
+
+    IEnumerator PlaySequence()
+    {
+        Debug.Log("1. ゲームスタート！");
+        yield return new WaitForSeconds(1.0f);  // 1秒待つ
+
+        Debug.Log("2. 敵が出現！");
+        yield return new WaitForSeconds(2.0f);  // 2秒待つ
+
+        Debug.Log("3. BGM がクライマックスへ");
+        yield return new WaitForSeconds(0.5f);
+
+        Debug.Log("4. エフェクト発動！");
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p><code>yield return</code> で処理を一時停止できる。演出シーケンスの記述にとても適している。</p>
+    </div>
+  </div>
+
+  <!-- 13. 音楽のビートに合わせた演出のヒント -->
+  <div class="slide theme-content">
+    <div class="tag purple">音楽大学生の視点</div>
+    <h2>音楽のビートに合わせたオブジェクト演出</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">BPM（テンポ）から1拍の長さ（秒）を計算して Coroutine で同期させる方法</p>
+    <div class="code-block">public class BeatSync : MonoBehaviour
+{
+    public float bpm = 120f;
+
+    void Start()
+    {
+        float beatInterval = 60f / bpm;  // 1拍 = 0.5秒（120BPM の場合）
+        InvokeRepeating("OnBeat", 0f, beatInterval);
+    }
+
+    void OnBeat()
+    {
+        // 1拍ごとにオブジェクトをスケールアップ
+        transform.localScale = Vector3.one * 1.2f;
+        Invoke("ResetScale", 0.1f);
+    }
+
+    void ResetScale()
+    {
+        transform.localScale = Vector3.one;
+    }
+}</div>
+    <div class="music-box">
+      <p>曲のBPMを正確に設定するだけで、ビジュアルが音楽に完全同期します。<br>作曲知識がある皆さんにとって、これは大きなアドバンテージです！</p>
+    </div>
+  </div>
+
+  <!-- 14. ParticleSystem で視覚エフェクト -->
+  <div class="slide theme-content">
+    <div class="tag blue">ParticleSystem</div>
+    <h2>ParticleSystem で視覚エフェクト</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Particle System を追加</strong>Hierarchy で右クリック → Effects &gt; Particle System</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>主なパラメータを調整</strong>Duration（持続時間）・Start Speed（初速）・Start Color（色）・Emission Rate（発生数/秒）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>スクリプトから制御</strong><code>GetComponent&lt;ParticleSystem&gt;().Play()</code> で再生、<code>.Stop()</code> で停止</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>「音に合わせてパーティクルを爆発させる」演出はクリア感・達成感を大幅に高めます。<br>色と動きは楽曲のムードに合わせて設定してみましょう。</p>
+    </div>
+  </div>
+
+  <!-- 15. 今日の練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag green">練習課題</div>
+    <h2>今日の練習課題</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">前回作ったミニゲームにアニメーション・音・演出を加えよう</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>BGM を追加する</strong>AudioSource コンポーネントを GameObject に追加し、BGM クリップをセットして Loop 再生する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>SE を鳴らす</strong>アイテム取得時・ゲームクリア時に <code>AudioSource.PlayClipAtPoint()</code> で効果音を再生する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>アニメーションをつける</strong>プレイヤーに「待機」「移動」の Animation Clip を作り Animator で切り替える</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>パーティクルで演出</strong>クリア時に Coroutine で「2秒後にパーティクルを再生」する演出シーケンスを実装する</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. まとめ + 次回予告 -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>AudioSource / AudioClip</strong> で BGM・SE を自在に制御できる</li>
+      <li><strong>Animator Controller</strong> はステートマシンで状態に応じたアニメーションを管理する</li>
+      <li><strong>Invoke</strong> はシンプルな遅延、<strong>Coroutine</strong> は複雑な演出シーケンスに使う</li>
+      <li>BPM を計算して <code>InvokeRepeating</code> を使えばビートに同期した演出が作れる</li>
+      <li><strong>ParticleSystem</strong> はスクリプトから簡単に制御できる</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p><strong>次回 第12回：総合制作①</strong><br>
+      いよいよ自分のゲーム作品を制作開始！企画書を書き、素材を集め、シーン構成を考えます。<br>
+      第12〜14回で制作し、第15回に発表します。アイデアを温めておいてください。</p>
+    </div>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 16</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

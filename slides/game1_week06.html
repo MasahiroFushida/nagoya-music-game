@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6回 UIの基礎</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第6回 UIの基礎</h1>
+    <div class="divider"></div>
+    <p class="muted">スコア・ボタン・テキスト表示をUnityで作ろう</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第6回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>UIとは何か、ゲームの中でどう使われるかを理解する</li>
+      <li>CanvasにText・Image・Buttonを配置できるようになる</li>
+      <li>ボタンのOnClickイベントを設定できるようになる</li>
+      <li>スクリプトからUIテキストを更新できるようになる</li>
+      <li>スコア表示の仕組みを実装する</li>
+    </ul>
+  </div>
+
+  <!-- 3. セクション：UIとは -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>UIとは</h1>
+    <p class="muted">User Interface ― プレイヤーとゲームをつなぐ情報窓口</p>
+  </div>
+
+  <!-- 4. UIの説明 -->
+  <div class="slide theme-content">
+    <div class="tag blue">UI とは</div>
+    <h2>UI（ユーザーインターフェース）</h2>
+    <div class="divider left"></div>
+    <p>プレイヤーがゲームの状態を把握し、操作するための視覚的な要素の総称です。</p>
+    <div class="two-col" style="margin-top:1.2rem;">
+      <div class="col-card">
+        <h3>表示系UI</h3>
+        <ul>
+          <li>スコア表示</li>
+          <li>体力バー（HP）</li>
+          <li>残り時間・残機数</li>
+          <li>ミニマップ</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>操作系UI</h3>
+        <ul>
+          <li>スタートボタン</li>
+          <li>ポーズメニュー</li>
+          <li>設定画面</li>
+          <li>ゲームオーバー画面</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>UIはゲームの「伝える力」。情報が伝わらないと、どんなに面白いゲームでもプレイヤーが混乱します。</p>
+    </div>
+  </div>
+
+  <!-- 5. Canvasとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">Canvas</div>
+    <h2>CanvasはUIの土台</h2>
+    <div class="divider left"></div>
+    <p>UnityではすべてのUI要素は <strong>Canvas</strong> の子オブジェクトとして配置します。</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Canvasオブジェクト</strong>画面全体を覆う「透明な板」。UI要素を描画する専用レイヤー。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>EventSystem</strong>Canvasと同時に自動生成される。ボタンのクリックなどのイベントを管理する。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Render Mode</strong>通常は「Screen Space - Overlay」を使用。常に画面の最前面に表示される。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. セクション：Text・Image・Button -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>Text・Image・Button<br>を作ろう</h1>
+    <p class="muted">UnityのHierarchyからUI要素を追加する</p>
+  </div>
+
+  <!-- 7. Textの配置方法 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Text</div>
+    <h2>TextMeshProの配置</h2>
+    <div class="divider left"></div>
+    <p>通常のTextよりも高品質なフォント描画が可能な <strong>TextMeshPro</strong> を使います。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchyを右クリック</strong>コンテキストメニューを開く</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>UI → Text - TextMeshPro</strong>を選択</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>TMP Importerが出たら</strong>「Import TMP Essentials」をクリック</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Canvasの子に自動配置</strong>されることを確認する</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. TextMeshProの基本設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">TextMeshPro 設定</div>
+    <h2>TextMeshProの主要設定</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Inspector で設定できる項目</h3>
+        <ul>
+          <li><strong>Text Input</strong>：表示するテキスト内容</li>
+          <li><strong>Font Asset</strong>：使用するフォント</li>
+          <li><strong>Font Size</strong>：文字の大きさ</li>
+          <li><strong>Vertex Color</strong>：文字の色</li>
+          <li><strong>Alignment</strong>：文字揃え（左・中・右）</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Rect Transform で位置調整</h3>
+        <ul>
+          <li><strong>Anchor</strong>：基準点を設定</li>
+          <li><strong>Pos X / Y</strong>：位置を指定</li>
+          <li><strong>Width / Height</strong>：テキスト領域のサイズ</li>
+          <li>Anchor Presetsで画面端への固定が簡単にできる</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box">
+      日本語を表示するにはフォントアセットに日本語対応フォントを設定する必要があります。
+    </div>
+  </div>
+
+  <!-- 9. Imageの配置 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Image</div>
+    <h2>Imageの配置と設定</h2>
+    <div class="divider left"></div>
+    <p>UIで画像を表示するには <strong>Image</strong> コンポーネントを使います。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy右クリック → UI → Image</strong>Imageオブジェクトが作成される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Source Image</strong>使いたい画像（Sprite）をInspectorにドラッグ＆ドロップ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Image Type</strong>「Filled」にすると体力バーのような減少アニメーションが作れる</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>テクスチャをSpriteとしてImportする際は、Inspector の Texture Type を「Sprite (2D and UI)」に変更してください。</p>
+    </div>
+  </div>
+
+  <!-- 10. Buttonの配置 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Button</div>
+    <h2>Buttonの配置</h2>
+    <div class="divider left"></div>
+    <p>ボタンはクリックやタップに反応するインタラクティブなUI要素です。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy右クリック → UI → Button - TextMeshPro</strong>Button と子のTextが一緒に作成される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>子のTextを選択</strong>InspectorでボタンのラベルテキストをTextInputで変更する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Button本体のInspector</strong>「Transition」でホバー・クリック時の色変化を設定できる</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. セクション：ボタンにイベントをつける -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>ボタンにイベントをつける</h1>
+    <p class="muted">クリックしたときに何かが起こる仕組みを作る</p>
+  </div>
+
+  <!-- 12. OnClickイベント -->
+  <div class="slide theme-content">
+    <div class="tag blue">OnClick</div>
+    <h2>OnClickイベントの設定</h2>
+    <div class="divider left"></div>
+    <p>ButtonコンポーネントのInspectorに <strong>On Click ()</strong> セクションがあります。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>On Click () の「+」をクリック</strong>イベントの受け取り先を追加する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>オブジェクトをドラッグ</strong>左のフィールドに呼び出したいスクリプトを持つオブジェクトをセット</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>メソッドを選択</strong>右のプルダウンから呼び出すメソッド名を選ぶ</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>スクリプト側では public なメソッドを定義しておく必要があります。private では一覧に表示されません。</p>
+    </div>
+  </div>
+
+  <!-- 13. スクリプトからUIを操作 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Script × UI</div>
+    <h2>スクリプトからUIを操作する</h2>
+    <div class="divider left"></div>
+    <p>TextMeshProUGUI コンポーネントを取得してテキストを書き換えます。</p>
+    <div class="code-block">using TMPro;
+using UnityEngine;
+
+public class UIController : MonoBehaviour
+{
+    // InspectorでTextMeshProUGUIを紐づける
+    public TextMeshProUGUI scoreText;
+
+    void Start()
+    {
+        scoreText.text = "Score: 0";
+    }
+
+    public void UpdateScore(int score)
+    {
+        scoreText.text = "Score: " + score;
+    }
+}</div>
+    <div class="warn-box">
+      using TMPro; を忘れずに記述してください。TextMeshProUGUI は TMPro 名前空間に含まれています。
+    </div>
+  </div>
+
+  <!-- 14. セクション：スコア表示 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 4</div>
+    <h1>スコア表示を作ろう</h1>
+    <p class="muted">変数の値をリアルタイムにUIへ反映する</p>
+  </div>
+
+  <!-- 15. スコアをUIに反映するコード -->
+  <div class="slide theme-content">
+    <div class="tag blue">Score UI</div>
+    <h2>スコア変数をUIに反映する</h2>
+    <div class="divider left"></div>
+    <p>アイテムを取得するたびにスコアを加算し、表示を更新します。</p>
+    <div class="code-block">using TMPro;
+using UnityEngine;
+
+public class ScoreManager : MonoBehaviour
+{
+    public TextMeshProUGUI scoreText;
+    private int score = 0;
+
+    void Start()
+    {
+        UpdateUI();
+    }
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        UpdateUI();
+    }
+
+    void UpdateUI()
+    {
+        scoreText.text = "Score: " + score.ToString();
+    }
+}</div>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag orange">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>UIはプレイヤーとゲームをつなぐ情報要素（スコア・体力・ボタンなど）</li>
+      <li>すべてのUI要素は <strong>Canvas</strong> の子として配置する</li>
+      <li>テキストは <strong>TextMeshPro</strong>、画像は <strong>Image</strong>、操作は <strong>Button</strong> を使う</li>
+      <li>ボタンのクリック処理は <strong>OnClick</strong> にメソッドを登録する</li>
+      <li>スクリプトから <strong>TextMeshProUGUI.text</strong> を書き換えてUIを更新する</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>次回：第7回 当たり判定</strong><br>
+      Rigidbody・Colliderを使った物理演算と、OnCollisionEnter / OnTriggerEnter による衝突検知を学びます。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter"></span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

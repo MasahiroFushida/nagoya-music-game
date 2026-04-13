@@ -62,7 +62,7 @@
     ).join("");
   } else {
     projectCard.querySelector("ul").innerHTML =
-      `<li><span class="empty-message">配布ファイルは準備中です</span></li>`;
+      `<li><span class="empty-message">配布ファイルはありません</span></li>`;
   }
 
   // 課題

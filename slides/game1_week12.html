@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第12回 総合制作①</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,0,180,0.4); border-color: rgba(200,100,255,0.5); }
+.tag.gold { background: rgba(180,140,0,0.4); border-color: rgba(255,210,80,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.music-box { background: rgba(100,0,180,0.2); border: 1px solid rgba(200,100,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.music-box p { font-size: 1rem; opacity: 0.9; }
+.gold-box { background: rgba(180,140,0,0.15); border: 1px solid rgba(255,210,80,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.gold-box p { font-size: 1rem; opacity: 0.9; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.score-row { display: flex; align-items: center; gap: 1rem; padding: 0.6rem 1rem; border-radius: 6px; background: rgba(255,255,255,0.06); margin-bottom: 0.4rem; }
+.score-label { min-width: 120px; font-size: 0.95rem; font-weight: bold; color: #64b4ff; }
+.score-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,0.12); border-radius: 4px; }
+.score-bar { height: 8px; border-radius: 4px; background: #1a6bbf; }
+.score-val { min-width: 40px; font-size: 0.85rem; opacity: 0.7; text-align: right; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第12回 総合制作①</h1>
+    <div class="divider"></div>
+    <h3>企画立案・素材収集・制作開始</h3>
+    <p class="muted" style="margin-top:2rem;">名古屋音楽大学 &nbsp;|&nbsp; 2026年度</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第12回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>総合制作の位置づけとスケジュールを理解する</li>
+      <li>評価ポイントを把握して作品の方向性を決める</li>
+      <li>実現可能なゲーム企画を立案・企画書にまとめる</li>
+      <li>必要な素材をリストアップし収集を開始する</li>
+      <li>Unity シーンを作成して制作をスタートする</li>
+    </ul>
+    <div class="gold-box">
+      <p>今日が<strong>制作の出発点</strong>です。アイデアを形にするための最初の一歩を踏み出しましょう！</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション：いよいよ作品制作へ -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>いよいよ作品制作へ</h1>
+    <p style="margin-top:1rem; opacity:0.8;">第12〜14回で制作し、第15回で発表します。<br>スケジュールを確認して計画的に進めよう</p>
+  </div>
+
+  <!-- 4. 総合制作の位置づけ -->
+  <div class="slide theme-content">
+    <div class="tag gold">スケジュール</div>
+    <h2>総合制作の位置づけ</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">12</div>
+        <div class="step-body"><strong>第12回（今日）：総合制作①</strong>企画立案・企画書作成・素材収集・シーン作成開始</div>
+      </div>
+      <div class="step">
+        <div class="step-num">13</div>
+        <div class="step-body"><strong>第13回：総合制作②</strong>メインの実装・デバッグ・音響演出の追加</div>
+      </div>
+      <div class="step">
+        <div class="step-num">14</div>
+        <div class="step-body"><strong>第14回：総合制作③（仕上げ）</strong>UI 整備・最終調整・ビルド・発表準備</div>
+      </div>
+      <div class="step">
+        <div class="step-num">15</div>
+        <div class="step-body"><strong>第15回：発表会</strong>全員が画面を見せながら作品を発表・相互評価</div>
+      </div>
+    </div>
+    <div class="warn-box" style="font-size:0.9rem;">
+      3回の制作時間（授業外作業含む）で「遊べる完成品」を目指してください。<br>
+      スコープ（規模）を絞ることが成功の鍵です。
+    </div>
+  </div>
+
+  <!-- 5. 評価ポイントの確認 -->
+  <div class="slide theme-content">
+    <div class="tag gold">評価</div>
+    <h2>評価ポイントの確認</h2>
+    <div class="divider left"></div>
+    <div class="score-row">
+      <span class="score-label">技術実装</span>
+      <div class="score-bar-bg"><div class="score-bar" style="width:80%"></div></div>
+      <span class="score-val">30点</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">表現・演出</span>
+      <div class="score-bar-bg"><div class="score-bar" style="width:67%"></div></div>
+      <span class="score-val">25点</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">完成度</span>
+      <div class="score-bar-bg"><div class="score-bar" style="width:67%"></div></div>
+      <span class="score-val">25点</span>
+    </div>
+    <div class="score-row">
+      <span class="score-label">発表・説明</span>
+      <div class="score-bar-bg"><div class="score-bar" style="width:53%"></div></div>
+      <span class="score-val">20点</span>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p><strong>「動く・遊べる・説明できる」</strong>この3点を満たせば合格ラインです。<br>
+      音楽・演出のこだわりは表現点の加点につながります。</p>
+    </div>
+  </div>
+
+  <!-- 6. セクション：企画を考えよう -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>企画を考えよう</h1>
+    <p style="margin-top:1rem; opacity:0.8;">「どんなゲームを作るか」を決めることが<br>制作全体の方向性を決める最重要ステップ</p>
+  </div>
+
+  <!-- 7. 良いゲーム企画の条件 -->
+  <div class="slide theme-content">
+    <div class="tag blue">企画のコツ</div>
+    <h2>良いゲーム企画の条件</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>小さくてもいいので完成させる</strong>― 未完成の大作より完成した小品の方が高評価</li>
+      <li><strong>ルールが1文で説明できる</strong>― 「〇〇を避けながら□□を取る」など</li>
+      <li><strong>操作が直感的</strong>― キーボード 1〜2 キーで遊べる範囲に収める</li>
+      <li><strong>勝ち負けが明確</strong>― クリア条件・ゲームオーバー条件をはっきり決める</li>
+      <li><strong>音楽・音響を活かせる設計</strong>― 自分の強みを発揮できる場面を作る</li>
+    </ul>
+    <div class="warn-box">
+      「最初の企画の半分の規模」でちょうど良い完成度になることが多いです。<br>
+      欲張りすぎず、まずコアとなるゲームループを完成させましょう。
+    </div>
+  </div>
+
+  <!-- 8. 音楽大学生ならではのテーマ例 -->
+  <div class="slide theme-content">
+    <div class="tag purple">テーマ例</div>
+    <h2>音楽大学生ならではのテーマ例</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>リズム・音楽系</h3>
+        <ul>
+          <li>落ちてくるノーツを叩く<br>シンプルリズムゲーム</li>
+          <li>BPM に合わせてジャンプ<br>するプラットフォーマー</li>
+          <li>音楽に合わせて色が変わる<br>障害物避けゲーム</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>演出・世界観系</h3>
+        <ul>
+          <li>ピアノの鍵盤を踏んで<br>進む探索ゲーム</li>
+          <li>楽器のパーツを集めて<br>曲を完成させるパズル</li>
+          <li>自作 BGM が主役の<br>シューティング・アクション</li>
+        </ul>
+      </div>
+    </div>
+    <div class="music-box" style="margin-top:0.8rem;">
+      <p>自分で作曲した音楽をゲーム BGM に使うのは最高のアピールポイントになります！<br>
+      Freesound・Pixabay の素材でも十分ですが、自作音楽を使えれば加点対象です。</p>
+    </div>
+  </div>
+
+  <!-- 9. 企画書の項目 -->
+  <div class="slide theme-content">
+    <div class="tag blue">企画書</div>
+    <h2>企画書の項目</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">A4 1 枚（手書き可）または Google ドキュメントでまとめること</p>
+    <ul>
+      <li><strong>タイトル</strong>― 作品の名前</li>
+      <li><strong>ジャンル</strong>― アクション / パズル / リズム / シューティング 等</li>
+      <li><strong>ゲームの説明</strong>― 1〜2 文でどんなゲームか説明する</li>
+      <li><strong>操作方法</strong>― キー配置・マウス操作</li>
+      <li><strong>クリア条件・ゲームオーバー条件</strong></li>
+      <li><strong>使用する音楽・SE</strong>― 自作 or 素材サイト名・ファイル名</li>
+      <li><strong>目標スコープ</strong>― 第14回終了時点で何が完成しているか</li>
+    </ul>
+  </div>
+
+  <!-- 10. セクション：素材を整理しよう -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>素材を整理しよう</h1>
+    <p style="margin-top:1rem; opacity:0.8;">必要な素材をリストアップし<br>著作権に注意して収集しよう</p>
+  </div>
+
+  <!-- 11. 必要な素材リスト -->
+  <div class="slide theme-content">
+    <div class="tag blue">素材リスト</div>
+    <h2>必要な素材リスト</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>ビジュアル素材</h3>
+        <ul>
+          <li>3D モデル（.fbx / .obj）<br>または 2D スプライト（.png）</li>
+          <li>背景・タイルマップ</li>
+          <li>UI アイコン・ボタン画像</li>
+          <li>フォント（日本語対応）</li>
+          <li>ParticleSystem 用テクスチャ</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>オーディオ素材</h3>
+        <ul>
+          <li>BGM（.mp3 / .ogg / .wav）</li>
+          <li>SE：ジャンプ・取得・クリア・<br>ゲームオーバー等</li>
+          <li>環境音・アンビエンス</li>
+          <li>自作曲があればぜひ！</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>Unity の Project ウィンドウで <strong>Assets / Audio / BGM・SE</strong> のようにフォルダを整理しておくと後の作業がスムーズです。</p>
+    </div>
+  </div>
+
+  <!-- 12. フリー素材サイトの紹介 -->
+  <div class="slide theme-content">
+    <div class="tag green">素材サイト</div>
+    <h2>フリー素材サイトの紹介</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>ビジュアル・3D</h3>
+        <ul>
+          <li><strong>Unity Asset Store</strong><br>Free フィルターで検索</li>
+          <li><strong>Kenney.nl</strong><br>ゲーム用素材が豊富・CC0</li>
+          <li><strong>OpenGameArt.org</strong><br>2D・3D 素材多数</li>
+          <li><strong>Mixamo</strong><br>3D キャラ＋アニメーション</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>オーディオ</h3>
+        <ul>
+          <li><strong>Freesound.org</strong><br>SE・環境音・CC ライセンス</li>
+          <li><strong>Pixabay（Music）</strong><br>BGM 無料・商用可</li>
+          <li><strong>魔王魂</strong><br>日本語サイト・ゲーム用 SE 多数</li>
+          <li><strong>効果音ラボ</strong><br>シンプルな SE が充実</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="font-size:0.88rem;">
+      素材を使う場合はライセンス（CC0・CC-BY 等）を必ず確認し、<br>
+      企画書に出典を記録しておいてください。
+    </div>
+  </div>
+
+  <!-- 13. 今日のタスク -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のタスク</div>
+    <h2>今日のタスク（授業時間内）</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>企画書を書く（30分）</strong>項目を埋める。わからなければ先生に相談。企画書提出は授業終了前</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>素材を収集・整理する（20分）</strong>BGM・SE・ビジュアル素材をダウンロードし Assets フォルダに整理する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Unity プロジェクトを準備する（10分）</strong>新規プロジェクト作成 or 前回からの継続。シーン構成を作る（Title・Game・Clear・GameOver）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>ゲームシーンの下地を作る（残り時間）</strong>プレイヤー GameObject を配置し、移動スクリプトを組み込む</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. まとめ + 次回 -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>第12〜14回の<strong>3回で完成品を作る</strong>スケジュールを意識する</li>
+      <li>評価は<strong>技術・表現・完成度・発表</strong>の4観点</li>
+      <li>企画は<strong>小さく・シンプル・完成できる規模</strong>に絞る</li>
+      <li>音楽大学生の強みを活かした<strong>音楽・リズム・演出</strong>を企画に盛り込む</li>
+      <li>素材はライセンスを確認して計画的に収集する</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p><strong>次回 第13回：総合制作②</strong><br>
+      企画書のフィードバックを行い、メイン機能の実装を進めます。<br>
+      進捗チェックリストをもとに各自が手を動かす回です。<br>
+      授業前日までに「動く状態」を目標に宿題を進めておきましょう！</p>
+    </div>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 14</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

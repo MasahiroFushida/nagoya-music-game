@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第5回 Unityの基礎③ | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+  </style>
+</head>
+<body>
+
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">ゲームプログラミング1 — 第5回</div>
+    <h1>Unityの基礎③</h1>
+    <h3>Prefab とステージ作り</h3>
+    <div class="divider"></div>
+    <p class="muted">名古屋音楽大学 2026年度</p>
+  </div>
+
+  <!-- 2. アジェンダ -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第5回 学習ロードマップ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Prefab（プレハブ）の概念と役割を理解する</li>
+      <li>Prefab のメリット（一括変更・量産）を知る</li>
+      <li>HierarchyのオブジェクトをProjectにドラッグしてPrefabを作る</li>
+      <li>Prefab をシーンに配置（インスタンス化）する</li>
+      <li>地面・壁・障害物を配置して簡単なステージを組み立てる</li>
+      <li>Hierarchy の階層構造で整理する / マテリアルで色を付ける</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>目標：Prefab を活用してオリジナルのステージレイアウトを作れるようになる</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 01</div>
+    <h1>Prefabとは何か</h1>
+    <p class="muted">再利用可能なオブジェクトの設計図</p>
+  </div>
+
+  <!-- 4. Prefabの概念 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Prefab の概念</div>
+    <h2>「設計図」からオブジェクトを量産する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Prefab ＝ オブジェクトの「テンプレート（設計図）」</li>
+      <li>形・コンポーネント・スクリプト設定をまるごとファイルとして保存できる</li>
+      <li>Prefab からシーンに配置したオブジェクトを「インスタンス」と呼ぶ</li>
+      <li>1つの設計図から何個でもインスタンスを作れる</li>
+    </ul>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>Prefab がないと…</h3>
+        <p>同じ障害物を10個置きたいとき、1個ずつ手動で作成・設定が必要。変更するときも1個ずつ…</p>
+      </div>
+      <div class="col-card">
+        <h3>Prefab があると…</h3>
+        <p>設計図を1回作るだけ。あとは何個でも配置できる。変更も設計図1カ所を直すだけでOK！</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Prefabのメリット -->
+  <div class="slide theme-content">
+    <div class="tag blue">Prefab のメリット</div>
+    <h2>一括変更と量産ができる</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>一括変更</strong>：Prefab を編集すると、シーン上のすべてのインスタンスに即座に反映される</li>
+      <li><strong>量産が簡単</strong>：ドラッグするだけで何個でも置ける。コピー＆ペーストよりも管理しやすい</li>
+      <li><strong>スクリプトでの生成も可能</strong>：後の回で「ランダムに敵を出現させる」などの実装に使う</li>
+      <li><strong>チーム作業にも有効</strong>：他のメンバーに Prefab ファイルを渡すだけでオブジェクトを共有できる</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Prefab はプロのゲーム開発でも必須の概念。早いうちに使い方を身につけておこう！</p>
+    </div>
+  </div>
+
+  <!-- 6. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>Prefabを作ってみよう</h1>
+    <p class="muted">作成・配置・編集の流れ</p>
+  </div>
+
+  <!-- 7. Prefab作成手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Prefab 作成</div>
+    <h2>HierarchyオブジェクトをProjectにドラッグ</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>シーンにオブジェクトを用意する</strong>例：Cube を追加してスケールを (2, 0.5, 2) にした「障害物」を作る</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Project に「Prefabs」フォルダを作成する</strong>Project 右クリック → Create → Folder → 名前を「Prefabs」に</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Hierarchy のオブジェクトを Prefabs フォルダにドラッグ</strong>Project に青いキューブアイコンのファイルが作成されれば成功！</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Hierarchy のオブジェクトが青くなる</strong>青い文字のオブジェクト ＝ Prefabのインスタンスのサイン</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. インスタンス化 -->
+  <div class="slide theme-content">
+    <div class="tag blue">インスタンス化</div>
+    <h2>Prefab をシーンに配置する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Project の Prefab ファイルを <strong>Scene ビューや Hierarchy にドラッグ</strong> するだけ</li>
+      <li>何度でも繰り返すことで同じオブジェクトを複数配置できる</li>
+      <li>各インスタンスの位置・回転は独立して変更できる</li>
+      <li>Hierarchy 上では名前の後ろに「(Clone)」は付かない（Prefab から直接配置した場合）</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>10個の障害物を並べたい場合、Prefab を10回ドラッグするだけ。あとは位置を調整すれば完成！</p>
+    </div>
+    <div class="warn-box">
+      ⚠ インスタンスを個別に編集すると、その変更は Prefab には反映されません（インスタンス固有の変更になる）。
+    </div>
+  </div>
+
+  <!-- 9. Prefabの編集 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Prefab の編集</div>
+    <h2>全インスタンスに変更を反映させる</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Project の Prefab ファイルをダブルクリック</strong>「Prefab 編集モード」に入る（Scene ビューがグレーになる）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>この状態で変更を加える</strong>例：Scale や色（マテリアル）を変更する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Scene ビュー上部の「＜ Back」ボタンで戻る</strong>変更がすべてのインスタンスに反映される！</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>Prefab 編集モードで変えた内容はシーン上の全インスタンスに自動適用されます。これが Prefab の最大の強みです。</p>
+    </div>
+  </div>
+
+  <!-- 10. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>簡単なステージを作ろう</h1>
+    <p class="muted">地面・壁・障害物の配置と整理</p>
+  </div>
+
+  <!-- 11. 地面・壁・障害物 -->
+  <div class="slide theme-content">
+    <div class="tag blue">ステージ構成</div>
+    <h2>地面・壁・障害物の配置</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>地面（Floor）</h3>
+        <p>Plane を追加。Scale を (5, 1, 5) 程度に広げる。プレイヤーが乗る床になる。</p>
+      </div>
+      <div class="col-card">
+        <h3>壁（Wall）</h3>
+        <p>Cube を追加して細長く変形（例：Scale 0.2, 2, 10）。ステージの外壁になる。</p>
+      </div>
+      <div class="col-card">
+        <h3>障害物（Obstacle）</h3>
+        <p>Cube を Prefab 化してから複数配置。回転・スケールを少し変えると見た目にバリエーションが出る。</p>
+      </div>
+      <div class="col-card">
+        <h3>配置のコツ</h3>
+        <p>Scene ビューで真上から見る（テンキー 7）と配置しやすい。グリッドスナップ（Ctrl+ドラッグ）も活用しよう。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Hierarchyで整理 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Hierarchy の整理</div>
+    <h2>Empty Object で階層構造を作る</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy 右クリック → Create Empty</strong>空のゲームオブジェクトを作る。位置は (0,0,0) にリセットしておく</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>名前を付けて「フォルダ」代わりに使う</strong>例：「Stage」「Walls」「Obstacles」</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>オブジェクトをその下にドラッグ</strong>関連するオブジェクトをまとめて親子関係にする</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>Hierarchy が整理されると、どこに何があるかが一目瞭然になります。大きなプロジェクトほど重要！</p>
+    </div>
+  </div>
+
+  <!-- 13. マテリアルで色を付ける -->
+  <div class="slide theme-content">
+    <div class="tag blue">マテリアル</div>
+    <h2>オブジェクトに色を付ける</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Project に「Materials」フォルダを作成</strong>アセットを整理する習慣を付ける</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>フォルダ内で右クリック → Create → Material</strong>分かりやすい名前を付ける（例：ObstacleMat）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Inspector の「Albedo」横のカラーボックスをクリック</strong>カラーピッカーで好きな色を選ぶ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Material を Hierarchy のオブジェクトにドラッグ</strong>オブジェクトの色が変わる！Prefab にドラッグすれば全インスタンスに適用。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>Prefab で障害物を並べたステージを作ろう</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Plane で地面を作る</strong>Scale を調整して広めの地面を用意する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>障害物の Cube を Prefab 化する</strong>マテリアルで赤や橙など目立つ色を付ける</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Prefab を5個以上配置してコースを作る</strong>位置・角度・スケールを変えてバリエーションを出す</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Hierarchy を Empty Object で整理する</strong>「Stage」「Obstacles」などのグループに分ける</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Prefab ＝ オブジェクトの設計図。一度作れば何度でも使い回せる</li>
+      <li>Hierarchy のオブジェクトを Project にドラッグして Prefab を作成する</li>
+      <li>Prefab をシーンにドラッグするだけでインスタンスを量産できる</li>
+      <li>Prefab 編集モードで変更するとすべてのインスタンスに反映される</li>
+      <li>Create Empty で親オブジェクトを作り、Hierarchy を整理する</li>
+      <li>Material を作成してドラッグすることでオブジェクトに色を付けられる</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次回（第6回）：UI の基礎 ― スコア表示やボタンなど、ゲームの画面上に情報を表示しよう！</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 15</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End")  showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

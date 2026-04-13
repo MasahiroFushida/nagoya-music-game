@@ -317,6 +317,8 @@
       align-items: center;
       gap: 0.8rem;
       z-index: 100;
+      pointer-events: auto;
+      touch-action: manipulation;
     }
 
     #nav button {
@@ -330,6 +332,8 @@
       cursor: pointer;
       transition: background 0.2s;
       backdrop-filter: blur(4px);
+      pointer-events: auto;
+      touch-action: manipulation;
     }
     #nav button:hover { background: rgba(255,255,255,0.25); }
     #nav button:disabled { opacity: 0.25; cursor: default; }
@@ -405,7 +409,7 @@
     <div class="divider left"></div>
     <ul>
       <li><strong>対象</strong>：プログラミング経験ゼロでもOK</li>
-      <li><strong>使うツール</strong>：Unity（無料）+ Visual Studio Code</li>
+      <li><strong>使うツール</strong>：<a href="https://unity.com/ja" target="_blank" style="color:#64b4ff;">Unity</a>（無料）+ <a href="https://code.visualstudio.com/" target="_blank" style="color:#64b4ff;">Visual Studio Code</a></li>
       <li><strong>言語</strong>：C#（シーシャープ）</li>
       <li><strong>目標</strong>：自分で企画したゲームを完成させて発表する</li>
     </ul>
@@ -530,6 +534,38 @@
     </div>
   </div>
 
+  <!-- ===== 11 推奨PCスペック ===== -->
+  <div class="slide theme-content">
+    <span class="tag orange">PC環境の確認</span>
+    <h2>Unity に必要な PC スペック</h2>
+    <div class="divider left"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; width:100%; max-width:860px; margin-top:0.5rem;">
+      <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:1.2rem 1.4rem;">
+        <p style="font-weight:bold; font-size:1.05rem; margin-bottom:0.8rem; color:#64b4ff;">🪟 Windows</p>
+        <ul style="font-size:0.9rem;">
+          <li>OS：Windows 10 / 11（64bit）</li>
+          <li>CPU：Intel Core i5 / AMD Ryzen 5 以上</li>
+          <li>メモリ：8GB以上（16GB推奨）</li>
+          <li>GPU：DirectX 11 対応</li>
+          <li>ストレージ：空き 10GB 以上</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:1.2rem 1.4rem;">
+        <p style="font-weight:bold; font-size:1.05rem; margin-bottom:0.8rem; color:#64b4ff;">🍎 Mac</p>
+        <ul style="font-size:0.9rem;">
+          <li>OS：macOS 12（Monterey）以上</li>
+          <li>CPU：Intel Core i5 / Apple Silicon（M1〜）</li>
+          <li>メモリ：8GB以上（16GB推奨）</li>
+          <li>GPU：Metal 対応（対応Mac はすべてOK）</li>
+          <li>ストレージ：空き 10GB 以上</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠️ メモリ 4GB 以下のPCは動作が不安定になる場合があります。事前に確認してください。
+    </div>
+  </div>
+
   <!-- ===== 11 Unityとは（セクション） ===== -->
   <div class="slide theme-section">
     <span class="tag" style="background:rgba(255,255,255,0.15);">Unityとは？</span>
@@ -563,24 +599,174 @@
     </div>
   </div>
 
-  <!-- ===== 13 有名なゲーム ===== -->
+  <!-- ===== 13 事例① Crypt of the NecroDancer ===== -->
   <div class="slide theme-content">
-    <span class="tag blue">Unityで作られたゲーム</span>
-    <h2>実はUnityで作られています</h2>
+    <span class="tag blue">事例① Unityで作られた音楽・リズムゲーム</span>
+    <h2>Crypt of the NecroDancer</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/-HiQUw5Np8o" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">音楽のリズムに合わせて動くローグライクRPG。BGMのビートがゲームプレイに直結している。
+    <a href="https://braceyourselfgames.com/crypt-of-the-necrodancer/" target="_blank" style="color:#64b4ff;">公式サイト</a></p>
+  </div>
+
+  <!-- ===== 14 事例② Melatonin ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">事例② Unityで作られた音楽・リズムゲーム</span>
+    <h2>Melatonin</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/X4rtUDmUfLw" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">夢の世界を舞台にした、映像と音楽が一体となったリズムゲーム。
+    <a href="https://halfasleep.games/melatonin/" target="_blank" style="color:#64b4ff;">公式サイト</a></p>
+  </div>
+
+  <!-- ===== 15 事例③ A Musical Story ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">事例③ Unityで作られた音楽・リズムゲーム</span>
+    <h2>A Musical Story</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/J9WSIlZ0iJ0" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">音楽と記憶をテーマにしたナラティブ・リズムゲーム。セリフなしで音楽だけで物語を語る。
+    <a href="https://store.steampowered.com/app/1602390/A_Musical_Story/" target="_blank" style="color:#64b4ff;">Steam ページ</a></p>
+  </div>
+
+  <!-- ===== 16 事例④ Rhythm Doctor ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">事例④ Unityで作られた音楽・リズムゲーム</span>
+    <h2>Rhythm Doctor</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/q98tlz54b88" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">1ボタンだけで操作する、シンプルながら奥深いリズムゲーム。
+    <a href="https://rhythmdr.com/" target="_blank" style="color:#64b4ff;">公式サイト</a></p>
+  </div>
+
+  <!-- ===== 17 日本のUnityゲーム（セクション） ===== -->
+  <div class="slide theme-section">
+    <span class="tag" style="background:rgba(255,255,255,0.15);">日本のゲーム事例</span>
+    <h1>日本で作られた Unity ゲーム</h1>
+  </div>
+
+  <!-- ===== 18 日本事例① ウマ娘 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">日本事例① Cygames</span>
+    <h2>ウマ娘 プリティーダービー</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/NFy41WPiw58" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">Cygames 開発。競走馬をモチーフにしたキャラクターが活躍する育成シミュレーション＆リズムゲーム。</p>
+  </div>
+
+  <!-- ===== 19 日本事例② Shadowverse ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">日本事例② Cygames</span>
+    <h2>Shadowverse</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/dUUOqRZ-a1k" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">Cygames 開発。世界で5,000万ダウンロードを超えたデジタルカードゲーム。</p>
+  </div>
+
+  <!-- ===== 20 日本事例③ 白猫プロジェクト ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">日本事例③ コロプラ</span>
+    <h2>白猫プロジェクト NEW WORLD'S</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; justify-content:center; width:100%; max-width:960px;">
+      <div style="width:100%; max-width:512px;"><iframe width="100%" height="270" src="https://www.youtube.com/embed/kFp5ZjwFY4c" frameborder="0" allowfullscreen style="border-radius:8px;"></iframe></div>
+    </div>
+    <p style="margin-top:0.6rem; font-size:0.95rem;">コロプラ開発。スマートフォン向けアクションRPGのパイオニア的存在。</p>
+  </div>
+
+  <!-- ===== 22 Unity 詳細 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">Unity</span>
+    <h2>Unity とは何か</h2>
     <div class="divider left"></div>
     <ul>
-      <li>Among Us（アモングアス）</li>
-      <li>Cuphead（カップヘッド）</li>
-      <li>Pokémon GO（ポケモンGO）</li>
-      <li>原神（Genshin Impact）</li>
-      <li>Fall Guys（フォールガイズ）</li>
+      <li>ゲームや映像・XRコンテンツを作るための<strong>ゲームエンジン</strong></li>
+      <li>2004年創業の Unity Technologies が開発・提供</li>
+      <li>Windows / Mac / Linux で動作し、<strong>個人・学生は無料</strong>で使える</li>
+      <li>出力先はスマートフォン・PC・Web・コンソールなど多岐にわたる</li>
+      <li>日本語の公式ドキュメントやチュートリアルが充実</li>
     </ul>
-    <div class="highlight-box" style="margin-top:1rem;">
-      <p>インディーゲームから大作まで、Unityは幅広い規模の開発に使われています。</p>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>公式サイト：<a href="https://unity.com/ja" target="_blank" style="color:#64b4ff;">unity.com/ja</a><br>
+      公式ドキュメント：<a href="https://docs.unity3d.com/ja/2022.3/Manual/index.html" target="_blank" style="color:#64b4ff;">docs.unity3d.com/ja/2022.3（日本語）</a></p>
     </div>
   </div>
 
-  <!-- ===== 14 セットアップ（セクション） ===== -->
+  <!-- ===== 15 VS Code ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">Visual Studio Code</span>
+    <h2>VS Code とは何か</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Microsoft が開発した<strong>無料のコードエディター</strong></li>
+      <li>軽量で起動が速く、拡張機能で機能を追加できる</li>
+      <li>Unity のスクリプト（C#）を書くために使う</li>
+      <li>コードの色分け・補完・エラー表示などが使えて便利</li>
+      <li>世界中の開発者が使っており、情報が豊富</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>公式サイト：<a href="https://code.visualstudio.com/" target="_blank" style="color:#64b4ff;">code.visualstudio.com</a><br>
+      ダウンロード：<a href="https://code.visualstudio.com/download" target="_blank" style="color:#64b4ff;">code.visualstudio.com/download</a></p>
+    </div>
+  </div>
+
+  <!-- ===== 16 C# ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">C#（シーシャープ）</span>
+    <h2>C# とは何か</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>Microsoft が開発した<strong>プログラミング言語</strong></li>
+      <li>Unity のスクリプトで使う唯一の言語</li>
+      <li>「変数・条件分岐・繰り返し」など基礎から学んでいく</li>
+      <li>ゲーム以外にもアプリ・Webサービス開発にも使われる汎用言語</li>
+      <li>最初は難しく感じるが、パターンを覚えれば書けるようになる</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>学習リソース：<br>
+      • <a href="https://docs.unity3d.com/ja/2022.3/Manual/ScriptingSection.html" target="_blank" style="color:#64b4ff;">Unity Scripting Manual（日本語）</a><br>
+      • <a href="https://learn.unity.com/" target="_blank" style="color:#64b4ff;">Learn Unity</a><br>
+      • <a href="https://learn.unity.com/course/beginner-scripting-jp" target="_blank" style="color:#64b4ff;">Beginner Scripting JP</a></p>
+    </div>
+  </div>
+
+  <!-- ===== 参考資料 Unityの教科書 ===== -->
+  <div class="slide theme-content">
+    <span class="tag blue">推奨参考書</span>
+    <h2>Unityの教科書<br>Unity 2022完全対応版</h2>
+    <div class="divider left"></div>
+    <div style="display:flex; gap:2rem; width:100%; max-width:960px; align-items:center; justify-content:center;">
+      <div style="flex:0 0 auto;">
+        <img src="https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRoGJ0ipb6Y_nYH6jc2TyLHOAEqV1XpZhtE0xituNE5UcwADnwSwLKf6qgrOia2AwYRxZ7r_EFpy5bJPQ5UzASFvwTQkKo8_cU6kSFjtDg3&usqp=CAc" style="max-width:200px; border-radius:8px; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+      </div>
+      <div style="flex:1; text-align:left;">
+        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:1.5rem;">
+          <p style="font-size:0.95rem; line-height:1.8; margin:0;">
+            <strong>著者</strong>：北村愛実<br>
+            <strong>対応版</strong>：Unity 2022完全対応<br>
+            <strong>内容</strong>：Unityの基礎から実践的なゲーム制作まで、段階的に学べるテキスト
+          </p>
+          <div style="margin-top:1rem;">
+            <a href="https://www.amazon.co.jp/Unity%E3%81%AE%E6%95%99%E7%A7%91%E6%9B%B8-Unity-2022%E5%AE%8C%E5%85%A8%E5%AF%BE%E5%BF%9C%E7%89%88-%E5%8C%97%E6%9D%91%E6%84%9B%E5%AE%9F/dp/4815617155" target="_blank" style="color:#64b4ff; font-weight:bold; font-size:1rem;">📚 Amazon で購入する</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 17 セットアップ（セクション） ===== -->
   <div class="slide theme-section">
     <span class="tag" style="background:rgba(255,255,255,0.15);">セットアップ</span>
     <h1>開発環境を整えよう</h1>
@@ -595,7 +781,7 @@
         <div class="step-num">1</div>
         <div class="step-body">
           <strong>Unity Hub をダウンロード</strong>
-          unity.com → 「Unity をダウンロード」→「Unity Hub」を選択
+          <a href="https://unity.com/ja/download" target="_blank" style="color:#64b4ff;">unity.com/ja/download</a> を開いて「Unity Hub をダウンロード」を選択
         </div>
       </div>
       <div class="step">
@@ -609,14 +795,14 @@
         <div class="step-num">3</div>
         <div class="step-body">
           <strong>Unity アカウントを作成（または既存アカウントでサインイン）</strong>
-          無料の Personal ライセンスでOK
+          <a href="https://id.unity.com/" target="_blank" style="color:#64b4ff;">id.unity.com</a> で無料の Personal ライセンスを作成
         </div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-body">
           <strong>Unity Editor をインストール</strong>
-          Unity Hub → 「インストール」→ LTS 版（推奨版）を選択 → 「Visual Studio」も一緒にチェック
+          Unity Hub → 「インストール」→ <strong>2022.3.62f3</strong>（LTS）を選択 → 「Visual Studio」も一緒にチェック
         </div>
       </div>
     </div>
@@ -702,9 +888,9 @@
 
 <!-- ナビゲーション -->
 <div id="nav">
-  <button id="btn-prev" onclick="changeSlide(-1)" title="前へ (←)">‹</button>
+  <button type="button" id="btn-prev" title="前へ (←)">‹</button>
   <span id="slide-counter">1 / 19</span>
-  <button id="btn-next" onclick="changeSlide(1)" title="次へ (→)">›</button>
+  <button type="button" id="btn-next" title="次へ (→)">›</button>
 </div>
 
 <div id="progress"></div>
@@ -725,6 +911,11 @@
 
   function changeSlide(dir) { showSlide(current + dir); }
 
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+
   document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
     if (e.key === "ArrowLeft"  || e.key === "ArrowUp")                     changeSlide(-1);
@@ -734,11 +925,16 @@
 
   // タッチ操作
   let touchStartX = 0;
-  document.addEventListener("touchstart", e => { touchStartX = e.changedTouches[0].clientX; });
+  document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
   document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
     const diff = touchStartX - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
   });
+
 
   showSlide(0);
 </script>

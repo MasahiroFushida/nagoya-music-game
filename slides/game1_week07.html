@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7回 当たり判定</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">Game Programming I</div>
+    <h1>第7回 当たり判定</h1>
+    <div class="divider"></div>
+    <p class="muted">物理エンジンと衝突・トリガーの仕組みを理解する</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">今日の内容</div>
+    <h2>第7回 学習目標</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>RigidbodyとColliderの役割と関係を理解する</li>
+      <li>OnCollisionEnterで衝突を検知できるようになる</li>
+      <li>Is Triggerを使ったトリガー判定を実装できる</li>
+      <li>Tagを使ってオブジェクトを識別する方法を学ぶ</li>
+      <li>衝突判定とトリガー判定の使い分けを理解する</li>
+    </ul>
+  </div>
+
+  <!-- 3. セクション：物理エンジン -->
+  <div class="slide theme-section">
+    <div class="tag">Section 1</div>
+    <h1>物理エンジンの基本</h1>
+    <p class="muted">Rigidbody と Collider ― 物理演算の2本柱</p>
+  </div>
+
+  <!-- 4. Rigidbodyとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">Rigidbody</div>
+    <h2>Rigidbodyとは</h2>
+    <div class="divider left"></div>
+    <p>オブジェクトに物理演算を適用するコンポーネントです。重力・力・速度などを Unity の物理エンジンが自動的に計算します。</p>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>主なプロパティ</h3>
+        <ul>
+          <li><strong>Mass</strong>：重さ（kg）</li>
+          <li><strong>Drag</strong>：空気抵抗</li>
+          <li><strong>Use Gravity</strong>：重力の有無</li>
+          <li><strong>Is Kinematic</strong>：物理演算を無効化</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>使用シーン</h3>
+        <ul>
+          <li>プレイヤーキャラクター</li>
+          <li>落下するオブジェクト</li>
+          <li>物理的な力を受けるもの</li>
+          <li>ジャンプ・移動する物体</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>Rigidbody を持つオブジェクトは毎フレーム Update ではなく <strong>FixedUpdate</strong> 内で移動処理を書くのが基本です。</p>
+    </div>
+  </div>
+
+  <!-- 5. Colliderとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">Collider</div>
+    <h2>Colliderとは</h2>
+    <div class="divider left"></div>
+    <p>オブジェクトの「衝突範囲（当たり判定の形）」を定義するコンポーネントです。</p>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>主なColliderの種類</h3>
+        <ul>
+          <li><strong>Box Collider</strong>：直方体形状</li>
+          <li><strong>Sphere Collider</strong>：球形状</li>
+          <li><strong>Capsule Collider</strong>：カプセル形状（人型キャラに多用）</li>
+          <li><strong>Mesh Collider</strong>：メッシュに沿った形状</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>設定のポイント</h3>
+        <ul>
+          <li>視覚的なメッシュより少し小さめにするとゲームが遊びやすい</li>
+          <li>複雑な形には Mesh Collider より複数の単純 Collider を組み合わせる方が軽い</li>
+          <li><strong>Is Trigger</strong> にチェックを入れると物理的な衝突をしなくなる</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. RigidbodyとColliderの関係 -->
+  <div class="slide theme-content">
+    <div class="tag blue">物理演算</div>
+    <h2>RigidbodyとColliderの関係</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">A</div>
+        <div class="step-body"><strong>Rigidbodyのみ</strong>形がないので衝突が起きない。重力だけ受ける（実用的でない）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">B</div>
+        <div class="step-body"><strong>Colliderのみ（Static）</strong>動かない地面・壁として機能する。物理演算を受けない</div>
+      </div>
+      <div class="step">
+        <div class="step-num">C</div>
+        <div class="step-body"><strong>Rigidbody + Collider（Dynamic）</strong>物理演算を受けながら衝突も判定する。通常のプレイヤー・敵に使う</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>衝突イベント（OnCollisionEnter等）が発生するには、衝突する側の少なくとも一方に <strong>Rigidbody</strong> が必要です。</p>
+    </div>
+  </div>
+
+  <!-- 7. セクション：衝突判定 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 2</div>
+    <h1>衝突判定</h1>
+    <p class="muted">OnCollisionEnter で物理的な当たりを検知する</p>
+  </div>
+
+  <!-- 8. OnCollisionEnterの使い方 -->
+  <div class="slide theme-content">
+    <div class="tag blue">OnCollisionEnter</div>
+    <h2>OnCollisionEnterの使い方</h2>
+    <div class="divider left"></div>
+    <p>2つのオブジェクトが物理的に接触した瞬間に呼ばれるメソッドです。</p>
+    <div class="code-block">using UnityEngine;
+
+public class PlayerCollision : MonoBehaviour
+{
+    // 衝突した瞬間に1回だけ呼ばれる
+    void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("衝突したオブジェクト: " + collision.gameObject.name);
+    }
+
+    // 衝突している間、毎フレーム呼ばれる
+    void OnCollisionStay(Collision collision) { }
+
+    // 離れた瞬間に1回だけ呼ばれる
+    void OnCollisionExit(Collision collision) { }
+}</div>
+  </div>
+
+  <!-- 9. OnCollisionEnterの実例 -->
+  <div class="slide theme-content">
+    <div class="tag blue">実例</div>
+    <h2>壁に当たったら止まる処理</h2>
+    <div class="divider left"></div>
+    <p>Rigidbody の速度をリセットして動きを止めます。</p>
+    <div class="code-block">using UnityEngine;
+
+public class BallController : MonoBehaviour
+{
+    private Rigidbody rb;
+
+    void Start()
+    {
+        rb = GetComponent&lt;Rigidbody&gt;();
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // "Wall" タグのオブジェクトに当たったら速度をゼロにする
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            rb.linearVelocity = Vector3.zero;
+            Debug.Log("壁に当たった！");
+        }
+    }
+}</div>
+  </div>
+
+  <!-- 10. セクション：トリガー判定 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 3</div>
+    <h1>トリガー判定</h1>
+    <p class="muted">物理的な壁を作らずに「範囲に入ったこと」を検知する</p>
+  </div>
+
+  <!-- 11. Is Triggerの設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Is Trigger</div>
+    <h2>Is Triggerの設定方法</h2>
+    <div class="divider left"></div>
+    <p>ColliderのInspectorで <strong>Is Trigger</strong> にチェックを入れると、物理的な衝突をせずに「範囲の侵入」だけを検知できます。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>アイテムオブジェクトを選択</strong>ColliderコンポーネントのInspectorを開く</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Is Trigger にチェック</strong>これでオブジェクトをすり抜けて通過できるようになる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>スクリプトに OnTriggerEnter を記述</strong>プレイヤーが範囲に入ったタイミングで処理を実行する</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. OnTriggerEnterの使い方 -->
+  <div class="slide theme-content">
+    <div class="tag blue">OnTriggerEnter</div>
+    <h2>OnTriggerEnterの使い方</h2>
+    <div class="divider left"></div>
+    <p>トリガー範囲に他のオブジェクトが入った瞬間に呼ばれます。</p>
+    <div class="code-block">using UnityEngine;
+
+public class ItemPickup : MonoBehaviour
+{
+    // トリガー範囲に入った瞬間に呼ばれる
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("範囲に入ったオブジェクト: " + other.gameObject.name);
+    }
+
+    // 範囲内にいる間、毎フレーム呼ばれる
+    void OnTriggerStay(Collider other) { }
+
+    // 範囲から出た瞬間に呼ばれる
+    void OnTriggerExit(Collider other) { }
+}</div>
+    <div class="warn-box">
+      引数の型に注意：OnCollisionEnter は <strong>Collision</strong>、OnTriggerEnter は <strong>Collider</strong> です。
+    </div>
+  </div>
+
+  <!-- 13. 衝突 vs トリガーの使い分け -->
+  <div class="slide theme-content">
+    <div class="tag blue">使い分け</div>
+    <h2>衝突 vs トリガーの使い分け</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>衝突判定（Collision）</h3>
+        <ul>
+          <li>物理的に押しのけあう</li>
+          <li>壁・床・障害物</li>
+          <li>跳ね返るボール</li>
+          <li>積み重なる物体</li>
+        </ul>
+        <p style="margin-top:0.5rem; font-size:0.82rem; opacity:0.7;">→ Is Trigger はOFF</p>
+      </div>
+      <div class="col-card">
+        <h3>トリガー判定（Trigger）</h3>
+        <ul>
+          <li>すり抜けて検知だけする</li>
+          <li>アイテム取得エリア</li>
+          <li>ゴールゾーン</li>
+          <li>罠・ダメージ範囲</li>
+        </ul>
+        <p style="margin-top:0.5rem; font-size:0.82rem; opacity:0.7;">→ Is Trigger はON</p>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>「物理的にぶつかってほしいか？」が判断基準。<br>ぶつかってほしければ Collision、すり抜けさせたければ Trigger。</p>
+    </div>
+  </div>
+
+  <!-- 14. Tagを使った判定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Tag</div>
+    <h2>タグ（Tag）を使った判定</h2>
+    <div class="divider left"></div>
+    <p>Tagを使うと、どのオブジェクトと接触したかを名前ではなくカテゴリで識別できます。</p>
+    <div class="code-block">using UnityEngine;
+
+public class ItemPickup : MonoBehaviour
+{
+    void OnTriggerEnter(Collider other)
+    {
+        // "Player" タグのオブジェクトが触れた場合のみ処理する
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("プレイヤーがアイテムを取得！");
+            // このオブジェクト（アイテム）を消す
+            Destroy(gameObject);
+        }
+    }
+}</div>
+    <div class="warn-box">
+      Tagは事前に Inspector の Tag ドロップダウン → Add Tag から追加し、オブジェクトに設定しておく必要があります。
+    </div>
+  </div>
+
+  <!-- 15. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>今日の練習課題</h2>
+    <div class="divider left"></div>
+    <p>アイテムに触れると消える処理を実装しよう。</p>
+    <div class="steps" style="margin-top:1rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>プレイヤーを作成</strong>CapsuleにRigidbody + Capsule Colliderをつけ、Tagを「Player」に設定</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>アイテムを作成</strong>SphereにSphere Colliderをつけ、Is TriggerをONにする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>ItemPickupスクリプトを作成</strong>OnTriggerEnterで「Player」タグを確認し、Destroy(gameObject)で消す</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>アイテムを複数配置して確認</strong>プレイヤーが触れたアイテムだけが消えることをテストする</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag orange">まとめ</div>
+    <h2>今日のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>Rigidbody</strong>：物理演算（重力・速度など）を有効にするコンポーネント</li>
+      <li><strong>Collider</strong>：当たり判定の形を定義するコンポーネント</li>
+      <li><strong>OnCollisionEnter</strong>：物理的な衝突の瞬間に呼ばれる（引数：Collision）</li>
+      <li><strong>Is Trigger + OnTriggerEnter</strong>：すり抜けて範囲侵入を検知する（引数：Collider）</li>
+      <li><strong>CompareTag()</strong>：Tagでオブジェクトを識別する安全な方法</li>
+    </ul>
+    <div class="highlight-box">
+      <p><strong>次回：第8回 音とインタラクション</strong><br>
+      AudioSource を使って SE・BGM を再生する方法と、スクリプトから音量・ピッチを制御する実装を学びます。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ナビゲーション -->
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter"></span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+  const prevButton = document.getElementById("btn-prev");
+  const nextButton = document.getElementById("btn-next");
+  prevButton.addEventListener("click", () => changeSlide(-1));
+  nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+    if (e.target.closest("#nav")) return;
+    touchStartX = e.changedTouches[0].clientX;
+  });
+document.addEventListener("touchend", e => {
+    if (e.target.closest("#nav")) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>
