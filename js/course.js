@@ -47,7 +47,7 @@
         </span>
         <span class="week-icons">
           <span class="icon-badge ${hasSlides ? 'active clickable' : ''}" ${hasSlides ? `data-slide-url="${slideUrl}"` : ''}>スライド</span>
-          <span class="icon-badge ${hasProject ? 'active project' : ''}">配布</span>
+          <span class="icon-badge ${hasProject ? 'active project clickable' : ''}" ${hasProject ? `data-project-url="${w.project[0].url}"` : ''}>配布</span>
           <span class="icon-badge ${hasAssignment ? 'active clickable assignment' : ''}" ${hasAssignment ? `data-course="${courseKey}" data-week="${w.week}"` : ''}>課題</span>
         </span>
       </div>
@@ -57,7 +57,9 @@
   // スライド＆課題バッジのクリック機能
   document.querySelectorAll(".icon-badge.clickable").forEach(badge => {
     badge.addEventListener("click", () => {
-      if (badge.getAttribute("data-slide-url")) {
+      if (badge.getAttribute("data-project-url")) {
+        window.open(badge.getAttribute("data-project-url"), "_blank");
+      } else if (badge.getAttribute("data-slide-url")) {
         const url = badge.getAttribute("data-slide-url");
         if (url) window.location.href = url;
       } else if (badge.getAttribute("data-course")) {

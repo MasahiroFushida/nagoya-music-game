@@ -29,16 +29,22 @@ const SITE_DATA = {
         week: 2,
         title: "Unityの基本操作",
         description: "Unityエディターの説明と基本操作。Scene・Game・Hierarchy・Inspectorビューの使い方、オブジェクトの配置と保存。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        slides: [
+          { label: "第2回 Unityの基本操作 スライド", url: "slides/game1_week02.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_a.git" }
+        ],
+        assignment: "以下の手順でシーンを作成し、スクリーンショットを提出してください。\n1. Plane（地面）を1つ配置する\n2. 好きな3Dオブジェクト（Cube / Sphere / Cylinder など）を3つ以上配置する\n3. それぞれの Position・Rotation・Scale を変えて、同じ形にならないようにする\n4. シーンを保存して、Scene ビューのスクリーンショットを提出する",
+        deadline: "第3回授業開始時"
       },
       {
         week: 3,
         title: "Unityの基礎①",
         description: "C#でコードを書いてみる。スクリプトの作成方法、Debug.Logの使い方、Playモードで動作確認。",
-        slides: null,
+        slides: [
+          { label: "第3回 Unityの基礎① スライド", url: "slides/game1_week03.html" }
+        ],
         project: null,
         assignment: null,
         deadline: null
