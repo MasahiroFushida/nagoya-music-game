@@ -53,7 +53,9 @@ const SITE_DATA = {
         week: 4,
         title: "Unityの基礎②",
         description: "オブジェクトを動かしてみる。Transformの基本（位置・回転・拡大縮小の制御）、キーボード入力で移動する処理。",
-        slides: null,
+        slides: [
+          { label: "第4回 Unityの基礎② スライド", url: "slides/game1_week04.html" }
+        ],
         project: null,
         assignment: null,
         deadline: null
