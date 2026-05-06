@@ -64,7 +64,9 @@ const SITE_DATA = {
         week: 5,
         title: "Unityの基礎③",
         description: "Prefabの概念を学ぶ。オブジェクトの再利用方法・複製と管理、簡単なステージを作成する。",
-        slides: null,
+        slides: [
+          { label: "第5回 Unityの基礎③ スライド", url: "slides/game1_week05.html" }
+        ],
         project: null,
         assignment: null,
         deadline: null
