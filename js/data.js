@@ -56,9 +56,11 @@ const SITE_DATA = {
         slides: [
           { label: "第4回 Unityの基礎② スライド", url: "slides/game1_week04.html" }
         ],
-        project: null,
-        assignment: null,
-        deadline: null
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_b.git" }
+        ],
+        assignment: "【課題】Sphereを動かしてみよう\n\n矢印キーで移動、スペースキーでジャンプできる Sphere を作ろう。\n\n■ 手順\n1. 新しいシーンに Plane（地面）と Sphere を配置する\n2. Sphere に Rigidbody コンポーネントを追加する\n   （Add Component → Rigidbody）\n3. C# スクリプトを新規作成し、ファイル名を「PlayerMove」にする\n4. Start() の中で Rigidbody を変数 rb に取得する\n   rb = GetComponent<Rigidbody>();\n5. Update() の中に以下の操作を実装する\n   ・矢印キー（↑↓←→）で前後左右に AddForce で力を加える\n   ・スペースキーで AddForce(Vector3.up * 200) のジャンプを加える\n     （ジャンプは GetKeyDown を使うこと）\n6. 作成したスクリプトを Sphere にアタッチする\n7. Playモードで実行し、矢印キーで移動・スペースでジャンプできることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット\n・PlayerMove.cs ファイル",
+        deadline: "第5回授業開始時"
       },
       {
         week: 5,

@@ -66,274 +66,274 @@
     <h2>第4回 学習ロードマップ</h2>
     <div class="divider left"></div>
     <ul>
-      <li>Transform コンポーネントをスクリプトから操作する</li>
-      <li>Update() を使って毎フレーム移動させる</li>
-      <li>キーボード入力（Input.GetKey）を受け取る</li>
-      <li>上下左右キーでオブジェクトを操作する</li>
-      <li>Time.deltaTime でフレームレートに依存しない移動を実現する</li>
-      <li>public 変数を使って Inspector からスピードを調整する</li>
+      <li>transform.Translate と Vector3 の6方向で毎フレーム移動させる</li>
+      <li>public 変数（speed）を Inspector から調整する</li>
+      <li>if 文と比較演算子で位置の条件判定をする</li>
+      <li>Destroy(gameObject) でオブジェクトを消す</li>
+      <li>Rigidbody を GetComponent で取得して AddForce で力を加える</li>
+      <li>矢印キーとスペースキーで Sphere を動かしジャンプさせる</li>
     </ul>
     <div class="highlight-box" style="margin-top:1.2rem;">
-      <p>目標：キーボードで Cube を自由に動かせるようになる</p>
+      <p>目標：移動・条件判定・消去・物理演算・キー操作の5つを身につける</p>
     </div>
   </div>
 
   <!-- 3. セクション -->
   <div class="slide theme-section">
     <div class="tag">Section 01</div>
-    <h1>Transformを使って動かす</h1>
-    <p class="muted">スクリプトから位置・回転・スケールを制御する</p>
+    <h1>Translateで毎フレーム動かす</h1>
+    <p class="muted">Vector3 の6方向を使って移動を表現する</p>
   </div>
 
-  <!-- 4. Transformの復習 -->
+  <!-- 4. Test1-4：Update + Translate -->
   <div class="slide theme-content">
-    <div class="tag blue">Transform の復習</div>
-    <h2>position / rotation / scale</h2>
+    <div class="tag blue">Test1-4</div>
+    <h2>Update で毎フレーム前進させる</h2>
     <div class="divider left"></div>
-    <ul>
-      <li><strong>position</strong>（位置）：Vector3 型の座標 (x, y, z)</li>
-      <li><strong>rotation</strong>（回転）：Quaternion 型（内部的に4つの数値）</li>
-      <li><strong>scale</strong>（拡縮）：Vector3 型のサイズ倍率</li>
-      <li>スクリプトからは <code>transform</code> という変数名でアクセスできる</li>
-    </ul>
-    <div class="two-col" style="margin-top:1rem;">
-      <div class="col-card">
-        <h3>Vector3 とは</h3>
-        <p>X・Y・Z の3つの値をまとめた型。<br>new Vector3(1f, 0f, 0f) のように書く</p>
-      </div>
-      <div class="col-card">
-        <h3>World vs Local</h3>
-        <p>transform.position はワールド座標。<br>transform.localPosition は親からの相対座標</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. transformを操作するコード -->
-  <div class="slide theme-content">
-    <div class="tag blue">Transform 操作</div>
-    <h2>スクリプトから Transform を変える</h2>
-    <div class="divider left"></div>
-    <div class="code-block">// 位置を直接セットする
-transform.position = new Vector3(0f, 1f, 0f);
-
-// 現在の位置から少しずらす
-transform.position += new Vector3(0.1f, 0f, 0f);
-
-// Translate を使って相対移動（よく使う）
-transform.Translate(0.1f, 0f, 0f);
-
-// 回転を加える
-transform.Rotate(0f, 1f, 0f);</div>
-    <div class="highlight-box" style="margin-top:0.6rem;">
-      <p>transform.Translate(x, y, z) は「今いる位置からの相対移動」なので直感的に使いやすい。</p>
-    </div>
-  </div>
-
-  <!-- 6. Updateとは -->
-  <div class="slide theme-content">
-    <div class="tag blue">Update メソッド</div>
-    <h2>毎フレーム呼ばれる処理</h2>
-    <div class="divider left"></div>
-    <ul>
-      <li>Playモード中、Unity は1秒間に約60回（フレーム）ループする</li>
-      <li>Update() はそのたびに呼ばれる ＝ 毎秒約60回実行される</li>
-      <li>「少しずつ動かす」処理を Update に書くとなめらかなアニメーションになる</li>
-      <li>Start は初期化のみ、動き続ける処理は Update に書くのが基本</li>
-    </ul>
-    <div class="highlight-box" style="margin-top:1rem;">
-      <p>Update() の中で毎フレーム「0.01 だけ移動」を繰り返すと、オブジェクトがスムーズに動き続けます。</p>
-    </div>
-  </div>
-
-  <!-- 7. 毎フレーム移動コード -->
-  <div class="slide theme-content">
-    <div class="tag blue">コード例</div>
-    <h2>毎フレーム少しずつ右に移動する</h2>
-    <div class="divider left"></div>
-    <div class="code-block">public class MoveObject : MonoBehaviour
+    <div class="code-block">void Start()
 {
-    void Update()
+    Debug.Log("Start");
+}
+
+void Update()
+{
+    Debug.Log("Update");
+    transform.Translate(Vector3.forward);
+    //transform.Translate(Vector3.forward * 0.1f);
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>Start は1回だけ、Update は毎フレーム呼ばれる。Console を見ると Update が大量に出力されることがわかる。</p>
+    </div>
+  </div>
+
+  <!-- 5. Vector3 の方向 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Vector3 の方向</div>
+    <h2>6つの方向ベクトル</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>Vector3.forward</strong> ＝ Z軸の正方向 (0, 0, 1)</li>
+      <li><strong>Vector3.back</strong> ＝ Z軸の負方向 (0, 0, -1)</li>
+      <li><strong>Vector3.right</strong> ＝ X軸の正方向 (1, 0, 0)</li>
+      <li><strong>Vector3.left</strong> ＝ X軸の負方向 (-1, 0, 0)</li>
+      <li><strong>Vector3.up</strong> ＝ Y軸の正方向 (0, 1, 0)</li>
+      <li><strong>Vector3.down</strong> ＝ Y軸の負方向 (0, -1, 0)</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>方向ベクトルに数値を掛けると速さを調整できる：<code>Vector3.forward * 0.1f</code></p>
+    </div>
+  </div>
+
+  <!-- 6. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>public変数とif文</h1>
+    <p class="muted">Inspectorから値を変える／条件で処理を分岐する</p>
+  </div>
+
+  <!-- 7. Test2-1：public float speed -->
+  <div class="slide theme-content">
+    <div class="tag blue">Test2-1</div>
+    <h2>速度を public 変数にする</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public float speed;
+
+void Update()
+{
+    transform.Translate(Vector3.forward * speed);
+
+    if (transform.position.z &gt;= 30)
     {
-        // 毎フレーム X 方向に 0.05 移動
-        transform.Translate(0.05f, 0f, 0f);
+        Debug.Log("30以上");
+        //speed = -0.1f;
+        //speed *= -1;
+        //speed = -speed;
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p><code>public float speed;</code> と書くと Inspector に「Speed」欄が出てきて、ゲームを止めずに速さを調整できる。</p>
+    </div>
+  </div>
+
+  <!-- 8. 比較演算子 -->
+  <div class="slide theme-content">
+    <div class="tag blue">if 文と比較演算子</div>
+    <h2>条件で処理を分岐する</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>&lt;</strong> ：より小さい</li>
+      <li><strong>&gt;</strong> ：より大きい</li>
+      <li><strong>&lt;=</strong> ：以下</li>
+      <li><strong>&gt;=</strong> ：以上</li>
+      <li><strong>==</strong> ：等しい ／ <strong>!=</strong> ：等しくない</li>
+    </ul>
+    <div class="code-block" style="margin-top:0.8rem;">// 位置 z が 30 以上になったら
+if (transform.position.z &gt;= 30)
+{
+    Debug.Log("30以上");
+}</div>
+  </div>
+
+  <!-- 9. Test2-2：Destroy -->
+  <div class="slide theme-content">
+    <div class="tag blue">Test2-2</div>
+    <h2>Destroy でオブジェクトを消す</h2>
+    <div class="divider left"></div>
+    <div class="code-block">public float speed;
+public int destroyPoint;
+
+void Update()
+{
+    transform.Translate(Vector3.forward * speed);
+
+    if (transform.position.z &gt;= destroyPoint)
+    {
+        //このオブジェクトを消す
+        Destroy(gameObject);
     }
 }</div>
     <ul style="margin-top:0.8rem;">
-      <li>このままだと画面外に飛んでいってしまう</li>
-      <li>次はキー入力と組み合わせて「押している間だけ動く」ようにする</li>
+      <li><strong>Destroy(gameObject)</strong>：自分自身（このスクリプトが付いているオブジェクト）を削除</li>
+      <li>消滅地点の数値も <code>public int destroyPoint;</code> として Inspector で調整できる</li>
     </ul>
-    <div class="warn-box">
-      ⚠ フレームレートは環境によって変わる。後で Time.deltaTime を使って補正します。
+  </div>
+
+  <!-- 10. セクション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>Rigidbodyで物理演算</h1>
+    <p class="muted">力を加えて自然な動きを作る</p>
+  </div>
+
+  <!-- 11. Test2-3：Rigidbody + AddForce -->
+  <div class="slide theme-content">
+    <div class="tag blue">Test2-3</div>
+    <h2>Rigidbodyを取得して力を加える</h2>
+    <div class="divider left"></div>
+    <div class="code-block">Rigidbody rb;
+// Rigidbodyを入れるための変数
+// 変数の型 変数の名前
+
+void Start()
+{
+    rb = GetComponent&lt;Rigidbody&gt;();
+    // 変数の名前 = GetComponent&lt;型&gt;();
+
+    rb.AddForce(Vector3.forward * 1000);
+    // 変数の名前.AddForce(力の方向);
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>Sphere に Rigidbody コンポーネントを付けてから実行すると、Start の瞬間に前方へ強く飛んでいく。</p>
     </div>
   </div>
 
-  <!-- 8. セクション -->
+  <!-- 12. AddForce のしくみ -->
+  <div class="slide theme-content">
+    <div class="tag blue">AddForce</div>
+    <h2>Translate との違い</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>transform.Translate</h3>
+        <p>位置を直接動かす。<br>重力や衝突を無視。<br>毎フレーム書く必要あり。</p>
+      </div>
+      <div class="col-card">
+        <h3>Rigidbody.AddForce</h3>
+        <p>力を加えて物理で動かす。<br>重力・慣性・衝突が働く。<br>1回加えれば惰性で進み続ける。</p>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠ Rigidbody が無いオブジェクトに rb.AddForce を呼ぶとエラーになる。Inspector から Rigidbody を必ず追加しよう。
+    </div>
+  </div>
+
+  <!-- 13. セクション -->
   <div class="slide theme-section">
-    <div class="tag">Section 02</div>
-    <h1>キーボード入力を受け取る</h1>
-    <p class="muted">Input クラスを使ったキー入力処理</p>
+    <div class="tag">Section 04</div>
+    <h1>キー入力で操作する</h1>
+    <p class="muted">矢印キー＋スペースで Sphere を動かす</p>
   </div>
 
-  <!-- 9. Input.GetKey -->
+  <!-- 14. Test2-4：矢印キー -->
   <div class="slide theme-content">
-    <div class="tag blue">Input.GetKey</div>
-    <h2>キーが押されているか判定する</h2>
+    <div class="tag blue">Test2-4 ①</div>
+    <h2>矢印キーで4方向に動かす</h2>
     <div class="divider left"></div>
-    <div class="code-block">// キーを押している間ずっと true
-if (Input.GetKey(KeyCode.RightArrow))
+    <div class="code-block">void Update()
 {
-    // 右矢印キーを押しているとき
-}
+    // 十字キーで動かす
+    if (Input.GetKey(KeyCode.RightArrow))
+        rb.AddForce(Vector3.right);   // 右に力を加える
 
-// キーを押した瞬間だけ true
-if (Input.GetKeyDown(KeyCode.Space))
-{
-    // スペースキーを押した瞬間
-}
+    if (Input.GetKey(KeyCode.LeftArrow))
+        rb.AddForce(Vector3.left);    // 左に力を加える
 
-// キーを離した瞬間だけ true
-if (Input.GetKeyUp(KeyCode.RightArrow))
-{
-    // 右矢印キーを離した瞬間
+    if (Input.GetKey(KeyCode.UpArrow))
+        rb.AddForce(Vector3.forward); // 前に力を加える
+
+    if (Input.GetKey(KeyCode.DownArrow))
+        rb.AddForce(Vector3.back);    // 後ろに力を加える
 }</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p><strong>Input.GetKey</strong>：キーを押している間ずっと true ＝ 押し続けるとどんどん加速する。</p>
+    </div>
   </div>
 
-  <!-- 10. 上下左右移動コード -->
+  <!-- 15. Test2-4：ジャンプ -->
   <div class="slide theme-content">
-    <div class="tag blue">コード例</div>
-    <h2>上下左右キーで Cube を動かす</h2>
+    <div class="tag blue">Test2-4 ②</div>
+    <h2>スペースキーでジャンプ</h2>
     <div class="divider left"></div>
-    <div class="code-block">public class PlayerMove : MonoBehaviour
+    <div class="code-block">if (Input.GetKeyDown(KeyCode.Space))
 {
-    void Update()
-    {
-        if (Input.GetKey(KeyCode.RightArrow))
-            transform.Translate( 0.05f, 0f, 0f);
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-            transform.Translate(-0.05f, 0f, 0f);
-
-        if (Input.GetKey(KeyCode.UpArrow))
-            transform.Translate(0f,  0.05f, 0f);
-
-        if (Input.GetKey(KeyCode.DownArrow))
-            transform.Translate(0f, -0.05f, 0f);
-    }
+    rb.AddForce(Vector3.up * 200);
+    // 上に力を加える
 }</div>
-  </div>
-
-  <!-- 11. Time.deltaTime -->
-  <div class="slide theme-content">
-    <div class="tag blue">Time.deltaTime</div>
-    <h2>フレームレートに依存しない移動</h2>
-    <div class="divider left"></div>
-    <ul>
-      <li>フレームレートが高い PC では Update が多く呼ばれ → 速く動きすぎる</li>
-      <li>フレームレートが低い PC では遅くなる ＝ 環境によって速さが変わる</li>
-      <li><strong>Time.deltaTime</strong>：前フレームからの経過時間（秒）。高FPS時は小さく、低FPS時は大きい</li>
-      <li>移動量に掛け算することで「1秒あたりの移動距離」が一定になる</li>
+    <ul style="margin-top:0.8rem;">
+      <li><strong>GetKeyDown</strong>：押した瞬間だけ true（ジャンプはこちら）</li>
+      <li><strong>GetKey</strong>：押している間ずっと true（移動はこちら）</li>
+      <li>使い分けないと、押しっぱなしで無限に飛んでしまう</li>
+      <li><strong>Vector3.up * 200</strong>：重力に勝つ大きな値が必要（数値を変えて高さを調整）</li>
     </ul>
-    <div class="code-block" style="margin-top:0.8rem;">// speed = 3 なら 1秒で 3ユニット移動（FPS に関係なく一定）
-transform.Translate(3f * Time.deltaTime, 0f, 0f);</div>
   </div>
 
-  <!-- 12. セクション -->
-  <div class="slide theme-section">
-    <div class="tag">Section 03</div>
-    <h1>動きを確認しよう</h1>
-    <p class="muted">Playモードと Inspector での調整</p>
-  </div>
-
-  <!-- 13. Playモードで確認 -->
+  <!-- 16. 練習課題 -->
   <div class="slide theme-content">
-    <div class="tag blue">動作確認</div>
-    <h2>Playモードで実際に動かす</h2>
+    <div class="tag orange">練習課題</div>
+    <h2>Sphere を動かしてみよう</h2>
     <div class="divider left"></div>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>スクリプトを Cube にアタッチする</strong>前回の復習：Project から Inspector にドラッグ</div>
+        <div class="step-body"><strong>Plane と Sphere を配置</strong>Sphere に Rigidbody コンポーネントを追加する</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>▶ ボタンで Playモード開始</strong>Game ビューがアクティブになる</div>
+        <div class="step-body"><strong>Test2-4 と同じスクリプトを作成・アタッチ</strong>Start で rb = GetComponent&lt;Rigidbody&gt;()、Update で矢印キー＋スペース</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><strong>キーボードの矢印キーを押す</strong>Cube が上下左右に動くことを確認</div>
+        <div class="step-body"><strong>動作確認</strong>矢印キーで移動、スペースでジャンプができることを確認</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div class="step-body"><strong>動きが速すぎたり遅すぎたら Stop して調整</strong>移動量の数値を変えてみる</div>
+        <div class="step-body"><strong>力の数値を調整</strong>AddForce(Vector3.right * 5) のように倍率をかけて調整してみる</div>
       </div>
     </div>
   </div>
 
-  <!-- 14. public float speed -->
-  <div class="slide theme-content">
-    <div class="tag blue">public 変数</div>
-    <h2>Inspector からスピードを調整する</h2>
-    <div class="divider left"></div>
-    <div class="code-block">public class PlayerMove : MonoBehaviour
-{
-    // public にすると Inspector で値を変えられる
-    public float speed = 3f;
-
-    void Update()
-    {
-        if (Input.GetKey(KeyCode.RightArrow))
-            transform.Translate(speed * Time.deltaTime, 0f, 0f);
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-            transform.Translate(-speed * Time.deltaTime, 0f, 0f);
-
-        if (Input.GetKey(KeyCode.UpArrow))
-            transform.Translate(0f, speed * Time.deltaTime, 0f);
-
-        if (Input.GetKey(KeyCode.DownArrow))
-            transform.Translate(0f, -speed * Time.deltaTime, 0f);
-    }
-}</div>
-    <div class="highlight-box" style="margin-top:0.5rem;">
-      <p>Inspector の「Speed」フィールドを変えるだけでコードを書き直さずにスピード調整できる！</p>
-    </div>
-  </div>
-
-  <!-- 15. 練習課題 -->
-  <div class="slide theme-content">
-    <div class="tag orange">練習課題</div>
-    <h2>キーボードで Cube を動かそう</h2>
-    <div class="divider left"></div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>新しいシーンに Cube を置く</strong>地面として Plane も追加すると見やすい</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>PlayerMove スクリプトを作成・アタッチ</strong>public float speed = 3f; を宣言する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>矢印キーで動くことを確認</strong>Time.deltaTime を使った移動に仕上げる</div>
-      </div>
-    </div>
-    <div class="highlight-box" style="margin-top:0.8rem;">
-      <p>余裕がある人：W/A/S/D キーでも動くように改造してみよう。（KeyCode.W / A / S / D を使う）</p>
-    </div>
-  </div>
-
-  <!-- 16. まとめ -->
+  <!-- 17. まとめ -->
   <div class="slide theme-content">
     <div class="tag blue">まとめ</div>
     <h2>今日学んだこと</h2>
     <div class="divider left"></div>
     <ul>
-      <li>transform.Translate(x, y, z) でオブジェクトを相対移動できる</li>
-      <li>Update() の中に書くことで毎フレーム動き続ける処理を作れる</li>
-      <li>Input.GetKey(KeyCode.XXX) でキーが押されているか判定できる</li>
-      <li>Time.deltaTime を掛けることでFPSに関係なく一定速度で動かせる</li>
-      <li>public 変数にすると Inspector で値をリアルタイムに変更できる</li>
+      <li>Vector3 の forward / back / right / left / up / down で6方向を表せる</li>
+      <li>public 変数にすると Inspector から値を調整できる</li>
+      <li>if 文と &gt;= / &lt;= などの比較演算子で条件判定ができる</li>
+      <li>Destroy(gameObject) で自分自身を消せる</li>
+      <li>Rigidbody は GetComponent で取得し、AddForce で力を加える</li>
+      <li>移動は GetKey、ジャンプは GetKeyDown を使い分ける</li>
     </ul>
     <div class="highlight-box" style="margin-top:1rem;">
       <p>次回（第5回）：Unityの基礎③ ― Prefab とステージ作り。同じオブジェクトを量産してステージを組み立てよう！</p>
@@ -345,7 +345,7 @@ transform.Translate(3f * Time.deltaTime, 0f, 0f);</div>
 <!-- ナビゲーション -->
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter">1 / 16</span>
+  <span id="slide-counter">1 / 17</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>

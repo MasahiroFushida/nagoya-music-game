@@ -421,10 +421,17 @@ main {
   font-size: 0.92rem;
 }
 
+.assignment-box .content {
+  white-space: pre-line;
+  line-height: 1.8;
+}
+
 .assignment-box .deadline {
   font-size: 0.82rem;
   color: #b45309;
-  margin-top: 0.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed #ffe082;
   font-weight: bold;
 }
 
