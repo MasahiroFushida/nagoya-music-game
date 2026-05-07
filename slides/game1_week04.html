@@ -92,9 +92,9 @@
     <p class="muted">Vector3 の6方向を使って移動を表現する</p>
   </div>
 
-  <!-- 4. Test1-4：Update + Translate -->
+  <!-- 4. Update + Translate -->
   <div class="slide theme-content">
-    <div class="tag blue">Test1-4</div>
+    <div class="tag blue">Start と Update</div>
     <h2>Update で毎フレーム前進させる</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="kw">void</span> <span class="fn">Start</span>()
@@ -138,9 +138,9 @@
     <p class="muted">Inspectorから値を変える／条件で処理を分岐する</p>
   </div>
 
-  <!-- 7. Test2-1：public float speed -->
+  <!-- 7. public float speed -->
   <div class="slide theme-content">
-    <div class="tag blue">Test2-1</div>
+    <div class="tag blue">public 変数</div>
     <h2>速度を public 変数にする</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="kw">public</span> <span class="ty">float</span> speed;
@@ -181,9 +181,9 @@
 }</div>
   </div>
 
-  <!-- 9. Test2-2：Destroy -->
+  <!-- 9. Destroy -->
   <div class="slide theme-content">
-    <div class="tag blue">Test2-2</div>
+    <div class="tag blue">Destroy</div>
     <h2>Destroy でオブジェクトを消す</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="kw">public</span> <span class="ty">float</span> speed;
@@ -212,9 +212,9 @@
     <p class="muted">力を加えて自然な動きを作る</p>
   </div>
 
-  <!-- 11. Test2-3：Rigidbody + AddForce -->
+  <!-- 11. Rigidbody + AddForce -->
   <div class="slide theme-content">
-    <div class="tag blue">Test2-3</div>
+    <div class="tag blue">Rigidbody + GetComponent</div>
     <h2>Rigidbodyを取得して力を加える</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="ty">Rigidbody</span> rb;
@@ -261,9 +261,9 @@
     <p class="muted">矢印キー＋スペースで Sphere を動かす</p>
   </div>
 
-  <!-- 14. Test2-4：矢印キー -->
+  <!-- 14. 矢印キー操作 -->
   <div class="slide theme-content">
-    <div class="tag blue">Test2-4 ①</div>
+    <div class="tag blue">矢印キーで移動</div>
     <h2>矢印キーで4方向に動かす</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="kw">void</span> <span class="fn">Update</span>()
@@ -286,9 +286,9 @@
     </div>
   </div>
 
-  <!-- 15. Test2-4：ジャンプ -->
+  <!-- 15. スペースでジャンプ -->
   <div class="slide theme-content">
-    <div class="tag blue">Test2-4 ②</div>
+    <div class="tag blue">スペースでジャンプ</div>
     <h2>スペースキーでジャンプ</h2>
     <div class="divider left"></div>
     <div class="code-block"><span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
@@ -316,7 +316,7 @@
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>Test2-4 と同じスクリプトを作成・アタッチ</strong>Start で rb = GetComponent&lt;Rigidbody&gt;()、Update で矢印キー＋スペース</div>
+        <div class="step-body"><strong>PlayerMove スクリプトを作成・アタッチ</strong>Start で rb = GetComponent&lt;Rigidbody&gt;()、Update で矢印キー＋スペース</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
