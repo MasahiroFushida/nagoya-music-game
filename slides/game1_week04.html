@@ -33,7 +33,14 @@
     .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
     .step-body { font-size: 0.95rem; line-height: 1.6; }
     .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
-    .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
+    .code-block { background: #0d1b2a; border: 1px solid rgba(100,160,255,0.25); border-radius: 10px; padding: 1.1rem 1.5rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 1rem; line-height: 1.75; max-width: 820px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; color: #e6edf3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+    .code-block .kw { color: #ff79c6; }
+    .code-block .ty { color: #8be9fd; }
+    .code-block .fn { color: #50fa7b; }
+    .code-block .num { color: #ffb86c; }
+    .code-block .str { color: #f1fa8c; }
+    .code-block .cm { color: #8896b3; font-style: italic; }
+    .code-block .op { color: #ff79c6; }
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
     .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
     .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
@@ -90,16 +97,16 @@
     <div class="tag blue">Test1-4</div>
     <h2>Update で毎フレーム前進させる</h2>
     <div class="divider left"></div>
-    <div class="code-block">void Start()
+    <div class="code-block"><span class="kw">void</span> <span class="fn">Start</span>()
 {
-    Debug.Log("Start");
+    <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"Start"</span>);
 }
 
-void Update()
+<span class="kw">void</span> <span class="fn">Update</span>()
 {
-    Debug.Log("Update");
-    transform.Translate(Vector3.forward);
-    //transform.Translate(Vector3.forward * 0.1f);
+    <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"Update"</span>);
+    transform.<span class="fn">Translate</span>(<span class="ty">Vector3</span>.forward);
+    <span class="cm">//transform.Translate(Vector3.forward * 0.1f);</span>
 }</div>
     <div class="highlight-box" style="margin-top:0.6rem;">
       <p>Start は1回だけ、Update は毎フレーム呼ばれる。Console を見ると Update が大量に出力されることがわかる。</p>
@@ -136,18 +143,18 @@ void Update()
     <div class="tag blue">Test2-1</div>
     <h2>速度を public 変数にする</h2>
     <div class="divider left"></div>
-    <div class="code-block">public float speed;
+    <div class="code-block"><span class="kw">public</span> <span class="ty">float</span> speed;
 
-void Update()
+<span class="kw">void</span> <span class="fn">Update</span>()
 {
-    transform.Translate(Vector3.forward * speed);
+    transform.<span class="fn">Translate</span>(<span class="ty">Vector3</span>.forward * speed);
 
-    if (transform.position.z &gt;= 30)
+    <span class="kw">if</span> (transform.position.z &gt;= <span class="num">30</span>)
     {
-        Debug.Log("30以上");
-        //speed = -0.1f;
-        //speed *= -1;
-        //speed = -speed;
+        <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"30以上"</span>);
+        <span class="cm">//speed = -0.1f;</span>
+        <span class="cm">//speed *= -1;</span>
+        <span class="cm">//speed = -speed;</span>
     }
 }</div>
     <div class="highlight-box" style="margin-top:0.6rem;">
@@ -167,10 +174,10 @@ void Update()
       <li><strong>&gt;=</strong> ：以上</li>
       <li><strong>==</strong> ：等しい ／ <strong>!=</strong> ：等しくない</li>
     </ul>
-    <div class="code-block" style="margin-top:0.8rem;">// 位置 z が 30 以上になったら
-if (transform.position.z &gt;= 30)
+    <div class="code-block" style="margin-top:0.8rem;"><span class="cm">// 位置 z が 30 以上になったら</span>
+<span class="kw">if</span> (transform.position.z &gt;= <span class="num">30</span>)
 {
-    Debug.Log("30以上");
+    <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"30以上"</span>);
 }</div>
   </div>
 
@@ -179,17 +186,17 @@ if (transform.position.z &gt;= 30)
     <div class="tag blue">Test2-2</div>
     <h2>Destroy でオブジェクトを消す</h2>
     <div class="divider left"></div>
-    <div class="code-block">public float speed;
-public int destroyPoint;
+    <div class="code-block"><span class="kw">public</span> <span class="ty">float</span> speed;
+<span class="kw">public</span> <span class="ty">int</span> destroyPoint;
 
-void Update()
+<span class="kw">void</span> <span class="fn">Update</span>()
 {
-    transform.Translate(Vector3.forward * speed);
+    transform.<span class="fn">Translate</span>(<span class="ty">Vector3</span>.forward * speed);
 
-    if (transform.position.z &gt;= destroyPoint)
+    <span class="kw">if</span> (transform.position.z &gt;= destroyPoint)
     {
-        //このオブジェクトを消す
-        Destroy(gameObject);
+        <span class="cm">//このオブジェクトを消す</span>
+        <span class="fn">Destroy</span>(gameObject);
     }
 }</div>
     <ul style="margin-top:0.8rem;">
@@ -210,17 +217,17 @@ void Update()
     <div class="tag blue">Test2-3</div>
     <h2>Rigidbodyを取得して力を加える</h2>
     <div class="divider left"></div>
-    <div class="code-block">Rigidbody rb;
-// Rigidbodyを入れるための変数
-// 変数の型 変数の名前
+    <div class="code-block"><span class="ty">Rigidbody</span> rb;
+<span class="cm">// Rigidbodyを入れるための変数</span>
+<span class="cm">// 変数の型 変数の名前</span>
 
-void Start()
+<span class="kw">void</span> <span class="fn">Start</span>()
 {
-    rb = GetComponent&lt;Rigidbody&gt;();
-    // 変数の名前 = GetComponent&lt;型&gt;();
+    rb = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody</span>&gt;();
+    <span class="cm">// 変数の名前 = GetComponent&lt;型&gt;();</span>
 
-    rb.AddForce(Vector3.forward * 1000);
-    // 変数の名前.AddForce(力の方向);
+    rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.forward * <span class="num">1000</span>);
+    <span class="cm">// 変数の名前.AddForce(力の方向);</span>
 }</div>
     <div class="highlight-box" style="margin-top:0.6rem;">
       <p>Sphere に Rigidbody コンポーネントを付けてから実行すると、Start の瞬間に前方へ強く飛んでいく。</p>
@@ -259,20 +266,20 @@ void Start()
     <div class="tag blue">Test2-4 ①</div>
     <h2>矢印キーで4方向に動かす</h2>
     <div class="divider left"></div>
-    <div class="code-block">void Update()
+    <div class="code-block"><span class="kw">void</span> <span class="fn">Update</span>()
 {
-    // 十字キーで動かす
-    if (Input.GetKey(KeyCode.RightArrow))
-        rb.AddForce(Vector3.right);   // 右に力を加える
+    <span class="cm">// 十字キーで動かす</span>
+    <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.RightArrow))
+        rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.right);   <span class="cm">// 右に力を加える</span>
 
-    if (Input.GetKey(KeyCode.LeftArrow))
-        rb.AddForce(Vector3.left);    // 左に力を加える
+    <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.LeftArrow))
+        rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.left);    <span class="cm">// 左に力を加える</span>
 
-    if (Input.GetKey(KeyCode.UpArrow))
-        rb.AddForce(Vector3.forward); // 前に力を加える
+    <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.UpArrow))
+        rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.forward); <span class="cm">// 前に力を加える</span>
 
-    if (Input.GetKey(KeyCode.DownArrow))
-        rb.AddForce(Vector3.back);    // 後ろに力を加える
+    <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.DownArrow))
+        rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.back);    <span class="cm">// 後ろに力を加える</span>
 }</div>
     <div class="highlight-box" style="margin-top:0.6rem;">
       <p><strong>Input.GetKey</strong>：キーを押している間ずっと true ＝ 押し続けるとどんどん加速する。</p>
@@ -284,10 +291,10 @@ void Start()
     <div class="tag blue">Test2-4 ②</div>
     <h2>スペースキーでジャンプ</h2>
     <div class="divider left"></div>
-    <div class="code-block">if (Input.GetKeyDown(KeyCode.Space))
+    <div class="code-block"><span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
 {
-    rb.AddForce(Vector3.up * 200);
-    // 上に力を加える
+    rb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.up * <span class="num">200</span>);
+    <span class="cm">// 上に力を加える</span>
 }</div>
     <ul style="margin-top:0.8rem;">
       <li><strong>GetKeyDown</strong>：押した瞬間だけ true（ジャンプはこちら）</li>
