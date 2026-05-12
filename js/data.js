@@ -77,7 +77,9 @@ const SITE_DATA = {
         week: 6,
         title: "UIの基礎",
         description: "UIの作成方法。Text・Button・Imageの配置、Canvasの役割、ボタン操作で画面表示を変える。",
-        slides: null,
+        slides: [
+          { label: "第6回 UIの基礎 スライド", url: "slides/game1_week06.html" }
+        ],
         project: null,
         assignment: null,
         deadline: null
