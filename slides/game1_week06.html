@@ -1,80 +1,93 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第6回 UIの基礎</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
-#slideshow { width: 100vw; height: 100vh; position: relative; }
-.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
-.slide.active { opacity: 1; pointer-events: auto; }
-.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
-.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
-.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
-.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
-.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
-.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
-.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
-.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
-.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
-.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
-.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
-.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
-.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
-.divider.left { margin-left: 0; }
-.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
-.highlight-box p { font-size: 1rem; opacity: 0.9; }
-.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
-.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
-.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
-.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
-.step-body { font-size: 0.95rem; line-height: 1.6; }
-.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
-.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
-.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
-.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
-.col-card p, .col-card li { font-size: 0.88rem; }
-.muted { opacity: 0.6; }
-#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
-#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
-#nav button:hover { background: rgba(255,255,255,0.25); }
-#nav button:disabled { opacity: 0.25; cursor: default; }
-#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
-#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第6回 UIの基礎 | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: #0d1b2a; border: 1px solid rgba(100,160,255,0.25); border-radius: 10px; padding: 1rem 1.4rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 0.88rem; line-height: 1.7; max-width: min(1100px, 92vw); width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; color: #e6edf3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+    .code-block .kw { color: #ff79c6; }
+    .code-block .ty { color: #8be9fd; }
+    .code-block .fn { color: #50fa7b; }
+    .code-block .num { color: #ffb86c; }
+    .code-block .str { color: #f1fa8c; }
+    .code-block .cm { color: #8896b3; font-style: italic; }
+    .code-block .op { color: #ff79c6; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+  </style>
 </head>
 <body>
+
 <div id="slideshow">
 
   <!-- 1. タイトル -->
   <div class="slide theme-title active">
-    <div class="tag">Game Programming I</div>
-    <h1>第6回 UIの基礎</h1>
+    <div class="tag">ゲームプログラミング1 — 第6回</div>
+    <h1>UIの基礎</h1>
+    <h3>Text・Score・TextMeshPro・Image</h3>
     <div class="divider"></div>
-    <p class="muted">スコア・ボタン・テキスト表示をUnityで作ろう</p>
+    <p class="muted">名古屋音楽大学 2026年度</p>
   </div>
 
-  <!-- 2. 今日の内容 -->
+  <!-- 2. 学習ロードマップ -->
   <div class="slide theme-content">
     <div class="tag blue">今日の内容</div>
-    <h2>第6回 学習目標</h2>
+    <h2>第6回 学習ロードマップ</h2>
     <div class="divider left"></div>
     <ul>
-      <li>UIとは何か、ゲームの中でどう使われるかを理解する</li>
-      <li>CanvasにText・Image・Buttonを配置できるようになる</li>
-      <li>ボタンのOnClickイベントを設定できるようになる</li>
-      <li>スクリプトからUIテキストを更新できるようになる</li>
-      <li>スコア表示の仕組みを実装する</li>
+      <li>UIとCanvas・EventSystemの役割を理解する</li>
+      <li>Legacy Text を Canvas に配置する（stag4-1）</li>
+      <li>public 変数 + Inspector で Text を紐づける（stag4-2）</li>
+      <li>GameObject.Find で Text を取得する（stag4-3）</li>
+      <li>Sキーでスコアを加算して画面に表示する（stag4-4）</li>
+      <li>TextMeshPro と Image を扱う（stag4-5〜4-9）</li>
     </ul>
+    <div class="highlight-box" style="margin-top:1.2rem;">
+      <p>目標：キー入力でテキスト内容を書き換え、スコアをリアルタイムに画面表示できるようになる。</p>
+    </div>
   </div>
 
   <!-- 3. セクション：UIとは -->
   <div class="slide theme-section">
-    <div class="tag">Section 1</div>
+    <div class="tag">Section 01</div>
     <h1>UIとは</h1>
     <p class="muted">User Interface ― プレイヤーとゲームをつなぐ情報窓口</p>
   </div>
@@ -84,7 +97,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <div class="tag blue">UI とは</div>
     <h2>UI（ユーザーインターフェース）</h2>
     <div class="divider left"></div>
-    <p>プレイヤーがゲームの状態を把握し、操作するための視覚的な要素の総称です。</p>
+    <p>プレイヤーがゲームの状態を把握し、操作するための視覚的な要素の総称。</p>
     <div class="two-col" style="margin-top:1.2rem;">
       <div class="col-card">
         <h3>表示系UI</h3>
@@ -92,7 +105,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
           <li>スコア表示</li>
           <li>体力バー（HP）</li>
           <li>残り時間・残機数</li>
-          <li>ミニマップ</li>
+          <li>メッセージ表示</li>
         </ul>
       </div>
       <div class="col-card">
@@ -106,7 +119,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       </div>
     </div>
     <div class="highlight-box" style="margin-top:1rem;">
-      <p>UIはゲームの「伝える力」。情報が伝わらないと、どんなに面白いゲームでもプレイヤーが混乱します。</p>
+      <p>UIはゲームの「伝える力」。情報が伝わらないと、どんなに面白いゲームでもプレイヤーが混乱する。</p>
     </div>
   </div>
 
@@ -115,7 +128,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <div class="tag blue">Canvas</div>
     <h2>CanvasはUIの土台</h2>
     <div class="divider left"></div>
-    <p>UnityではすべてのUI要素は <strong>Canvas</strong> の子オブジェクトとして配置します。</p>
+    <p>UnityではすべてのUI要素は <strong>Canvas</strong> の子オブジェクトとして配置する。</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -132,241 +145,376 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     </div>
   </div>
 
-  <!-- 6. セクション：Text・Image・Button -->
+  <!-- 6. セクション：Legacy Text -->
   <div class="slide theme-section">
-    <div class="tag">Section 2</div>
-    <h1>Text・Image・Button<br>を作ろう</h1>
-    <p class="muted">UnityのHierarchyからUI要素を追加する</p>
+    <div class="tag">Section 02</div>
+    <h1>Legacy Text を配置する（stag4-1）</h1>
+    <p class="muted">まずは昔ながらの Text コンポーネントで基本を押さえる</p>
   </div>
 
-  <!-- 7. Textの配置方法 -->
+  <!-- 7. Legacy Text の配置手順 -->
   <div class="slide theme-content">
-    <div class="tag blue">Text</div>
-    <h2>TextMeshProの配置</h2>
+    <div class="tag blue">Text 配置</div>
+    <h2>Hierarchy → UI → Text - Legacy</h2>
     <div class="divider left"></div>
-    <p>通常のTextよりも高品質なフォント描画が可能な <strong>TextMeshPro</strong> を使います。</p>
-    <div class="steps" style="margin-top:1rem;">
+    <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>Hierarchyを右クリック</strong>コンテキストメニューを開く</div>
+        <div class="step-body"><strong>Hierarchy を右クリック</strong>UI → Text - Legacy を選択</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>UI → Text - TextMeshPro</strong>を選択</div>
+        <div class="step-body"><strong>Canvas と EventSystem が自動生成される</strong>Text オブジェクトは Canvas の子になる</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><strong>TMP Importerが出たら</strong>「Import TMP Essentials」をクリック</div>
+        <div class="step-body"><strong>Inspector で表示内容を設定</strong>Text 欄に文字列・色・サイズ・揃え方を指定</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div class="step-body"><strong>Canvasの子に自動配置</strong>されることを確認する</div>
+        <div class="step-body"><strong>Scene ビューで位置を調整</strong>Rect Transform の Anchor で画面端への固定が可能</div>
       </div>
+    </div>
+    <div class="warn-box">
+      ⚠ オブジェクト名はデフォルトの「Text (Legacy)」のままにしておくと、後で <code>GameObject.Find</code> から探しやすい。
     </div>
   </div>
 
-  <!-- 8. TextMeshProの基本設定 -->
+  <!-- 8. Text のプロパティ -->
   <div class="slide theme-content">
-    <div class="tag blue">TextMeshPro 設定</div>
-    <h2>TextMeshProの主要設定</h2>
+    <div class="tag blue">Text コンポーネント</div>
+    <h2>Inspector の主要プロパティ</h2>
     <div class="divider left"></div>
     <div class="two-col">
       <div class="col-card">
-        <h3>Inspector で設定できる項目</h3>
+        <h3>Text セクション</h3>
         <ul>
-          <li><strong>Text Input</strong>：表示するテキスト内容</li>
-          <li><strong>Font Asset</strong>：使用するフォント</li>
+          <li><strong>Text</strong>：表示する文字列</li>
+          <li><strong>Font</strong>：使用するフォント（Arial など）</li>
           <li><strong>Font Size</strong>：文字の大きさ</li>
-          <li><strong>Vertex Color</strong>：文字の色</li>
-          <li><strong>Alignment</strong>：文字揃え（左・中・右）</li>
+          <li><strong>Alignment</strong>：左・中央・右揃え</li>
+          <li><strong>Color</strong>：文字色</li>
         </ul>
       </div>
       <div class="col-card">
-        <h3>Rect Transform で位置調整</h3>
+        <h3>Rect Transform</h3>
         <ul>
-          <li><strong>Anchor</strong>：基準点を設定</li>
-          <li><strong>Pos X / Y</strong>：位置を指定</li>
+          <li><strong>Anchor</strong>：基準点（左上・中央など）</li>
+          <li><strong>Pos X / Y</strong>：Canvas 上の位置</li>
           <li><strong>Width / Height</strong>：テキスト領域のサイズ</li>
-          <li>Anchor Presetsで画面端への固定が簡単にできる</li>
+          <li>Anchor Presets で画面端への固定が簡単</li>
         </ul>
       </div>
     </div>
-    <div class="warn-box">
-      日本語を表示するにはフォントアセットに日本語対応フォントを設定する必要があります。
-    </div>
-  </div>
-
-  <!-- 9. Imageの配置 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Image</div>
-    <h2>Imageの配置と設定</h2>
-    <div class="divider left"></div>
-    <p>UIで画像を表示するには <strong>Image</strong> コンポーネントを使います。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>Hierarchy右クリック → UI → Image</strong>Imageオブジェクトが作成される</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>Source Image</strong>使いたい画像（Sprite）をInspectorにドラッグ＆ドロップ</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>Image Type</strong>「Filled」にすると体力バーのような減少アニメーションが作れる</div>
-      </div>
-    </div>
     <div class="highlight-box">
-      <p>テクスチャをSpriteとしてImportする際は、Inspector の Texture Type を「Sprite (2D and UI)」に変更してください。</p>
+      <p>Legacy Text のスクリプト操作には <code>using UnityEngine.UI;</code> の宣言が必須。</p>
     </div>
   </div>
 
-  <!-- 10. Buttonの配置 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Button</div>
-    <h2>Buttonの配置</h2>
-    <div class="divider left"></div>
-    <p>ボタンはクリックやタップに反応するインタラクティブなUI要素です。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>Hierarchy右クリック → UI → Button - TextMeshPro</strong>Button と子のTextが一緒に作成される</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>子のTextを選択</strong>InspectorでボタンのラベルテキストをTextInputで変更する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>Button本体のInspector</strong>「Transition」でホバー・クリック時の色変化を設定できる</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 11. セクション：ボタンにイベントをつける -->
+  <!-- 9. セクション：スクリプトから操作 -->
   <div class="slide theme-section">
-    <div class="tag">Section 3</div>
-    <h1>ボタンにイベントをつける</h1>
-    <p class="muted">クリックしたときに何かが起こる仕組みを作る</p>
+    <div class="tag">Section 03</div>
+    <h1>スクリプトから Text を操作</h1>
+    <p class="muted">stag4-2：Inspector で紐づける方法</p>
   </div>
 
-  <!-- 12. OnClickイベント -->
+  <!-- 10. Test4_2 -->
   <div class="slide theme-content">
-    <div class="tag blue">OnClick</div>
-    <h2>OnClickイベントの設定</h2>
+    <div class="tag blue">Test4_2.cs（stag4-2）</div>
+    <h2>① public 変数 + Inspector ドラッグ</h2>
     <div class="divider left"></div>
-    <p>ButtonコンポーネントのInspectorに <strong>On Click ()</strong> セクションがあります。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>On Click () の「+」をクリック</strong>イベントの受け取り先を追加する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>オブジェクトをドラッグ</strong>左のフィールドに呼び出したいスクリプトを持つオブジェクトをセット</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>メソッドを選択</strong>右のプルダウンから呼び出すメソッド名を選ぶ</div>
-      </div>
-    </div>
-    <div class="highlight-box">
-      <p>スクリプト側では public なメソッドを定義しておく必要があります。private では一覧に表示されません。</p>
-    </div>
-  </div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+<span class="kw">using</span> <span class="ty">UnityEngine.UI</span>; <span class="cm">// UIを使用するための宣言</span>
 
-  <!-- 13. スクリプトからUIを操作 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Script × UI</div>
-    <h2>スクリプトからUIを操作する</h2>
-    <div class="divider left"></div>
-    <p>TextMeshProUGUI コンポーネントを取得してテキストを書き換えます。</p>
-    <div class="code-block">using TMPro;
-using UnityEngine;
-
-public class UIController : MonoBehaviour
+<span class="kw">public class</span> <span class="ty">Test4_2</span> : <span class="ty">MonoBehaviour</span>
 {
-    // InspectorでTextMeshProUGUIを紐づける
-    public TextMeshProUGUI scoreText;
+    <span class="kw">public</span> <span class="ty">Text</span> myText; <span class="cm">// Textコンポーネントを格納する変数</span>
 
-    void Start()
+    <span class="kw">void</span> <span class="fn">Update</span>()
     {
-        scoreText.text = "Score: 0";
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
+        {
+            myText.text = <span class="str">"スペースキーが押されました！"</span>;
+        }
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>myText は <strong>public</strong> なので Inspector に「My Text」欄が現れる。そこに Hierarchy の Text (Legacy) をドラッグして紐づける。</p>
+    </div>
+  </div>
+
+  <!-- 11. セクション：Find で取得 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 04</div>
+    <h1>GameObject.Find で取得（stag4-3）</h1>
+    <p class="muted">コードからオブジェクトを名前で探す方法</p>
+  </div>
+
+  <!-- 12. Test4_3 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Test4_3.cs（stag4-3）</div>
+    <h2>② GameObject.Find で取得</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+<span class="kw">using</span> <span class="ty">UnityEngine.UI</span>;
+
+<span class="kw">public class</span> <span class="ty">Test4_3</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="ty">Text</span> myText; <span class="cm">// public でなくてもOK</span>
+
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        <span class="cm">// Hierarchyから「Text (Legacy)」という名前のオブジェクトを探す</span>
+        myText = <span class="ty">GameObject</span>.<span class="fn">Find</span>(<span class="str">"Text (Legacy)"</span>).<span class="fn">GetComponent</span>&lt;<span class="ty">Text</span>&gt;();
     }
 
-    public void UpdateScore(int score)
+    <span class="kw">void</span> <span class="fn">Update</span>()
     {
-        scoreText.text = "Score: " + score;
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
+        {
+            myText.text = <span class="str">"スペースキーが押されました！"</span>;
+        }
     }
 }</div>
     <div class="warn-box">
-      using TMPro; を忘れずに記述してください。TextMeshProUGUI は TMPro 名前空間に含まれています。
+      ⚠ <strong>Find の引数はオブジェクト名と完全一致</strong>させること。スペース・括弧も含めて正確に。
+    </div>
+  </div>
+
+  <!-- 13. 2つの方法の比較 -->
+  <div class="slide theme-content">
+    <div class="tag blue">2つの方法の使い分け</div>
+    <h2>Inspector 紐づけ vs GameObject.Find</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>① public + Inspector</h3>
+        <ul>
+          <li>動作が高速・確実</li>
+          <li>紐づけ忘れに気づきやすい</li>
+          <li>Inspector でリンク状態が見える</li>
+          <li><strong>こちらが基本</strong></li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>② GameObject.Find</h3>
+        <ul>
+          <li>コードだけで完結する</li>
+          <li>名前変更で簡単に壊れる</li>
+          <li>Find は処理が重いので Start で1回だけ</li>
+          <li>動的に生成されたオブジェクトを探すときに便利</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>慣れるまでは <strong>① public + Inspector</strong> を基本にする。Find はオブジェクトが多数あって Inspector 紐づけが大変なときの選択肢。</p>
     </div>
   </div>
 
   <!-- 14. セクション：スコア表示 -->
   <div class="slide theme-section">
-    <div class="tag">Section 4</div>
-    <h1>スコア表示を作ろう</h1>
-    <p class="muted">変数の値をリアルタイムにUIへ反映する</p>
+    <div class="tag">Section 05</div>
+    <h1>スコア表示（stag4-4）</h1>
+    <p class="muted">変数の値をリアルタイムに Text に反映する</p>
   </div>
 
-  <!-- 15. スコアをUIに反映するコード -->
+  <!-- 15. Test4_4 -->
   <div class="slide theme-content">
-    <div class="tag blue">Score UI</div>
-    <h2>スコア変数をUIに反映する</h2>
+    <div class="tag blue">Test4_4.cs（stag4-4）</div>
+    <h2>Sキーでスコアを加算してUIに反映</h2>
     <div class="divider left"></div>
-    <p>アイテムを取得するたびにスコアを加算し、表示を更新します。</p>
-    <div class="code-block">using TMPro;
-using UnityEngine;
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+<span class="kw">using</span> <span class="ty">UnityEngine.UI</span>;
 
-public class ScoreManager : MonoBehaviour
+<span class="kw">public class</span> <span class="ty">Test4_4</span> : <span class="ty">MonoBehaviour</span>
 {
-    public TextMeshProUGUI scoreText;
-    private int score = 0;
+    <span class="kw">private</span> <span class="kw">int</span> score;
+    <span class="ty">Text</span> myText;
+    <span class="ty">Text</span> scoreText;
 
-    void Start()
+    <span class="kw">void</span> <span class="fn">Start</span>()
     {
-        UpdateUI();
+        myText    = <span class="ty">GameObject</span>.<span class="fn">Find</span>(<span class="str">"Text (Legacy)"</span>).<span class="fn">GetComponent</span>&lt;<span class="ty">Text</span>&gt;();
+        scoreText = <span class="ty">GameObject</span>.<span class="fn">Find</span>(<span class="str">"Score"</span>).<span class="fn">GetComponent</span>&lt;<span class="ty">Text</span>&gt;();
     }
 
-    public void AddScore(int amount)
+    <span class="kw">void</span> <span class="fn">Update</span>()
     {
-        score += amount;
-        UpdateUI();
-    }
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
+            myText.text = <span class="str">"スペースキーが押されました！"</span>;
 
-    void UpdateUI()
-    {
-        scoreText.text = "Score: " + score.ToString();
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.S))
+        {
+            score++;                                       <span class="cm">// スコアを1点加算</span>
+            <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"Score: "</span> + score);
+            scoreText.text = <span class="str">"Score: "</span> + score;        <span class="cm">// UIに反映</span>
+        }
     }
 }</div>
   </div>
 
-  <!-- 16. まとめ -->
+  <!-- 16. シーン構成（stag4-4） -->
   <div class="slide theme-content">
-    <div class="tag orange">まとめ</div>
-    <h2>今日のまとめ</h2>
+    <div class="tag blue">stag4-4 のシーン構成</div>
+    <h2>必要なオブジェクトと名前</h2>
     <div class="divider left"></div>
-    <ul>
-      <li>UIはプレイヤーとゲームをつなぐ情報要素（スコア・体力・ボタンなど）</li>
-      <li>すべてのUI要素は <strong>Canvas</strong> の子として配置する</li>
-      <li>テキストは <strong>TextMeshPro</strong>、画像は <strong>Image</strong>、操作は <strong>Button</strong> を使う</li>
-      <li>ボタンのクリック処理は <strong>OnClick</strong> にメソッドを登録する</li>
-      <li>スクリプトから <strong>TextMeshProUGUI.text</strong> を書き換えてUIを更新する</li>
-    </ul>
-    <div class="highlight-box">
-      <p><strong>次回：第7回 当たり判定</strong><br>
-      Rigidbody・Colliderを使った物理演算と、OnCollisionEnter / OnTriggerEnter による衝突検知を学びます。</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Canvas（自動生成）</h3>
+        <p>子に Text (Legacy) と Score の2つの Text を配置。<br>位置は Anchor で画面端などに固定。</p>
+      </div>
+      <div class="col-card">
+        <h3>Text (Legacy)</h3>
+        <p>メッセージ表示用。<br>Space キーで内容が書き換わる。</p>
+      </div>
+      <div class="col-card">
+        <h3>Score</h3>
+        <p>スコア表示用の Text（名前を「Score」に変更）。<br>S キーを押すたびに数字が増える。</p>
+      </div>
+      <div class="col-card">
+        <h3>Cube（任意）</h3>
+        <p>Test4_4.cs をアタッチする土台。<br>Cube でも EmptyObject でも可。</p>
+      </div>
+    </div>
+    <div class="warn-box">
+      ⚠ <code>GameObject.Find("Score")</code> で取得するので、Text オブジェクトの名前は必ず「Score」にする。
     </div>
   </div>
 
-</div>
+  <!-- 17. セクション：TextMeshPro -->
+  <div class="slide theme-section">
+    <div class="tag">Section 06</div>
+    <h1>TextMeshPro と Image（stag4-5〜4-9）</h1>
+    <p class="muted">より高品質なテキスト表示と画像 UI</p>
+  </div>
+
+  <!-- 18. TextMeshPro -->
+  <div class="slide theme-content">
+    <div class="tag blue">TextMeshPro</div>
+    <h2>TMP（Text - TextMeshPro）の配置</h2>
+    <div class="divider left"></div>
+    <p>Legacy Text よりも<strong>くっきりした輪郭・自由な装飾</strong>が可能な新しいテキスト UI。</p>
+    <div class="steps" style="margin-top:0.6rem;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy 右クリック → UI → Text - TextMeshPro</strong>初回は「Import TMP Essentials」ダイアログが出るのでクリック</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>using TMPro;</strong>スクリプトから操作する場合は名前空間を追加</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>型は TextMeshProUGUI</strong>Legacy Text の代わりに <code>TextMeshProUGUI</code> を使う</div>
+      </div>
+    </div>
+    <div class="code-block" style="margin-top:0.8rem;"><span class="kw">using</span> <span class="ty">TMPro</span>;
+<span class="kw">public</span> <span class="ty">TextMeshProUGUI</span> tmpText;
+tmpText.text = <span class="str">"Hello TMP!"</span>;</div>
+  </div>
+
+  <!-- 19. Image -->
+  <div class="slide theme-content">
+    <div class="tag blue">Image（stag4-9）</div>
+    <h2>UIに画像を表示する</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Hierarchy 右クリック → UI → Image</strong>Canvas の子に Image オブジェクトが作成される</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>画像を Sprite として Import</strong>テクスチャの Inspector で Texture Type を「Sprite (2D and UI)」に変更</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Source Image にドラッグ</strong>Image コンポーネントの Source Image 欄に Sprite を割り当てる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Image Type</strong>「Filled」にすると体力バーのような塗りつぶしアニメが作れる</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>stag4-9 では Image1・Image2 の2枚を配置し、UI上での画像レイアウトを練習する。</p>
+    </div>
+  </div>
+
+  <!-- 20. シーン全体まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">game1_d のシーン構成</div>
+    <h2>stag4-1 〜 stag4-9 の流れ</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>stag4-1 〜 4-4</h3>
+        <p>Legacy Text の配置と操作・スコア表示<br>（Test4_2 / 4_3 / 4_4 をアタッチ）</p>
+      </div>
+      <div class="col-card">
+        <h3>stag4-5 〜 4-7</h3>
+        <p>Legacy Text と TextMeshPro を共存させて違いを比較</p>
+      </div>
+      <div class="col-card">
+        <h3>stag4-8</h3>
+        <p>TextMeshPro のみで構成<br>新しい UI 体系に慣れる</p>
+      </div>
+      <div class="col-card">
+        <h3>stag4-9</h3>
+        <p>Image を2枚配置<br>UI 画像の取り扱いを学ぶ</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 21. 練習課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">練習課題</div>
+    <h2>UIでスコア表示を作ろう</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>新しいシーンに Canvas と Text (Legacy) を配置</strong>名前を「Score」に変更</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Test4_4 のコードを参考にスクリプトを作成</strong>S キーでスコアを 1 ずつ増やす</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>応用：A キーでスコアを 5 増やす</strong>if 文を増やして加算量を変えてみる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>応用：TextMeshPro に置き換えてみる</strong>using TMPro; と TextMeshProUGUI への変更を試す</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 22. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>UI は Canvas の子として配置する（EventSystem も自動生成される）</li>
+      <li>Legacy Text を使うときは <code>using UnityEngine.UI;</code> を宣言</li>
+      <li>① public 変数 + Inspector ドラッグで紐づける方法（Test4_2）</li>
+      <li>② <code>GameObject.Find("名前").GetComponent&lt;Text&gt;()</code> で取得する方法（Test4_3）</li>
+      <li>スコア変数を <code>scoreText.text = "Score: " + score;</code> で UI に反映（Test4_4）</li>
+      <li>TextMeshPro は <code>using TMPro;</code> と <code>TextMeshProUGUI</code> で扱う</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次回（第7回）：当たり判定 ― Rigidbody と Collider、OnCollisionEnter / OnTriggerEnter で物理的なインタラクションを実装する。</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
 
 <!-- ナビゲーション -->
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter"></span>
+  <span id="slide-counter">1 / 22</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>
@@ -391,9 +539,9 @@ function changeSlide(dir) { showSlide(current + dir); }
   nextButton.addEventListener("click", () => changeSlide(1));
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
-  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
   if (e.key === "Home") showSlide(0);
-  if (e.key === "End") showSlide(slides.length - 1);
+  if (e.key === "End")  showSlide(slides.length - 1);
 });
 let touchStartX = 0;
 document.addEventListener("touchstart", e => {
