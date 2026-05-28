@@ -92,10 +92,14 @@ const SITE_DATA = {
         week: 7,
         title: "当たり判定",
         description: "ColliderとRigidbodyの基本。衝突判定の仕組み、トリガーイベントの利用、簡単な接触判定を実装する。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        slides: [
+          { label: "第7回 当たり判定 スライド", url: "slides/game1_week07.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_e/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【必修課題】Stage5-1 を再現しよう（最小ライン）\n\nSpaceキーで弾（Tama）を撃ち、Enemyに当たると両方が消えるシーンを作ろう。\nスクリプトはスライド掲載のコードをそのままコピーして使ってOKです。\n\n■ 手順\n1. 新しいシーンを作成し、Plane（地面）を配置する\n2. Player用のCubeを配置する\n3. Enemy用のCubeを少し離れた位置に配置し、Rigidbodyを追加する\n4. 弾用のCubeを小さめに変形（例：Scale 0.3, 0.3, 0.5）し、Rigidbodyを追加する\n   ・C#スクリプト「Tama」を作成し、スライドのコードをコピーしてアタッチする\n   ・Project内に「Prefabs」フォルダを作り、弾をドラッグしてPrefab化する\n   ・Prefab化したらHierarchy上の元の弾は削除する\n5. C#スクリプト「Enemy」を作成し、スライドのコードをコピーしてEnemyにアタッチする\n6. C#スクリプト「Player」を作成し、スライドのコードをコピーしてPlayerにアタッチする\n   ・Player の Inspector の「Tama」欄に、作成したTama Prefabをドラッグして割り当てる\n7. Playモードで実行し、矢印キー（←→）で移動・SpaceキーでTamaを発射してEnemyに当たると両方消えることを確認する\n\n■ 提出物（必修）\n・Game ビューのスクリーンショット 1枚（弾が飛んでいる、または当たって消えた瞬間が分かるもの）\n・Player.cs 1ファイル\n\n──────────────────────────────\n\n【応用課題（任意）】余力がある人だけ\n\n● 応用A：敵を動かしてみる\n  ・C#スクリプト「Enemy_5_3」を作成し、public float enemySpeed; を使って敵を手前方向に移動させる\n  ・Inspector の Enemy Speed を変えて挙動を試す（例：0.05 でゆっくり / 0.2 で速い）\n\n● 応用B：スコアを画面表示する\n  ・Tag「Tama」を作成し、Tama Prefab に設定する\n  ・Canvas + Text（名前を「ScoreTest」に変更）を配置する\n  ・C#スクリプト「GameManager」を作成し、空のGameObjectにアタッチする\n  ・C#スクリプト「Enemy_5_8」を作成し、Tamaタグに当たったときだけスコアを加算して消える処理を実装する\n  ・スライドのコードを参考にして実装する\n\n応用課題に挑戦した場合は、追加で .cs ファイルを提出してください。",
+        deadline: "第8回授業開始時"
       },
       {
         week: 8,
