@@ -105,10 +105,14 @@ const SITE_DATA = {
         week: 8,
         title: "音とインタラクション",
         description: "音を使った表現の基礎。AudioSourceの基本、効果音とBGMの設定、操作や接触に応じて音を再生する。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        slides: [
+          { label: "第8回 音とインタラクション スライド", url: "slides/game1_week08.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_f/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【必修課題】Stage6-1 を再現しよう（最小ライン）\n\nスペースキーでジャンプし、同時にジャンプ音が鳴るシーンを作ろう。\nスクリプトはスライド掲載のコードをそのままコピーして使ってOKです。\n\n■ 手順\n1. 新しいシーンを作成し、Plane（地面）を配置する\n2. Player用のCubeを配置し、Rigidbodyを追加する\n3. Assets内に「Audio」フォルダを作り、ジャンプ.mp3 を入れる\n   （好きなフリー素材サイトの音を使ってもOK）\n4. Player に AudioSource を追加し、AudioClip 欄にジャンプ.mp3 をドラッグする\n   ・Play On Awake は OFF、Loop も OFF にする\n5. C#スクリプト「Player」を作成し、スライドのコードをコピーしてPlayerにアタッチする\n6. Playモードで実行し、スペースキーでジャンプ＋ジャンプ音が鳴ることを確認する\n\n■ 提出物（必修）\n・Game ビューのスクリーンショット 1枚\n・Player.cs 1ファイル\n\n──────────────────────────────\n\n【応用課題（任意）】余力がある人だけ\n\n● 応用A：BGM を追加する\n  ・空オブジェクト「BGM」を作って AudioSource を追加\n  ・hiphop2.mp3（または好きなフリーBGM）を AudioClip にセット\n  ・Play On Awake と Loop を ON にして自動で BGM が流れることを確認\n\n● 応用B：左右移動を追加する（Stage6-4）\n  ・C#スクリプト「Player_6_4」を作成し、スライドのコードを参考に\n    矢印キー←→ で左右に Translate する処理を追加する\n\n● 応用C：1秒ごとに Cube を生成する（Stage6-7）\n  ・Cube を Prefab 化する\n  ・空オブジェクト「SpawnManager」を作成\n  ・C#スクリプト「SpawnManager_6_7」を作成し、スライドのコードを参考に\n    Time.deltaTime のタイマーで1秒ごとに Cube をランダム位置に Instantiate する\n\n応用課題に挑戦した場合は、追加で .cs ファイルを提出してください。",
+        deadline: "第9回授業開始時"
       },
       {
         week: 9,

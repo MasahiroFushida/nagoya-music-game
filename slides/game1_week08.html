@@ -1,407 +1,814 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第8回 音とインタラクション</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
-#slideshow { width: 100vw; height: 100vh; position: relative; }
-.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
-.slide.active { opacity: 1; pointer-events: auto; }
-.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
-.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
-.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
-.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
-.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
-.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
-.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
-.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
-.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
-.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
-.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
-.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
-.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
-.divider.left { margin-left: 0; }
-.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
-.highlight-box p { font-size: 1rem; opacity: 0.9; }
-.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
-.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
-.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
-.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
-.step-body { font-size: 0.95rem; line-height: 1.6; }
-.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
-.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
-.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
-.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
-.col-card p, .col-card li { font-size: 0.88rem; }
-.muted { opacity: 0.6; }
-#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
-#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
-#nav button:hover { background: rgba(255,255,255,0.25); }
-#nav button:disabled { opacity: 0.25; cursor: default; }
-#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
-#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第8回 音とインタラクション | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: #0d1b2a; border: 1px solid rgba(100,160,255,0.25); border-radius: 10px; padding: 1rem 1.4rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 0.88rem; line-height: 1.7; max-width: min(1100px, 92vw); width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; color: #e6edf3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+    .code-block .kw { color: #ff79c6; }
+    .code-block .ty { color: #8be9fd; }
+    .code-block .fn { color: #50fa7b; }
+    .code-block .num { color: #ffb86c; }
+    .code-block .str { color: #f1fa8c; }
+    .code-block .cm { color: #8896b3; font-style: italic; }
+    .code-block .op { color: #ff79c6; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    .diagram { width: 100%; max-width: 900px; margin-top: 0.6rem; }
+    .diagram svg { width: 100%; height: auto; display: block; }
+    .diagram-caption { font-size: 0.85rem; opacity: 0.7; margin-top: 0.6rem; text-align: center; width: 100%; max-width: 900px; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+    .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; max-width: 900px; width: 100%; margin-top: 0.6rem; }
+    .link-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(100,160,255,0.25); border-radius: 8px; padding: 0.8rem 1.1rem; text-decoration: none; color: inherit; display: block; transition: background 0.2s, border-color 0.2s; }
+    .link-card:hover { background: rgba(100,160,255,0.12); border-color: rgba(100,160,255,0.55); }
+    .link-card h3 { font-size: 1rem; color: #64b4ff; margin-bottom: 0.25rem; }
+    .link-card .url { font-size: 0.78rem; color: #ffe066; font-family: "SF Mono","Menlo","Consolas",monospace; word-break: break-all; margin-bottom: 0.3rem; }
+    .link-card p { font-size: 0.85rem; line-height: 1.5; opacity: 0.85; max-width: none; }
+    .works-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; max-width: 1100px; width: 100%; margin-top: 0.4rem; }
+    .work-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(100,160,255,0.25); border-radius: 8px; padding: 0.85rem 1rem; text-decoration: none; color: inherit; display: block; transition: background 0.2s, border-color 0.2s; position: relative; }
+    .work-card:hover { background: rgba(255,80,80,0.12); border-color: rgba(255,100,100,0.55); }
+    .work-card::after { content: "▶ YouTube"; position: absolute; top: 0.55rem; right: 0.7rem; font-size: 0.65rem; color: #ff6464; letter-spacing: 0.05em; opacity: 0.85; }
+    .work-card h3 { font-size: 1rem; margin-bottom: 0.2rem; color: #fff; padding-right: 4.5rem; }
+    .work-card .work-year { font-size: 0.72rem; color: #ffe066; letter-spacing: 0.05em; margin-bottom: 0.15rem; font-family: "SF Mono","Menlo","Consolas",monospace; }
+    .work-card .work-author { font-size: 0.74rem; color: #64b4ff; margin-bottom: 0.45rem; }
+    .work-card p { font-size: 0.8rem; line-height: 1.55; max-width: none; opacity: 0.9; }
+    .inline-link { color: #64b4ff; text-decoration: none; border-bottom: 1px solid rgba(100,180,255,0.5); padding-bottom: 1px; transition: color 0.2s, border-color 0.2s; }
+    .inline-link:hover { color: #a0d0ff; border-color: #a0d0ff; }
+  </style>
 </head>
 <body>
+
 <div id="slideshow">
 
   <!-- 1. タイトル -->
   <div class="slide theme-title active">
-    <div class="tag">Game Programming I</div>
-    <h1>第8回 音とインタラクション</h1>
+    <div class="tag">ゲームプログラミング1 — 第8回</div>
+    <h1>音とインタラクション</h1>
+    <h3>AudioSource・BGM・効果音・タイマー・Instantiate</h3>
     <div class="divider"></div>
-    <p class="muted">SE・BGMをUnityで実装しゲームに生命を吹き込む</p>
+    <p class="muted">名古屋音楽大学 2026年度</p>
   </div>
 
-  <!-- 2. 今日の内容 -->
+  <!-- 2. 学習ロードマップ -->
   <div class="slide theme-content">
     <div class="tag blue">今日の内容</div>
-    <h2>第8回 学習目標</h2>
+    <h2>第8回 学習ロードマップ</h2>
     <div class="divider left"></div>
     <ul>
-      <li>SE・BGM・ジングルの違いと役割を理解する</li>
-      <li>AudioSourceコンポーネントを追加・設定できる</li>
-      <li>スクリプトから Play() / PlayOneShot() で音を再生できる</li>
-      <li>接触イベントと組み合わせて効果音を鳴らせる</li>
-      <li>音量・ピッチをスクリプトから制御できる</li>
+      <li>AudioSource と AudioClip の関係を整理する</li>
+      <li>ジャンプに合わせて効果音を鳴らす（Stage6-1）</li>
+      <li>BGM をループ再生する（Stage6-2・6-3）</li>
+      <li>左右移動を加えて動きと音を組み合わせる（Stage6-4）</li>
+      <li>Instantiate で Cube を1個だけ生成する（Stage6-5）</li>
+      <li>タイマー機能を作る：Time.deltaTime（Stage6-6）</li>
+      <li>1秒ごとに Cube を生成する（Stage6-7）</li>
     </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>目標：音を「鳴らす」だけでなく、プレイヤーの操作や時間の経過に合わせて鳴らせるようになる。</p>
+    </div>
   </div>
 
-  <!-- 3. セクション：ゲームにおける音の役割 -->
+  <!-- 3. セクション：AudioSource の基本 -->
   <div class="slide theme-section">
-    <div class="tag">Section 1</div>
-    <h1>ゲームにおける<br>音の役割</h1>
-    <p class="muted">音楽大学生の視点でゲームサウンドを考える</p>
+    <div class="tag">Section 01</div>
+    <h1>AudioSource の基本</h1>
+    <p class="muted">音を鳴らすための 2 つの部品 ― AudioClip と AudioSource</p>
   </div>
 
-  <!-- 4. SE・BGM・ジングルの違い -->
+  <!-- 4. AudioSource と AudioClip -->
   <div class="slide theme-content">
-    <div class="tag blue">ゲームサウンド</div>
-    <h2>SE・BGM・ジングルの違いと役割</h2>
+    <div class="tag blue">AudioSource / AudioClip</div>
+    <h2>音を鳴らす 2 つの部品</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>AudioClip</h3>
+        <ul>
+          <li>音声ファイル本体（.mp3 / .wav など）</li>
+          <li>Assets/Audio フォルダに入れて使う</li>
+          <li>例：ジャンプ.mp3 / hiphop2.mp3</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>AudioSource</h3>
+        <ul>
+          <li>「音を鳴らす装置」のコンポーネント</li>
+          <li>GameObject に <strong>Add Component</strong> で追加</li>
+          <li>AudioClip 欄に鳴らしたい音をドラッグ</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>音を聞くには <strong>AudioListener</strong> も必要。新規シーンの Main Camera に最初から付いているので、特に設定する必要はない。</p>
+    </div>
+  </div>
+
+  <!-- 5. 概念図：AudioClip と AudioSource の関係 -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>AudioClip × AudioSource × AudioListener</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowAudio" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64b4ff"/>
+          </marker>
+        </defs>
+        <!-- AudioClip -->
+        <g transform="translate(40,120)">
+          <rect width="220" height="140" rx="14" fill="rgba(255,224,102,0.12)" stroke="#ffe066" stroke-width="2"/>
+          <text x="110" y="36" text-anchor="middle" fill="#ffe066" font-size="15" font-weight="bold">AudioClip</text>
+          <text x="110" y="62" text-anchor="middle" fill="#e6edf3" font-size="12">音声ファイル</text>
+          <text x="110" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">ジャンプ.mp3</text>
+          <text x="110" y="106" text-anchor="middle" fill="#e6edf3" font-size="12">hiphop2.mp3</text>
+          <text x="110" y="128" text-anchor="middle" fill="#8896b3" font-size="11">（音のデータ本体）</text>
+        </g>
+        <line x1="270" y1="190" x2="330" y2="190" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowAudio)"/>
+        <text x="300" y="178" text-anchor="middle" fill="#64b4ff" font-size="11">セット</text>
+        <!-- AudioSource -->
+        <g transform="translate(340,120)">
+          <rect width="220" height="140" rx="14" fill="rgba(80,250,123,0.15)" stroke="#50fa7b" stroke-width="2"/>
+          <text x="110" y="36" text-anchor="middle" fill="#50fa7b" font-size="15" font-weight="bold">AudioSource</text>
+          <text x="110" y="62" text-anchor="middle" fill="#e6edf3" font-size="12">音を鳴らす装置</text>
+          <text x="110" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">Play On Awake / Loop</text>
+          <text x="110" y="106" text-anchor="middle" fill="#e6edf3" font-size="12">Volume / Pitch</text>
+          <text x="110" y="128" text-anchor="middle" fill="#8896b3" font-size="11">（GameObject に付ける）</text>
+        </g>
+        <line x1="570" y1="190" x2="630" y2="190" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowAudio)"/>
+        <text x="600" y="178" text-anchor="middle" fill="#64b4ff" font-size="11">音を出す</text>
+        <!-- AudioListener -->
+        <g transform="translate(640,120)">
+          <rect width="220" height="140" rx="14" fill="rgba(255,121,198,0.12)" stroke="#ff79c6" stroke-width="2"/>
+          <text x="110" y="36" text-anchor="middle" fill="#ff79c6" font-size="15" font-weight="bold">AudioListener</text>
+          <text x="110" y="62" text-anchor="middle" fill="#e6edf3" font-size="12">音を聞く耳</text>
+          <text x="110" y="86" text-anchor="middle" fill="#e6edf3" font-size="12">Main Camera に</text>
+          <text x="110" y="106" text-anchor="middle" fill="#e6edf3" font-size="12">最初から付いている</text>
+          <text x="110" y="128" text-anchor="middle" fill="#8896b3" font-size="11">（基本さわらない）</text>
+        </g>
+        <!-- caption -->
+        <text x="450" y="320" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="bold">音のデータ（AudioClip）を 装置（AudioSource）にセットし、耳（AudioListener）が拾う</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 6. セクション：効果音 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 02</div>
+    <h1>効果音を鳴らす（Stage6-1）</h1>
+    <p class="muted">スペースキーでジャンプ ＋ ジャンプ音を鳴らす</p>
+  </div>
+
+  <!-- 7. Stage6-1 のシーン構成 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Stage6-1 のシーン構成</div>
+    <h2>必要なオブジェクトとアセット</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Plane</h3>
+        <p>地面。Y=0 に配置。<br>Rigidbody は付けない。</p>
+      </div>
+      <div class="col-card">
+        <h3>Player（Cube など）</h3>
+        <p>Rigidbody を追加。<br>AudioSource を追加して<br>AudioClip 欄に「ジャンプ.mp3」をセット。</p>
+      </div>
+      <div class="col-card">
+        <h3>Assets/Audio</h3>
+        <p>ジャンプ.mp3 を Project にドラッグして読み込み。</p>
+      </div>
+      <div class="col-card">
+        <h3>Player.cs</h3>
+        <p>スペースキーで AddForce ＋ <strong>audioSource.Play()</strong>。<br>Player にアタッチ。</p>
+      </div>
+    </div>
+    <div class="warn-box">
+      Player の AudioSource は <strong>Play On Awake を OFF</strong>。シーン開始時に勝手に鳴ってほしくないので、スクリプトから <code>Play()</code> で鳴らす。
+    </div>
+  </div>
+
+  <!-- 8. Player.cs の中身 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Player.cs（Stage6-1）</div>
+    <h2>ジャンプ + 効果音再生</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="ty">Player</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">private</span> <span class="ty">Rigidbody</span> playerRb;
+    <span class="kw">private</span> <span class="ty">AudioSource</span> audioSource;
+
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        playerRb    = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody</span>&gt;();
+        audioSource = <span class="fn">GetComponent</span>&lt;<span class="ty">AudioSource</span>&gt;();
+    }
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="cm">// スペースキーが押されたら、</span>
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
+        {
+            playerRb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.up * <span class="num">400</span>);  <span class="cm">// 上方向に力</span>
+            audioSource.<span class="fn">Play</span>();                  <span class="cm">// ジャンプ音を鳴らす</span>
+        }
+    }
+}</div>
+    <div class="highlight-box">
+      <p><code>GetComponent&lt;AudioSource&gt;()</code> で「自分自身に付いている AudioSource」を取得し、<code>Play()</code> で鳴らす。</p>
+    </div>
+  </div>
+
+  <!-- 9. 概念図：キー入力 → 音再生の流れ -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>キー入力 → 効果音再生の流れ</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowSE" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64b4ff"/>
+          </marker>
+        </defs>
+        <!-- 1. キー入力 -->
+        <rect x="40" y="120" width="180" height="100" rx="12" fill="rgba(255,184,108,0.15)" stroke="#ffb86c" stroke-width="2"/>
+        <text x="130" y="155" text-anchor="middle" fill="#ffb86c" font-size="14" font-weight="bold">① スペースキー</text>
+        <text x="130" y="180" text-anchor="middle" fill="#e6edf3" font-size="12">GetKeyDown(Space)</text>
+        <text x="130" y="200" text-anchor="middle" fill="#8896b3" font-size="11">押された瞬間</text>
+        <line x1="220" y1="170" x2="280" y2="170" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowSE)"/>
+        <!-- 2. Player.cs -->
+        <rect x="290" y="120" width="200" height="100" rx="12" fill="rgba(80,250,123,0.15)" stroke="#50fa7b" stroke-width="2"/>
+        <text x="390" y="155" text-anchor="middle" fill="#50fa7b" font-size="14" font-weight="bold">② Player.cs</text>
+        <text x="390" y="180" text-anchor="middle" fill="#e6edf3" font-size="12">AddForce(上方向)</text>
+        <text x="390" y="200" text-anchor="middle" fill="#e6edf3" font-size="12">audioSource.Play()</text>
+        <line x1="490" y1="170" x2="550" y2="170" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowSE)"/>
+        <!-- 3. AudioSource -->
+        <rect x="560" y="120" width="200" height="100" rx="12" fill="rgba(100,160,255,0.18)" stroke="#64b4ff" stroke-width="2"/>
+        <text x="660" y="155" text-anchor="middle" fill="#64b4ff" font-size="14" font-weight="bold">③ AudioSource</text>
+        <text x="660" y="180" text-anchor="middle" fill="#e6edf3" font-size="12">ジャンプ.mp3 を</text>
+        <text x="660" y="200" text-anchor="middle" fill="#e6edf3" font-size="12">1 回だけ再生</text>
+        <!-- 音波アイコン -->
+        <g transform="translate(800,170)">
+          <path d="M0 0 Q 15 -15 30 0 Q 15 15 0 0" fill="none" stroke="#ffe066" stroke-width="2"/>
+          <path d="M-10 0 Q 20 -25 50 0 Q 20 25 -10 0" fill="none" stroke="#ffe066" stroke-width="1.5" opacity="0.6"/>
+        </g>
+        <!-- 物理 + 音 -->
+        <text x="390" y="280" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="bold">物理（ジャンプ）と 音（効果音）が同時に起きる</text>
+        <text x="450" y="320" text-anchor="middle" fill="#8896b3" font-size="12">→ プレイヤーの操作と音がつながり、ゲームらしさが生まれる</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 10. セクション：BGM -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>BGM を流す（Stage6-2・6-3）</h1>
+    <p class="muted">Play On Awake と Loop でずっと鳴り続ける音楽</p>
+  </div>
+
+  <!-- 11. BGM の作り方 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Stage6-2・6-3</div>
+    <h2>BGM 用の空オブジェクトを作る</h2>
     <div class="divider left"></div>
     <div class="steps">
       <div class="step">
-        <div class="step-num">SE</div>
-        <div class="step-body"><strong>サウンドエフェクト（効果音）</strong>ジャンプ音、コイン取得音、ダメージ音など。プレイヤーの行動や状態変化を即座にフィードバックする短い音。</div>
-      </div>
-      <div class="step">
-        <div class="step-num">BGM</div>
-        <div class="step-body"><strong>バックグラウンドミュージック（背景音楽）</strong>ゲームプレイ中にループ再生される楽曲。場面の雰囲気・テンション・世界観を作る。</div>
-      </div>
-      <div class="step">
-        <div class="step-num">JG</div>
-        <div class="step-body"><strong>ジングル（ステートミュージック）</strong>ゲームクリア・ゲームオーバーなど特定の状態遷移で1回だけ鳴らす短い楽曲。</div>
-      </div>
-    </div>
-    <div class="highlight-box" style="margin-top:0.8rem;">
-      <p>音はゲームの「体験」を作る重要な要素。音がないゲームは感情的な手がかりを失います。</p>
-    </div>
-  </div>
-
-  <!-- 5. 音声フォーマット -->
-  <div class="slide theme-content">
-    <div class="tag blue">音声フォーマット</div>
-    <h2>Unityで使える音声フォーマット</h2>
-    <div class="divider left"></div>
-    <div class="two-col">
-      <div class="col-card">
-        <h3>.wav（非圧縮）</h3>
-        <p>ファイルサイズが大きいが高音質。短い効果音に最適。メモリに展開して即時再生できるため、SEに推奨。</p>
-      </div>
-      <div class="col-card">
-        <h3>.mp3（圧縮）</h3>
-        <p>ファイルサイズが小さい。BGMなど長い楽曲に向いている。ただしループポイントがずれる場合がある。</p>
-      </div>
-    </div>
-    <div class="col-card" style="margin-top:1rem; max-width:900px;">
-      <h3>.ogg（Vorbis圧縮）</h3>
-      <p style="font-size:0.88rem;">ゲーム開発での標準的な圧縮フォーマット。音質と圧縮率のバランスが良く、ループも正確。BGMにはmpよりoggを推奨。</p>
-    </div>
-    <div class="warn-box">
-      Unityでは Import Settings の Load Type・Compression Format でメモリ使用量と品質を調整できます。
-    </div>
-  </div>
-
-  <!-- 6. セクション：AudioSourceを使おう -->
-  <div class="slide theme-section">
-    <div class="tag">Section 2</div>
-    <h1>AudioSourceを使おう</h1>
-    <p class="muted">音を鳴らすためのコンポーネントを設定する</p>
-  </div>
-
-  <!-- 7. AudioSourceの追加 -->
-  <div class="slide theme-content">
-    <div class="tag blue">AudioSource</div>
-    <h2>AudioSourceコンポーネントの追加</h2>
-    <div class="divider left"></div>
-    <p>AudioSource は「スピーカー」の役割を果たすコンポーネントです。音を鳴らしたいオブジェクトにアタッチします。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>オブジェクトを選択</strong>音を鳴らしたいGameObjectをHierarchyで選ぶ</div>
+        <div class="step-body"><strong>Hierarchy で右クリック → Create Empty</strong>名前を「BGM」に変更し、Position は 0,0,0。</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>Add Component</strong>InspectorのAdd Component → Audio → Audio Source を選択</div>
+        <div class="step-body"><strong>BGM に AudioSource を追加</strong>Add Component → Audio → AudioSource。</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><strong>AudioClipを設定</strong>プロジェクトの音声ファイルをAudio Clipフィールドにドラッグ&ドロップ</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 8. AudioSourceの主要設定 -->
-  <div class="slide theme-content">
-    <div class="tag blue">AudioSource 設定</div>
-    <h2>AudioSourceの主要設定</h2>
-    <div class="divider left"></div>
-    <div class="two-col">
-      <div class="col-card">
-        <h3>基本設定</h3>
-        <ul>
-          <li><strong>Audio Clip</strong>：再生する音声ファイル</li>
-          <li><strong>Volume</strong>：音量（0〜1）</li>
-          <li><strong>Pitch</strong>：ピッチ（1 = 標準）</li>
-          <li><strong>Loop</strong>：ループ再生するか</li>
-        </ul>
-      </div>
-      <div class="col-card">
-        <h3>再生タイミング</h3>
-        <ul>
-          <li><strong>Play On Awake</strong>：ゲーム開始時に自動再生</li>
-          <li><strong>Priority</strong>：再生優先度（0=高〜256=低）</li>
-          <li><strong>Spatial Blend</strong>：0=2D音源、1=3D空間音響</li>
-          <li>BGMは通常 2D（Spatial Blend = 0）にする</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- 9. BGMの設定 -->
-  <div class="slide theme-content">
-    <div class="tag blue">BGM設定</div>
-    <h2>BGMのループ再生設定</h2>
-    <div class="divider left"></div>
-    <p>空のGameObjectを作成してBGM専用のAudioSourceをアタッチするのが一般的です。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>空のGameObjectを作成</strong>Hierarchy右クリック → Create Empty → 名前を「BGMManager」等に変更</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>AudioSourceを追加</strong>BGM用音声ファイルをAudio Clipに設定する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>LoopをON、Play On AwakeをON</strong>これだけでゲーム開始と同時にBGMがループ再生される</div>
-      </div>
-    </div>
-    <div class="highlight-box">
-      <p>Spatial Blend を 0（2D）に設定しないと、カメラから離れると音量が下がってしまいます。BGMは必ず 0 にしてください。</p>
-    </div>
-  </div>
-
-  <!-- 10. セクション：スクリプトから音を再生 -->
-  <div class="slide theme-section">
-    <div class="tag">Section 3</div>
-    <h1>スクリプトから<br>音を再生する</h1>
-    <p class="muted">Play() と PlayOneShot() を使い分ける</p>
-  </div>
-
-  <!-- 11. Play / PlayOneShot -->
-  <div class="slide theme-content">
-    <div class="tag blue">Play / PlayOneShot</div>
-    <h2>AudioSource.Play() / PlayOneShot()</h2>
-    <div class="divider left"></div>
-    <div class="code-block">using UnityEngine;
-
-public class SoundTest : MonoBehaviour
-{
-    private AudioSource audioSource;
-    public AudioClip seClip;   // Inspector でSEをセット
-
-    void Start()
-    {
-        audioSource = GetComponent&lt;AudioSource&gt;();
-    }
-
-    void Update()
-    {
-        // Spaceキーで再生（途中で呼ぶと最初からになる）
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            audioSource.Play();
-        }
-
-        // Enterキーで重ね再生（同時に複数鳴らせる）
-        if (Input.GetKeyDown(KeyCode.Return))
-        {
-            audioSource.PlayOneShot(seClip);
-        }
-    }
-}</div>
-  </div>
-
-  <!-- 12. 効果音を接触時に鳴らす -->
-  <div class="slide theme-content">
-    <div class="tag blue">SE + Trigger</div>
-    <h2>効果音を接触時に鳴らす</h2>
-    <div class="divider left"></div>
-    <p>OnTriggerEnter と組み合わせてアイテム取得SEを実装します。</p>
-    <div class="code-block">using UnityEngine;
-
-public class ItemWithSound : MonoBehaviour
-{
-    public AudioClip pickupSound;  // Inspector でSEをセット
-    private AudioSource audioSource;
-
-    void Start()
-    {
-        audioSource = GetComponent&lt;AudioSource&gt;();
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            // 音を鳴らしてからオブジェクトを消す
-            AudioSource.PlayClipAtPoint(pickupSound, transform.position);
-            Destroy(gameObject);
-        }
-    }
-}</div>
-    <div class="warn-box">
-      Destroy する前に audioSource.Play() を呼んでも、オブジェクトと一緒に AudioSource も消えます。PlayClipAtPoint は一時的なオブジェクトを自動生成して再生するので安全です。
-    </div>
-  </div>
-
-  <!-- 13. セクション：音量・ピッチの制御 -->
-  <div class="slide theme-section">
-    <div class="tag">Section 4</div>
-    <h1>音量・ピッチの制御</h1>
-    <p class="muted">スクリプトから動的にサウンドパラメータを変える</p>
-  </div>
-
-  <!-- 14. 音量・ピッチをスクリプトから変える -->
-  <div class="slide theme-content">
-    <div class="tag blue">Volume / Pitch</div>
-    <h2>音量・ピッチをスクリプトから変える</h2>
-    <div class="divider left"></div>
-    <div class="code-block">using UnityEngine;
-
-public class AudioController : MonoBehaviour
-{
-    private AudioSource audioSource;
-
-    void Start()
-    {
-        audioSource = GetComponent&lt;AudioSource&gt;();
-    }
-
-    // 音量を変える（0.0 〜 1.0）
-    public void SetVolume(float volume)
-    {
-        audioSource.volume = Mathf.Clamp01(volume);
-    }
-
-    // ピッチを変える（0.5 = 半音下、2.0 = 1オクターブ上）
-    public void SetPitch(float pitch)
-    {
-        audioSource.pitch = pitch;
-    }
-
-    // 一時停止と再開
-    public void TogglePause()
-    {
-        if (audioSource.isPlaying) audioSource.Pause();
-        else audioSource.UnPause();
-    }
-}</div>
-  </div>
-
-  <!-- 15. 音楽大学生へのヒント -->
-  <div class="slide theme-content">
-    <div class="tag blue">音楽×ゲーム</div>
-    <h2>音楽大学生へのヒント</h2>
-    <div class="divider left"></div>
-    <p>音楽の知識はゲームサウンドデザインの大きな強みになります。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>ピッチでバリエーションを出す</strong>同じSEでも pitch をランダム（0.9〜1.1）にするだけで繰り返しの単調さがなくなる</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>音量でフィードバックを伝える</strong>強い攻撃は大きく、遠くの音は小さく。音量差でゲームの情報を伝える</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>インタラクティブミュージック</strong>ゲームの状態（緊張・解放）に合わせてBGMのテンポや音量を動的に変化させると体験が深まる</div>
-      </div>
-    </div>
-    <div class="highlight-box">
-      <p>自分で作った音源をUnityに入れてゲームと組み合わせることができます。ぜひオリジナルサウンドに挑戦してみてください。</p>
-    </div>
-  </div>
-
-  <!-- 16. 練習課題 -->
-  <div class="slide theme-content">
-    <div class="tag orange">練習課題</div>
-    <h2>今日の練習課題</h2>
-    <div class="divider left"></div>
-    <p>ジャンプ音・BGMをゲームに設定しよう。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>BGMを設定する</strong>空オブジェクトにAudioSourceを追加。Loop ON・Play On Awake ONにしてBGMをセットする</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>ジャンプSEを追加</strong>プレイヤースクリプトのジャンプ処理にPlayOneShot()を追加する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>アイテム取得SEを追加</strong>PlayClipAtPoint()を使ってアイテムが消える瞬間に音を鳴らす</div>
+        <div class="step-body"><strong>AudioClip 欄に hiphop2.mp3 をドラッグ</strong>Assets/Audio からドラッグ＆ドロップ。</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div class="step-body"><strong>チャレンジ：ランダムピッチ</strong>SEのpitchをRandom.Range(0.9f, 1.1f)にして毎回微妙に変える</div>
+        <div class="step-body"><strong>Play On Awake と Loop を ON</strong>シーン開始と同時に再生され、終わったら最初に戻ってずっと鳴り続ける。</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      BGM はスクリプト不要。<strong>AudioSource の設定だけ</strong>で勝手に流れる。
+    </div>
+  </div>
+
+  <!-- 12. Play On Awake と Loop -->
+  <div class="slide theme-content">
+    <div class="tag blue">AudioSource の設定</div>
+    <h2>Play On Awake と Loop</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Play On Awake</h3>
+        <ul>
+          <li>シーン開始時に自動で再生する</li>
+          <li>ON：BGM 向き（自動再生）</li>
+          <li>OFF：効果音向き（自分で Play() を呼ぶ）</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Loop</h3>
+        <ul>
+          <li>音が終わったら最初に戻って繰り返す</li>
+          <li>ON：BGM 向き</li>
+          <li>OFF：効果音向き（1 回だけ鳴る）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>BGM ＝ Play On Awake <strong>ON</strong> + Loop <strong>ON</strong><br>効果音（SE） ＝ Play On Awake <strong>OFF</strong> + Loop <strong>OFF</strong></p>
+    </div>
+  </div>
+
+  <!-- 13. 概念図：BGM と SE の役割分担 -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>BGM と 効果音(SE) の役割分担</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowBGM" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#ffe066"/>
+          </marker>
+          <marker id="arrowSEv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64b4ff"/>
+          </marker>
+        </defs>
+        <!-- BGM オブジェクト -->
+        <rect x="60" y="60" width="320" height="120" rx="12" fill="rgba(255,224,102,0.12)" stroke="#ffe066" stroke-width="2"/>
+        <text x="220" y="92" text-anchor="middle" fill="#ffe066" font-size="15" font-weight="bold">BGM（空オブジェクト）</text>
+        <text x="220" y="116" text-anchor="middle" fill="#e6edf3" font-size="12">AudioSource：hiphop2.mp3</text>
+        <text x="220" y="138" text-anchor="middle" fill="#e6edf3" font-size="12">Play On Awake: ON / Loop: ON</text>
+        <text x="220" y="162" text-anchor="middle" fill="#8896b3" font-size="11">→ シーン全体でずっと鳴り続ける</text>
+        <!-- BGM 矢印 -->
+        <line x1="220" y1="180" x2="220" y2="240" stroke="#ffe066" stroke-width="2" marker-end="url(#arrowBGM)"/>
+        <text x="246" y="216" fill="#ffe066" font-size="12">勝手に再生</text>
+        <!-- Player オブジェクト -->
+        <rect x="520" y="60" width="320" height="120" rx="12" fill="rgba(100,160,255,0.18)" stroke="#64b4ff" stroke-width="2"/>
+        <text x="680" y="92" text-anchor="middle" fill="#64b4ff" font-size="15" font-weight="bold">Player（Cube）</text>
+        <text x="680" y="116" text-anchor="middle" fill="#e6edf3" font-size="12">AudioSource：ジャンプ.mp3</text>
+        <text x="680" y="138" text-anchor="middle" fill="#e6edf3" font-size="12">Play On Awake: OFF / Loop: OFF</text>
+        <text x="680" y="162" text-anchor="middle" fill="#8896b3" font-size="11">→ スクリプトから Play() で 1 回鳴らす</text>
+        <!-- SE 矢印 -->
+        <line x1="680" y1="180" x2="680" y2="240" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowSEv)"/>
+        <text x="704" y="216" fill="#64b4ff" font-size="12">スペースキーで</text>
+        <!-- Speaker -->
+        <g transform="translate(380,260)">
+          <rect width="140" height="80" rx="10" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+          <text x="70" y="35" text-anchor="middle" fill="#e6edf3" font-size="14" font-weight="bold">スピーカー</text>
+          <text x="70" y="58" text-anchor="middle" fill="#8896b3" font-size="11">BGM + SE が同時に</text>
+        </g>
+        <line x1="280" y1="290" x2="378" y2="300" stroke="#ffe066" stroke-width="2"/>
+        <line x1="620" y1="290" x2="522" y2="300" stroke="#64b4ff" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="diagram-caption">BGM は「設定だけで自動再生」、SE は「スクリプトから Play() で呼び出す」のが基本パターン</div>
+  </div>
+
+  <!-- 14. セクション：動きを加える -->
+  <div class="slide theme-section">
+    <div class="tag">Section 04</div>
+    <h1>動きを加える（Stage6-4）</h1>
+    <p class="muted">Player_6_4.cs ― 左右移動 + ジャンプ + 効果音</p>
+  </div>
+
+  <!-- 15. Player_6_4.cs -->
+  <div class="slide theme-content">
+    <div class="tag blue">Player_6_4.cs（Stage6-4）</div>
+    <h2>矢印キーで左右移動を追加</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="ty">Player_6_4</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">private</span> <span class="ty">Rigidbody</span> playerRb;
+    <span class="kw">private</span> <span class="ty">AudioSource</span> audioSource;
+
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        playerRb    = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody</span>&gt;();
+        audioSource = <span class="fn">GetComponent</span>&lt;<span class="ty">AudioSource</span>&gt;();
+    }
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))
+        {
+            playerRb.<span class="fn">AddForce</span>(<span class="ty">Vector3</span>.up * <span class="num">400</span>);
+            audioSource.<span class="fn">Play</span>();
+        }
+
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.RightArrow))
+            transform.<span class="fn">Translate</span>(<span class="ty">Vector3</span>.right);
+
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.LeftArrow))
+            transform.<span class="fn">Translate</span>(<span class="ty">Vector3</span>.left);
+    }
+}</div>
+    <div class="warn-box">
+      Stage6-4 では BGM オブジェクトも置いたまま。<strong>BGM ＋ ジャンプ音 ＋ 左右移動</strong>が同時に動く、「ゲームらしい」状態になる。
+    </div>
+  </div>
+
+  <!-- 16. セクション：Instantiate -->
+  <div class="slide theme-section">
+    <div class="tag">Section 05</div>
+    <h1>時間で物を生成する</h1>
+    <p class="muted">Stage6-5・6-6・6-7 ― Instantiate と タイマー の組み合わせ</p>
+  </div>
+
+  <!-- 17. SpawnManager.cs（Stage6-5） -->
+  <div class="slide theme-content">
+    <div class="tag blue">SpawnManager.cs（Stage6-5）</div>
+    <h2>Start() で Cube を 1 個だけ生成する</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="ty">SpawnManager</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public</span> <span class="ty">GameObject</span> cube;       <span class="cm">// Inspector で Cube Prefab を割り当てる</span>
+    <span class="kw">private</span> <span class="kw">float</span> posX;
+    <span class="kw">private</span> <span class="kw">float</span> posZ;
+    <span class="kw">private</span> <span class="ty">Vector3</span> randomPos;
+
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        <span class="cm">// -10 〜 10 のランダムな値</span>
+        posX = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="num">10</span>, <span class="num">10</span>);
+        posZ = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="num">10</span>, <span class="num">10</span>);
+        randomPos = <span class="kw">new</span> <span class="ty">Vector3</span>(posX, <span class="num">0.5f</span>, posZ);
+
+        <span class="cm">// cube を randomPos の位置に生成</span>
+        <span class="fn">Instantiate</span>(cube, randomPos, <span class="ty">Quaternion</span>.identity);
+    }
+}</div>
+    <div class="highlight-box">
+      <p>空オブジェクト「SpawnManager」を作ってこのスクリプトをアタッチし、Inspector の <code>cube</code> 欄に Cube Prefab をドラッグする。</p>
+    </div>
+  </div>
+
+  <!-- 18. セクション：タイマー -->
+  <div class="slide theme-content">
+    <div class="tag blue">Stage6-6</div>
+    <h2>タイマー機能を作る（Time.deltaTime）</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">public class</span> <span class="ty">SpawnManager_6_6</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public</span> <span class="ty">GameObject</span> cube;
+    <span class="kw">private</span> <span class="kw">float</span> timer;
+    <span class="kw">private</span> <span class="kw">float</span> timeLimit = <span class="num">1.0f</span>;  <span class="cm">// 1 秒ごとに反応</span>
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="cm">// 前のフレームからの経過時間を足していく</span>
+        timer += <span class="ty">Time</span>.deltaTime;
+
+        <span class="kw">if</span> (timer &gt; timeLimit)
+        {
+            timer = <span class="num">0</span>;                <span class="cm">// タイマーをリセット</span>
+            <span class="ty">Debug</span>.<span class="fn">Log</span>(<span class="str">"1秒経過"</span>);
+        }
+    }
+}</div>
+    <div class="warn-box">
+      まずは Debug.Log で <strong>「本当に 1 秒ごとに呼ばれているか」</strong> を Console で確認するのがコツ。
+    </div>
+  </div>
+
+  <!-- 19. 概念図：Time.deltaTime とタイマー -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>Time.deltaTime とタイマーの仕組み</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#e6edf3"/>
+          </marker>
+        </defs>
+        <!-- 時間軸 -->
+        <line x1="60" y1="220" x2="840" y2="220" stroke="#e6edf3" stroke-width="2" marker-end="url(#arrowT)"/>
+        <text x="850" y="226" fill="#e6edf3" font-size="12">時間</text>
+        <!-- フレームの目盛り -->
+        <g stroke="#8896b3" stroke-width="1">
+          <line x1="100" y1="215" x2="100" y2="225"/>
+          <line x1="160" y1="215" x2="160" y2="225"/>
+          <line x1="220" y1="215" x2="220" y2="225"/>
+          <line x1="280" y1="215" x2="280" y2="225"/>
+          <line x1="340" y1="215" x2="340" y2="225"/>
+          <line x1="400" y1="215" x2="400" y2="225"/>
+          <line x1="460" y1="215" x2="460" y2="225"/>
+          <line x1="520" y1="215" x2="520" y2="225"/>
+          <line x1="580" y1="215" x2="580" y2="225"/>
+          <line x1="640" y1="215" x2="640" y2="225"/>
+          <line x1="700" y1="215" x2="700" y2="225"/>
+          <line x1="760" y1="215" x2="760" y2="225"/>
+        </g>
+        <text x="430" y="252" text-anchor="middle" fill="#8896b3" font-size="11">各フレームごとに Update() が呼ばれ、Time.deltaTime ぶん timer に加算される</text>
+        <!-- timer 値の表示 -->
+        <g font-size="11" fill="#64b4ff" text-anchor="middle">
+          <text x="100" y="200">0.0</text>
+          <text x="220" y="200">0.2</text>
+          <text x="340" y="200">0.5</text>
+          <text x="460" y="200">0.8</text>
+          <text x="580" y="200">1.0+</text>
+          <text x="700" y="200">0.2</text>
+        </g>
+        <!-- 1秒経過のマーカー -->
+        <line x1="580" y1="120" x2="580" y2="220" stroke="#ffb86c" stroke-width="2" stroke-dasharray="4 3"/>
+        <rect x="490" y="80" width="180" height="40" rx="8" fill="#ffb86c"/>
+        <text x="580" y="105" text-anchor="middle" fill="#0d1b2a" font-size="13" font-weight="bold">timer &gt; 1.0 → 発火</text>
+        <!-- リセット矢印 -->
+        <text x="640" y="170" fill="#ff79c6" font-size="11" font-weight="bold">timer = 0 でリセット</text>
+        <!-- 次の1秒のマーカー -->
+        <line x1="820" y1="120" x2="820" y2="220" stroke="#ffb86c" stroke-width="2" stroke-dasharray="4 3" opacity="0.5"/>
+        <text x="820" y="105" text-anchor="middle" fill="#ffb86c" font-size="11" opacity="0.7">次の 1 秒…</text>
+        <!-- 説明 -->
+        <text x="450" y="340" text-anchor="middle" fill="#50fa7b" font-size="13" font-weight="bold">「足して → しきい値を超えたら処理 → リセット」を繰り返すのがタイマーの基本形</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 20. SpawnManager_6_7.cs -->
+  <div class="slide theme-content">
+    <div class="tag blue">SpawnManager_6_7.cs（Stage6-7）</div>
+    <h2>1 秒ごとに Cube を生成する</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">public class</span> <span class="ty">SpawnManager_6_7</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public</span> <span class="ty">GameObject</span> cube;
+    <span class="kw">private</span> <span class="kw">float</span> posX;
+    <span class="kw">private</span> <span class="kw">float</span> posZ;
+    <span class="kw">private</span> <span class="ty">Vector3</span> randomPos;
+    <span class="kw">private</span> <span class="kw">float</span> timer;
+    <span class="kw">private</span> <span class="kw">float</span> timeLimit = <span class="num">1.0f</span>;
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        timer += <span class="ty">Time</span>.deltaTime;
+
+        <span class="kw">if</span> (timer &gt; timeLimit)
+        {
+            timer = <span class="num">0</span>;
+
+            posX = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="num">10</span>, <span class="num">10</span>);
+            posZ = <span class="ty">Random</span>.<span class="fn">Range</span>(-<span class="num">10</span>, <span class="num">10</span>);
+            randomPos = <span class="kw">new</span> <span class="ty">Vector3</span>(posX, <span class="num">0.5f</span>, posZ);
+
+            <span class="fn">Instantiate</span>(cube, randomPos, <span class="ty">Quaternion</span>.identity);
+        }
+    }
+}</div>
+    <div class="highlight-box" style="margin-top:0.6rem;">
+      <p>「Stage6-5（1 回だけ生成）」と「Stage6-6（タイマー）」を組み合わせると <strong>1 秒ごとにランダム位置に Cube を生成</strong>するゲームの土台ができあがる。</p>
+    </div>
+  </div>
+
+  <!-- 21. シーン進行のまとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">game1_f 全体まとめ</div>
+    <h2>Stage6-1 〜 6-7 の流れ</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>6-1</h3>
+        <p>Player に AudioSource を追加。<br>スペースキー → ジャンプ + 効果音。</p>
+      </div>
+      <div class="col-card">
+        <h3>6-2・6-3</h3>
+        <p>BGM 用の空オブジェクトを作る。<br>Play On Awake + Loop で自動再生。</p>
+      </div>
+      <div class="col-card">
+        <h3>6-4</h3>
+        <p>Player_6_4.cs。<br>BGM ＋ ジャンプ音 ＋ 左右移動。</p>
+      </div>
+      <div class="col-card">
+        <h3>6-5</h3>
+        <p>SpawnManager.cs。<br>Start() で Cube を 1 個ランダム位置に生成。</p>
+      </div>
+      <div class="col-card">
+        <h3>6-6</h3>
+        <p>SpawnManager_6_6.cs。<br>Time.deltaTime でタイマーを作る。</p>
+      </div>
+      <div class="col-card">
+        <h3>6-7</h3>
+        <p>SpawnManager_6_7.cs。<br>1 秒ごとに Cube を Instantiate。</p>
       </div>
     </div>
   </div>
 
-  <!-- 17. まとめ -->
+  <!-- 22. フリー素材サイト -->
   <div class="slide theme-content">
-    <div class="tag orange">まとめ</div>
-    <h2>今日のまとめ</h2>
+    <div class="tag orange">音素材リンク集</div>
+    <h2>フリーの効果音・BGM サイト</h2>
     <div class="divider left"></div>
-    <ul>
-      <li><strong>SE / BGM / ジングル</strong>：それぞれ役割が異なる。用途に合わせて使い分ける</li>
-      <li><strong>AudioSource</strong>：音を鳴らすコンポーネント。AudioClipをセットして再生する</li>
-      <li><strong>Play()</strong>：AudioSourceのClipを再生（重ね再生不可）</li>
-      <li><strong>PlayOneShot(clip)</strong>：指定Clipを重ね再生できる。SEに最適</li>
-      <li><strong>PlayClipAtPoint()</strong>：オブジェクトが消えてもその場所で音だけ鳴らす</li>
-      <li><strong>volume / pitch</strong>：プロパティを代入するだけで動的に変更できる</li>
-    </ul>
-    <div class="highlight-box">
-      <p><strong>次回：第9回 ゲーム制作基礎①</strong><br>
-      変数・条件分岐の復習から始め、スコアシステムと GameManager を実装。ミニゲームの形を作り上げます。</p>
+    <p style="font-size:0.92rem;opacity:0.85;">自作ゲームで使える、商用利用OKまたは個人利用OKの無料音源サイト。利用規約は各サイトで必ず確認すること。</p>
+    <div class="link-grid">
+      <a class="link-card" href="https://soundeffect-lab.info/" target="_blank" rel="noopener">
+        <h3>効果音ラボ</h3>
+        <div class="url">soundeffect-lab.info</div>
+        <p>登録不要・商用利用OKの定番サイト。ゲーム・動画向けSEが豊富。</p>
+      </a>
+      <a class="link-card" href="https://maou.audio/" target="_blank" rel="noopener">
+        <h3>魔王魂</h3>
+        <div class="url">maou.audio</div>
+        <p>ゲーム制作で大定番。SE と BGM の両方が揃っている。</p>
+      </a>
+      <a class="link-card" href="https://pocket-se.info/" target="_blank" rel="noopener">
+        <h3>ポケットサウンド</h3>
+        <div class="url">pocket-se.info</div>
+        <p>カテゴリ別に整理されたフリー効果音サイト。検索がしやすい。</p>
+      </a>
+      <a class="link-card" href="https://otologic.jp/" target="_blank" rel="noopener">
+        <h3>OtoLogic</h3>
+        <div class="url">otologic.jp</div>
+        <p>UI 音・環境音・SE が高品質。クレジット表記でOK。</p>
+      </a>
+      <a class="link-card" href="https://dova-s.jp/" target="_blank" rel="noopener">
+        <h3>DOVA-SYNDROME</h3>
+        <div class="url">dova-s.jp</div>
+        <p>BGM が非常に豊富。ジャンル別に探せるフリーBGM素材集。</p>
+      </a>
+      <a class="link-card" href="https://amachamusic.chagasi.com/" target="_blank" rel="noopener">
+        <h3>甘茶の音楽工房</h3>
+        <div class="url">amachamusic.chagasi.com</div>
+        <p>やさしい雰囲気の BGM が揃う。ピアノ・アンビエント系が得意。</p>
+      </a>
+    </div>
+    <div class="warn-box">
+      ダウンロードした .mp3 / .wav は <strong>Assets/Audio フォルダ</strong>に入れて、AudioSource の AudioClip 欄にドラッグして使う。
     </div>
   </div>
 
-</div>
+  <!-- 23. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>AudioClip</strong>：音声ファイル本体（.mp3 / .wav）</li>
+      <li><strong>AudioSource</strong>：音を鳴らす装置。GameObject にコンポーネントとして追加</li>
+      <li><strong>Play On Awake</strong> ＋ <strong>Loop</strong>：BGM の自動再生</li>
+      <li><strong>audioSource.Play()</strong>：スクリプトから 1 回だけ鳴らす（効果音）</li>
+      <li><strong>Time.deltaTime</strong>：フレーム間の経過時間。timer に足してタイマーを作る</li>
+      <li><strong>Instantiate + タイマー</strong>：時間経過で物を自動生成する</li>
+    </ul>
+  </div>
+
+  <!-- 24. セクション：ゲームアート -->
+  <div class="slide theme-section">
+    <div class="tag">Bonus</div>
+    <h1>ゲームアート</h1>
+    <p class="muted">音と映像と操作が一体になった表現としてのゲーム</p>
+  </div>
+
+  <!-- 25. ゲームアートとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">ゲームアートとは</div>
+    <h2>音と映像で「体験」をつくる芸術</h2>
+    <div class="divider left"></div>
+    <p>ゲームは「ルールがあるから面白い」だけでなく、<strong>音と映像と操作が一体となって感情を動かす芸術表現</strong>でもある。特に音楽と映像の連動は近年のゲーム表現の中心テーマのひとつ。</p>
+    <ul style="margin-top:0.8rem;">
+      <li>サウンドトラックが「アルバム作品」として独立して評価される時代に</li>
+      <li>映像と音が連動して<strong>共感覚（シナスタジア）</strong>的な体験を作る</li>
+      <li>個人・少人数の<strong>インディーゲーム</strong>でも質の高い音楽表現が可能</li>
+      <li>音大生が関わる分野として「ゲーム音楽」「サウンドデザイン」が拡大中</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>次のスライドで、音と映像の連動が特に印象的な代表作をいくつか紹介する。</p>
+    </div>
+  </div>
+
+  <!-- 26. 代表的な作品 -->
+  <div class="slide theme-content">
+    <div class="tag orange">代表的な作品</div>
+    <h2>音と映像が一体化したゲーム</h2>
+    <div class="divider left"></div>
+    <div class="works-grid">
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Rez+Infinite+trailer" target="_blank" rel="noopener">
+        <div class="work-year">2001 / 2016 (Infinite)</div>
+        <h3>Rez Infinite</h3>
+        <div class="work-author">水口哲也（United Game Artists / Enhance）</div>
+        <p>操作するたびに音が生まれ、映像と音が完全に同期する「共感覚ゲーム」。サイバー空間を音で進む電子音楽の旅。</p>
+      </a>
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Journey+thatgamecompany+trailer" target="_blank" rel="noopener">
+        <div class="work-year">2012</div>
+        <h3>Journey（風ノ旅ビト）</h3>
+        <div class="work-author">thatgamecompany ／ 音楽：Austin Wintory</div>
+        <p>セリフのない約 2 時間の旅。サウンドトラックはゲーム史上初めて<strong>グラミー賞</strong>にノミネートされた金字塔。</p>
+      </a>
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Tetris+Effect+trailer" target="_blank" rel="noopener">
+        <div class="work-year">2018</div>
+        <h3>Tetris Effect</h3>
+        <div class="work-author">水口哲也（Enhance / Monstars）</div>
+        <p>テトリスのブロック操作のすべてが音楽演奏になる。プレイ全体が壮大な音と映像のショーに変わる。</p>
+      </a>
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Gris+game+trailer+Nomada" target="_blank" rel="noopener">
+        <div class="work-year">2018</div>
+        <h3>Gris</h3>
+        <div class="work-author">Nomada Studio ／ 音楽：Berlinist</div>
+        <p>水彩画のような映像と、ピアノ・弦楽のアンビエントが絡みあう、喪失と再生をテーマにした美しい作品。</p>
+      </a>
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Sayonara+Wild+Hearts+trailer" target="_blank" rel="noopener">
+        <div class="work-year">2019</div>
+        <h3>Sayonara Wild Hearts</h3>
+        <div class="work-author">Simogo</div>
+        <p>「遊べるポップアルバム」。1 曲が 1 ステージになっていて、音楽そのものがゲームのリズム・展開を決める。</p>
+      </a>
+      <a class="work-card" href="https://www.youtube.com/results?search_query=Cuphead+trailer" target="_blank" rel="noopener">
+        <div class="work-year">2017</div>
+        <h3>Cuphead</h3>
+        <div class="work-author">Studio MDHR</div>
+        <p>1930 年代のアニメーションをそのまま再現した映像 ＋ 生演奏のジャズ・ラグタイム。アートと音楽の手仕事の極致。</p>
+      </a>
+    </div>
+    <div class="warn-box">
+      これらは「音が後付けでなく、ゲームデザインそのものに音楽が組み込まれている」点が共通している。Unity でも、AudioSource をきっかけに同じ方向の表現に近づける。
+    </div>
+  </div>
+
+  <!-- 27. ビデオアート — 谷口暁彦 -->
+  <div class="slide theme-content">
+    <div class="tag orange">ビデオアート</div>
+    <h2>ゲームエンジンを使うアーティスト ― 谷口暁彦</h2>
+    <div class="divider left"></div>
+    <p>ゲームアートの隣接領域として、<strong>ビデオアート（映像作品としての現代アート）</strong>がある。今、ゲームエンジンはゲームを作るだけの道具ではなく、現代美術の表現手段としても使われている。</p>
+    <div class="two-col" style="margin-top:0.6rem;">
+      <div class="col-card">
+        <h3>谷口暁彦（たにぐち あきひこ）</h3>
+        <p>メディアアーティスト ／ 多摩美術大学 情報デザイン学科 メディア芸術コース。<br>1983 年生まれ。インターネット・アート、3DCG、ビデオアートを横断する作品を発表。</p>
+      </div>
+      <div class="col-card">
+        <h3>制作スタイル</h3>
+        <p>Unity などのゲームエンジンや 3DCG ソフトを使い、「画面の中の世界」「見るという行為」「デジタル空間の身体性」を問い直すビデオ／インスタレーション作品を制作している。</p>
+      </div>
+    </div>
+    <div class="link-grid" style="grid-template-columns: 1fr 1fr; margin-top:0.8rem;">
+      <a class="link-card" href="https://okikata.org/" target="_blank" rel="noopener">
+        <h3>谷口暁彦 公式サイト</h3>
+        <div class="url">okikata.org</div>
+        <p>作品アーカイブ・展示記録・テキストなどがまとまったポートフォリオサイト。</p>
+      </a>
+      <a class="link-card" href="https://www.youtube.com/results?search_query=谷口暁彦+作品" target="_blank" rel="noopener">
+        <h3>YouTube で作品を見る</h3>
+        <div class="url">youtube.com / 検索：谷口暁彦 作品</div>
+        <p>ビデオ作品のドキュメント・展示風景・トーク映像などが見つかる。</p>
+      </a>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>今みなさんが学んでいる Unity の Cube・Camera・AudioSource は、ゲームを作る道具であると同時に、<strong>現代アートの作家が表現に使う道具</strong>でもある。<br>「ゲームを作る技術」と「映像作品を作る技術」は地続きで、自分の作品づくりに応用できる選択肢が増えていく。</p>
+    </div>
+  </div>
+
+</div><!-- /#slideshow -->
 
 <!-- ナビゲーション -->
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter"></span>
+  <span id="slide-counter">1 / 27</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>
@@ -426,9 +833,9 @@ function changeSlide(dir) { showSlide(current + dir); }
   nextButton.addEventListener("click", () => changeSlide(1));
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
-  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
   if (e.key === "Home") showSlide(0);
-  if (e.key === "End") showSlide(slides.length - 1);
+  if (e.key === "End")  showSlide(slides.length - 1);
 });
 let touchStartX = 0;
 document.addEventListener("touchstart", e => {
