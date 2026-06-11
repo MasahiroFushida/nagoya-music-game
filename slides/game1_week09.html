@@ -1,405 +1,600 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第9回 ゲーム制作基礎①</title>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
-#slideshow { width: 100vw; height: 100vh; position: relative; }
-.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
-.slide.active { opacity: 1; pointer-events: auto; }
-.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
-.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
-.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
-.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
-.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
-.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
-.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
-.theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-.theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
-.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
-.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
-.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
-.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
-.divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
-.divider.left { margin-left: 0; }
-.highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
-.highlight-box p { font-size: 1rem; opacity: 0.9; }
-.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
-.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
-.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
-.step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
-.step-body { font-size: 0.95rem; line-height: 1.6; }
-.step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
-.code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem 1.5rem; font-family: "Courier New", monospace; font-size: 0.92rem; line-height: 1.7; max-width: 760px; width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; }
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
-.col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
-.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
-.col-card p, .col-card li { font-size: 0.88rem; }
-.muted { opacity: 0.6; }
-#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
-#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
-#nav button:hover { background: rgba(255,255,255,0.25); }
-#nav button:disabled { opacity: 0.25; cursor: default; }
-#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
-#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第9回 アセットとアニメーション | ゲーム1</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+    #slideshow { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+    .slide.active { opacity: 1; pointer-events: auto; }
+    .slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+    .slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+    .slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+    .slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+    .slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+    .slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+    .slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+    .theme-title { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
+    .theme-section { background: linear-gradient(135deg, #1a3a5c, #1a6bbf); }
+    .theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+    .tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+    .tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+    .tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+    .divider { width: 60px; height: 3px; background: rgba(100,160,255,0.6); border-radius: 2px; margin: 1rem 0 1.5rem; }
+    .divider.left { margin-left: 0; }
+    .highlight-box { background: rgba(26,107,191,0.2); border: 1px solid rgba(100,160,255,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+    .highlight-box p { font-size: 1rem; opacity: 0.9; }
+    .warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 760px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; }
+    .steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+    .step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+    .step-num { min-width: 1.8rem; height: 1.8rem; background: #1a6bbf; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+    .step-body { font-size: 0.95rem; line-height: 1.6; }
+    .step-body strong { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+    .code-block { background: #0d1b2a; border: 1px solid rgba(100,160,255,0.25); border-radius: 10px; padding: 1rem 1.4rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 0.88rem; line-height: 1.7; max-width: min(1100px, 92vw); width: 100%; margin-top: 0.8rem; white-space: pre; overflow-x: auto; color: #e6edf3; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+    .code-block .kw { color: #ff79c6; }
+    .code-block .ty { color: #8be9fd; }
+    .code-block .fn { color: #50fa7b; }
+    .code-block .num { color: #ffb86c; }
+    .code-block .str { color: #f1fa8c; }
+    .code-block .cm { color: #8896b3; font-style: italic; }
+    .code-block .op { color: #ff79c6; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+    .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
+    .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
+    .col-card p, .col-card li { font-size: 0.88rem; }
+    .muted { opacity: 0.6; }
+    .diagram { width: 100%; max-width: 900px; margin-top: 0.6rem; }
+    .diagram svg { width: 100%; height: auto; display: block; }
+    .diagram-caption { font-size: 0.85rem; opacity: 0.7; margin-top: 0.6rem; text-align: center; width: 100%; max-width: 900px; }
+    #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+    #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+    #nav button:hover { background: rgba(255,255,255,0.25); }
+    #nav button:disabled { opacity: 0.25; cursor: default; }
+    #slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+    #progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #1a6bbf; transition: width 0.35s ease; z-index: 100; }
+    .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; max-width: 900px; width: 100%; margin-top: 0.6rem; }
+    .link-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(100,160,255,0.25); border-radius: 8px; padding: 0.8rem 1.1rem; text-decoration: none; color: inherit; display: block; transition: background 0.2s, border-color 0.2s; }
+    .link-card:hover { background: rgba(100,160,255,0.12); border-color: rgba(100,160,255,0.55); }
+    .link-card h3 { font-size: 1rem; color: #64b4ff; margin-bottom: 0.25rem; }
+    .link-card .url { font-size: 0.78rem; color: #ffe066; font-family: "SF Mono","Menlo","Consolas",monospace; word-break: break-all; margin-bottom: 0.3rem; }
+    .link-card p { font-size: 0.85rem; line-height: 1.5; opacity: 0.85; max-width: none; }
+    .inline-link { color: #64b4ff; text-decoration: none; border-bottom: 1px solid rgba(100,180,255,0.5); padding-bottom: 1px; transition: color 0.2s, border-color 0.2s; }
+    .inline-link:hover { color: #a0d0ff; border-color: #a0d0ff; }
+    .dl-btn { display: inline-block; margin-top: 1.2rem; background: #1a6bbf; color: #fff; text-decoration: none; padding: 0.8rem 1.8rem; border-radius: 8px; font-size: 1rem; font-weight: bold; transition: background 0.2s; }
+    .dl-btn:hover { background: #2a7bd0; }
+  </style>
 </head>
 <body>
+
 <div id="slideshow">
 
   <!-- 1. タイトル -->
   <div class="slide theme-title active">
-    <div class="tag">Game Programming I</div>
-    <h1>第9回 ゲーム制作基礎①<br><span style="font-size:0.65em; opacity:0.8;">― 得点とルール</span></h1>
+    <div class="tag">ゲームプログラミング1 — 第9回</div>
+    <h1>アセットとアニメーション</h1>
+    <h3>アセット導入 ・ 乗り物の操作 ・ アニメーション</h3>
     <div class="divider"></div>
-    <p class="muted">スコアシステムと GameManager でゲームの骨格を作る</p>
+    <p class="muted">名古屋音楽大学 2026年度</p>
   </div>
 
-  <!-- 2. 今日の内容 -->
+  <!-- 2. 学習ロードマップ -->
   <div class="slide theme-content">
     <div class="tag blue">今日の内容</div>
-    <h2>第9回 学習目標</h2>
+    <h2>第9回 学習ロードマップ</h2>
     <div class="divider left"></div>
     <ul>
-      <li>int・float・bool・string 変数の使い方を復習する</li>
-      <li>if文の条件分岐を正しく書けるようになる</li>
-      <li>スコア変数を作り、加算してUIに反映できる</li>
-      <li>GameManager スクリプトの役割と作り方を理解する</li>
-      <li>static を使ったグローバルなスコア管理を実装できる</li>
+      <li>Asset Store から素材を取得して世界をつくる（Stage1）</li>
+      <li>乗り物を前進・旋回させる：AddRelativeForce / Rotate（Stage2）</li>
+      <li>アニメーションの基礎：Animation ウィンドウとキーフレーム（Stage3）</li>
+      <li>回転と拡大縮小、複数のアニメーションをつくる（Stage4）</li>
+      <li>Animator で状態を切り替える：Idle ↔ Jump（Stage5）</li>
+      <li>スクリプトからアニメを再生する：SetTrigger（Stage5）</li>
     </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>目標：Cube だけのシーンから一歩進んで、<strong>ダウンロードした素材で世界をつくり、オブジェクトを「動き」で表現できる</strong>ようになる。</p>
+    </div>
   </div>
 
-  <!-- 3. セクション：変数と条件分岐 -->
+  <!-- 3. セクション：アセットで世界をつくる -->
   <div class="slide theme-section">
-    <div class="tag">Section 1</div>
-    <h1>変数と条件分岐の復習</h1>
-    <p class="muted">ゲームロジックを書くための基本文法</p>
+    <div class="tag">Section 01</div>
+    <h1>Asset Store を体験する（Stage1）</h1>
+    <p class="muted">無料素材をダウンロードしてシーンに置いてみる</p>
   </div>
 
-  <!-- 4. 変数の種類 -->
+  <!-- 4. Asset Store とは -->
   <div class="slide theme-content">
-    <div class="tag blue">変数</div>
-    <h2>変数の種類</h2>
+    <div class="tag blue">Unity Asset Store</div>
+    <h2>素材は「自分で作る」だけじゃない</h2>
     <div class="divider left"></div>
-    <p>C#でよく使う4種類の変数です。ゲームのデータを保持するために使います。</p>
-    <div class="code-block">using UnityEngine;
-
-public class VariableExample : MonoBehaviour
-{
-    // int：整数（スコア・残機・カウント）
-    int score = 0;
-    int lives = 3;
-
-    // float：小数（移動速度・タイマー・体力）
-    float speed = 5.0f;
-    float hp = 100.0f;
-
-    // bool：真偽値（ゲーム中か・ジャンプ中か）
-    bool isGameOver = false;
-    bool isJumping = false;
-
-    // string：文字列（プレイヤー名・メッセージ）
-    string playerName = "Player";
-    string message = "Game Start!";
-}</div>
+    <p>これまでは Cube や Sphere などの基本図形だけで作ってきた。Unity には世界中のクリエイターが公開している <strong>3Dモデル・音・エフェクト</strong>の配布所「Asset Store」があり、無料のものも多い。今日はまず <strong>素材を取得して使う体験</strong>をしてみよう。</p>
+    <div class="two-col" style="margin-top:0.6rem;">
+      <div class="col-card">
+        <h3>Low Poly Simple Nature Pack</h3>
+        <p>今回 Stage1 で取得する無料の自然素材セット。<br>木・草・岩・地面などのローポリ（低ポリゴン）モデルが入っている。</p>
+      </div>
+      <div class="col-card">
+        <h3>Simple Cars Pack</h3>
+        <p>Stage2 で使う乗り物素材セット。<br>シンプルな車のモデルが入っており、乗り物として動かせる。</p>
+      </div>
+    </div>
+    <div class="link-grid" style="margin-top:0.8rem;">
+      <a class="link-card" href="https://assetstore.unity.com/packages/3d/environments/landscapes/low-poly-simple-nature-pack-162153" target="_blank" rel="noopener">
+        <h3>Low Poly Simple Nature Pack（無料）</h3>
+        <div class="url">assetstore.unity.com … low-poly-simple-nature-pack-162153</div>
+        <p>今回の Stage1 で取得・体験する自然素材パック。</p>
+      </a>
+    </div>
   </div>
 
-  <!-- 5. if文の基本 -->
+  <!-- 5. 取得・インポート手順 -->
   <div class="slide theme-content">
-    <div class="tag blue">if文</div>
-    <h2>if文の基本</h2>
+    <div class="tag blue">Stage1 の手順</div>
+    <h2>Asset Store から素材を取得する</h2>
     <div class="divider left"></div>
-    <p>条件が成立したときだけ処理を実行します。ゲームのルール判定の基本です。</p>
-    <div class="code-block">void Update()
-{
-    // スコアが100以上ならメッセージを表示
-    if (score >= 100)
-    {
-        Debug.Log("100点達成！");
-    }
-
-    // ゲームオーバー判定
-    if (hp <= 0)
-    {
-        isGameOver = true;
-        Debug.Log("ゲームオーバー");
-    }
-    else if (hp <= 30)
-    {
-        Debug.Log("HP残り少ない！");
-    }
-    else
-    {
-        Debug.Log("まだ余裕あり");
-    }
-}</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Asset Store を開く</strong>Unity の <strong>Window メニュー → Asset Store</strong> を選ぶ。今は「ブラウザで開く（Search online）」と案内されるので、そのボタンからブラウザで開く。直接 <strong>assetstore.unity.com</strong> を開いてもよい。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>素材を探してログイン</strong>欲しい素材（例：Low Poly Simple Nature Pack）のページを開き、Unity ID でログインする。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>「マイアセットに追加」→「Unity で開く」</strong>マイアセットに登録すると、自分の Unity から使えるようになる。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Unity で Window → Package Manager</strong>左上を「My Assets」に切り替え、登録した素材を選ぶ。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body"><strong>Download → Import</strong>確認ウィンドウで Import を押すと Assets フォルダに素材が追加される。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body"><strong>Prefab を Scene にドラッグ</strong>木や岩などの Prefab を Hierarchy / Scene に置いて、自分の世界を組み立ててみる。</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      Import すると Assets の中にたくさんファイルが増える。<strong>消したり場所を変えたりしない</strong>こと（モデルが表示されなくなる）。
+    </div>
   </div>
 
-  <!-- 6. セクション：スコアシステム -->
+  <!-- 6. 概念図：アセット導入の流れ -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>Asset Store から Scene までの流れ</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowAsset" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64b4ff"/>
+          </marker>
+        </defs>
+        <rect x="20" y="120" width="180" height="90" rx="12" fill="rgba(255,224,102,0.12)" stroke="#ffe066" stroke-width="2"/>
+        <text x="110" y="155" text-anchor="middle" fill="#ffe066" font-size="14" font-weight="bold">① Asset Store</text>
+        <text x="110" y="180" text-anchor="middle" fill="#e6edf3" font-size="11">マイアセットに追加</text>
+        <line x1="200" y1="165" x2="245" y2="165" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowAsset)"/>
+        <rect x="250" y="120" width="180" height="90" rx="12" fill="rgba(100,160,255,0.18)" stroke="#64b4ff" stroke-width="2"/>
+        <text x="340" y="155" text-anchor="middle" fill="#64b4ff" font-size="14" font-weight="bold">② Package Manager</text>
+        <text x="340" y="180" text-anchor="middle" fill="#e6edf3" font-size="11">My Assets → Import</text>
+        <line x1="430" y1="165" x2="475" y2="165" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowAsset)"/>
+        <rect x="480" y="120" width="180" height="90" rx="12" fill="rgba(80,250,123,0.15)" stroke="#50fa7b" stroke-width="2"/>
+        <text x="570" y="155" text-anchor="middle" fill="#50fa7b" font-size="14" font-weight="bold">③ Assets フォルダ</text>
+        <text x="570" y="180" text-anchor="middle" fill="#e6edf3" font-size="11">Prefab が増える</text>
+        <line x1="660" y1="165" x2="705" y2="165" stroke="#64b4ff" stroke-width="2" marker-end="url(#arrowAsset)"/>
+        <rect x="710" y="120" width="180" height="90" rx="12" fill="rgba(255,121,198,0.12)" stroke="#ff79c6" stroke-width="2"/>
+        <text x="800" y="155" text-anchor="middle" fill="#ff79c6" font-size="14" font-weight="bold">④ Scene に配置</text>
+        <text x="800" y="180" text-anchor="middle" fill="#e6edf3" font-size="11">ドラッグして世界づくり</text>
+        <text x="450" y="270" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="bold">他人が作った高品質な素材を、自分のゲームの「部品」として組み込める</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 7. セクション：乗り物を動かす -->
   <div class="slide theme-section">
-    <div class="tag">Section 2</div>
-    <h1>スコアシステムを作る</h1>
-    <p class="muted">変数・UI・アイテム取得をつなぎ合わせる</p>
+    <div class="tag">Section 02</div>
+    <h1>乗り物を動かす（Stage2）</h1>
+    <p class="muted">Player.cs ― アクセルで前進、ハンドルで旋回</p>
   </div>
 
-  <!-- 7. スコア変数を作る -->
+  <!-- 8. Stage2 のシーン構成 -->
   <div class="slide theme-content">
-    <div class="tag blue">Score 変数</div>
-    <h2>スコア変数を作る</h2>
+    <div class="tag blue">Stage2 のシーン構成</div>
+    <h2>必要なオブジェクト</h2>
     <div class="divider left"></div>
-    <p>スコアを管理するためのシンプルなスクリプトを作成します。</p>
-    <div class="code-block">using UnityEngine;
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Plane（地面）</h3>
+        <p>Y=0 に配置。<br>この上を乗り物が走る。</p>
+      </div>
+      <div class="col-card">
+        <h3>Player（Cube または 車）</h3>
+        <p>Rigidbody を追加する。<br>Cube のままでもよいし、Simple Cars Pack の車に差し替えてもよい。</p>
+      </div>
+      <div class="col-card">
+        <h3>Player.cs</h3>
+        <p>Player にアタッチ。<br>Inspector の <strong>Speed</strong> 欄で速さを調整できる（例：1.2）。</p>
+      </div>
+      <div class="col-card">
+        <h3>Main Camera</h3>
+        <p>乗り物が見える位置に置く。<br>動きが追いやすい角度に調整する。</p>
+      </div>
+    </div>
+    <div class="link-grid" style="margin-top:0.8rem;">
+      <a class="link-card" href="https://assetstore.unity.com/packages/3d/vehicles/land/simple-cars-pack-97669" target="_blank" rel="noopener">
+        <h3>Simple Cars Pack（無料）</h3>
+        <div class="url">assetstore.unity.com … simple-cars-pack-97669</div>
+        <p>Stage2 で Player を差し替える車の素材パック。</p>
+      </a>
+    </div>
+    <div class="warn-box">
+      前進には <strong>Rigidbody が必須</strong>。AddRelativeForce は「物理の力」なので、Rigidbody が無いと動かない。
+    </div>
+  </div>
 
-public class ScoreSystem : MonoBehaviour
+  <!-- 9. Player.cs の中身 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Player.cs（Stage2）</div>
+    <h2>前進と旋回のスクリプト</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="ty">Player</span> : <span class="ty">MonoBehaviour</span>
 {
-    // スコア変数（privateで外部から直接変更させない）
-    private int score = 0;
+    <span class="kw">private</span> <span class="ty">Rigidbody</span> playerRb;
+    <span class="kw">public</span> <span class="kw">float</span> speed;          <span class="cm">// Inspector で速さを調整</span>
 
-    // スコアを加算するメソッド
-    public void AddScore(int amount)
+    <span class="kw">void</span> <span class="fn">Start</span>()
     {
-        score += amount;
-        Debug.Log("現在のスコア: " + score);
+        playerRb = <span class="fn">GetComponent</span>&lt;<span class="ty">Rigidbody</span>&gt;();
     }
 
-    // スコアを取得するメソッド（読み取り専用）
-    public int GetScore()
+    <span class="kw">void</span> <span class="fn">Update</span>()
     {
-        return score;
-    }
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.Space))           <span class="cm">// スペースを押している間</span>
+            playerRb.<span class="fn">AddRelativeForce</span>(<span class="ty">Vector3</span>.forward * speed);  <span class="cm">// 自分の前へ前進</span>
 
-    // スコアをリセット
-    public void ResetScore()
-    {
-        score = 0;
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.RightArrow))      <span class="cm">// → を押している間</span>
+            transform.<span class="fn">Rotate</span>(<span class="num">0</span>, <span class="num">0.1f</span>, <span class="num">0</span>);             <span class="cm">// 右に旋回</span>
+
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKey</span>(<span class="ty">KeyCode</span>.LeftArrow))       <span class="cm">// ← を押している間</span>
+            transform.<span class="fn">Rotate</span>(<span class="num">0</span>, -<span class="num">0.1f</span>, <span class="num">0</span>);            <span class="cm">// 左に旋回</span>
     }
 }</div>
+    <div class="highlight-box">
+      <p><code>GetKeyDown</code>（押した瞬間1回）ではなく <code>GetKey</code>（押している間ずっと）を使うので、押し続けるとアクセルのように加速していく。</p>
+    </div>
   </div>
 
-  <!-- 8. アイテム取得でスコアを加算 -->
+  <!-- 10. 概念図：AddRelativeForce と AddForce -->
   <div class="slide theme-content">
-    <div class="tag blue">アイテム取得</div>
-    <h2>アイテム取得でスコアを加算する</h2>
+    <div class="tag blue">概念図</div>
+    <h2>AddRelativeForce ＝「自分の前」に進む</h2>
     <div class="divider left"></div>
-    <p>OnTriggerEnter でアイテムを取得したとき、ScoreSystem を呼び出します。</p>
-    <div class="code-block">using UnityEngine;
+    <div class="diagram">
+      <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowMove" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#50fa7b"/>
+          </marker>
+          <marker id="arrowWorld" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#8896b3"/>
+          </marker>
+        </defs>
+        <!-- AddForce (world) -->
+        <text x="225" y="50" text-anchor="middle" fill="#8896b3" font-size="15" font-weight="bold">AddForce（ワールド基準）</text>
+        <rect x="150" y="120" width="70" height="70" rx="8" fill="rgba(136,150,179,0.2)" stroke="#8896b3" stroke-width="2" transform="rotate(35 185 155)"/>
+        <line x1="185" y1="155" x2="185" y2="80" stroke="#8896b3" stroke-width="3" marker-end="url(#arrowWorld)"/>
+        <text x="225" y="240" text-anchor="middle" fill="#e6edf3" font-size="12">車が傾いても</text>
+        <text x="225" y="262" text-anchor="middle" fill="#e6edf3" font-size="12">いつも同じ方向へ</text>
+        <!-- AddRelativeForce (local) -->
+        <text x="675" y="50" text-anchor="middle" fill="#50fa7b" font-size="15" font-weight="bold">AddRelativeForce（自分基準）</text>
+        <rect x="640" y="120" width="70" height="70" rx="8" fill="rgba(80,250,123,0.18)" stroke="#50fa7b" stroke-width="2" transform="rotate(35 675 155)"/>
+        <line x1="675" y1="155" x2="735" y2="108" stroke="#50fa7b" stroke-width="3" marker-end="url(#arrowMove)"/>
+        <text x="675" y="240" text-anchor="middle" fill="#e6edf3" font-size="12">車の向きに合わせて</text>
+        <text x="675" y="262" text-anchor="middle" fill="#e6edf3" font-size="12">前（鼻先）の方向へ進む</text>
+        <line x1="450" y1="80" x2="450" y2="280" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <text x="450" y="312" text-anchor="middle" fill="#ffe066" font-size="13" font-weight="bold">旋回して向きが変わる乗り物には AddRelativeForce が向いている</text>
+      </svg>
+    </div>
+  </div>
 
-public class CollectibleItem : MonoBehaviour
+  <!-- 11. セクション：アニメーションの基礎 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 03</div>
+    <h1>アニメーションの基礎（Stage3）</h1>
+    <p class="muted">Animation ウィンドウとキーフレームで物を動かす</p>
+  </div>
+
+  <!-- 12. Animation と Animator -->
+  <div class="slide theme-content">
+    <div class="tag blue">2つの部品</div>
+    <h2>Animation Clip と Animator</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Animation Clip（.anim）</h3>
+        <ul>
+          <li>「動きの記録」そのもの</li>
+          <li>Animation ウィンドウで作る</li>
+          <li>例：回転する／大きくなる／ジャンプする</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Animator（コンポーネント）</h3>
+        <ul>
+          <li>「どのアニメを再生するか」を管理する装置</li>
+          <li>Clip を作ると自動で付く</li>
+          <li>GameObject にアタッチされる</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p><strong>キーフレーム</strong>＝「この時間にこの状態」という目印。Unity が目印と目印の間を自動でなめらかにつないで動かしてくれる。</p>
+    </div>
+  </div>
+
+  <!-- 13. 概念図：キーフレームの仕組み -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>キーフレームの仕組み</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+        <!-- timeline -->
+        <line x1="80" y1="200" x2="840" y2="200" stroke="#e6edf3" stroke-width="2"/>
+        <text x="80" y="232" text-anchor="middle" fill="#8896b3" font-size="11">0:00</text>
+        <text x="460" y="232" text-anchor="middle" fill="#8896b3" font-size="11">0:30</text>
+        <text x="840" y="232" text-anchor="middle" fill="#8896b3" font-size="11">1:00</text>
+        <!-- keyframes -->
+        <g>
+          <rect x="60" y="130" width="40" height="40" rx="6" fill="rgba(255,184,108,0.2)" stroke="#ffb86c" stroke-width="2"/>
+          <path d="M80 195 l-7 -12 h14 z" fill="#ffb86c"/>
+          <text x="80" y="115" text-anchor="middle" fill="#ffb86c" font-size="11">小さい</text>
+        </g>
+        <g>
+          <rect x="430" y="115" width="60" height="60" rx="6" fill="rgba(255,184,108,0.2)" stroke="#ffb86c" stroke-width="2"/>
+          <path d="M460 195 l-7 -12 h14 z" fill="#ffb86c"/>
+          <text x="460" y="103" text-anchor="middle" fill="#ffb86c" font-size="11">大きい</text>
+        </g>
+        <g>
+          <rect x="820" y="130" width="40" height="40" rx="6" fill="rgba(255,184,108,0.2)" stroke="#ffb86c" stroke-width="2"/>
+          <path d="M840 195 l-7 -12 h14 z" fill="#ffb86c"/>
+          <text x="840" y="115" text-anchor="middle" fill="#ffb86c" font-size="11">小さい</text>
+        </g>
+        <text x="270" y="270" text-anchor="middle" fill="#50fa7b" font-size="12">← 間は自動でなめらかに補間 →</text>
+        <text x="650" y="270" text-anchor="middle" fill="#50fa7b" font-size="12">← 間は自動でなめらかに補間 →</text>
+        <text x="460" y="305" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="bold">置くのは「節目」だけ。あいだの動きは Unity が作ってくれる</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 14. Stage3 の手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Stage3 の手順</div>
+    <h2>Cube を回す・大きくする</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Cube を選択 → Window → Animation → Animation</strong>Animation ウィンドウを開く。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Create を押してクリップを保存</strong>名前を「Cube1」「Cube2」などにして保存（Animator が自動で付く）。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>録画ボタン（●）を押す</strong>赤くなっている間の操作がキーフレームとして記録される。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>時間を進めて Inspector で値を変える</strong>0秒で元の状態、後の時間で Scale や Rotation を変えると自動でキーが打たれる。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body"><strong>録画を止めて Play で確認</strong>Stage3 では Cube1＝拡大縮小、Cube2＝回転をループ再生する。</div>
+      </div>
+    </div>
+    <div class="warn-box">
+      ループさせたいときは、Project でクリップを選び Inspector の <strong>Loop Time にチェック</strong>を入れる。
+    </div>
+  </div>
+
+  <!-- 15. セクション：複数のアニメーション -->
+  <div class="slide theme-section">
+    <div class="tag">Section 04</div>
+    <h1>回転と拡大縮小（Stage4）</h1>
+    <p class="muted">動かす「プロパティ」を変えて表現を増やす</p>
+  </div>
+
+  <!-- 16. Stage4 の内容 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Stage4</div>
+    <h2>動かせるのは位置だけじゃない</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>CubeRotate（回転）</h3>
+        <ul>
+          <li>Rotation（向き）をキーフレームで変える</li>
+          <li>くるくる回る動き</li>
+          <li>記録するプロパティ：Rotation</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>CubeScale（拡大縮小）</h3>
+        <ul>
+          <li>Scale（大きさ）をキーフレームで変える</li>
+          <li>ふくらむ・しぼむ動き</li>
+          <li>記録するプロパティ：Scale</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>Animation で動かせるのは <strong>Position（位置）・Rotation（向き）・Scale（大きさ）</strong>の3つが基本。さらに色やコンポーネントの値も動かせる。組み合わせると豊かな表現になる。</p>
+    </div>
+  </div>
+
+  <!-- 17. セクション：Animator と状態遷移 -->
+  <div class="slide theme-section">
+    <div class="tag">Section 05</div>
+    <h1>Animator で状態を切り替える（Stage5）</h1>
+    <p class="muted">ふだんは Idle、スペースで Jump ― 状態遷移とトリガー</p>
+  </div>
+
+  <!-- 18. Animator Controller -->
+  <div class="slide theme-content">
+    <div class="tag blue">Animator Controller</div>
+    <h2>アニメの「切り替え地図」をつくる</h2>
+    <div class="divider left"></div>
+    <p>1つのオブジェクトに複数のアニメ（待機・ジャンプなど）があるとき、<strong>「いつ・どのアニメに切り替えるか」</strong>を決めるのが Animator Controller。状態（State）と矢印（Transition）で地図のように組み立てる。</p>
+    <div class="two-col" style="margin-top:0.6rem;">
+      <div class="col-card">
+        <h3>State（状態）</h3>
+        <p>1つ1つのアニメ。<br>Stage5 では <strong>CubeIdle</strong>（待機）と <strong>CubeJump</strong>（ジャンプ）。</p>
+      </div>
+      <div class="col-card">
+        <h3>Transition（矢印）＋ Parameter</h3>
+        <p>状態と状態をつなぐ矢印。<br><strong>JumpTrigger</strong> という合図（Trigger）が来たら Idle → Jump へ移る。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 19. 概念図：状態遷移 -->
+  <div class="slide theme-content">
+    <div class="tag blue">概念図</div>
+    <h2>Idle ↔ Jump の状態遷移</h2>
+    <div class="divider left"></div>
+    <div class="diagram">
+      <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrowState" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64b4ff"/>
+          </marker>
+        </defs>
+        <!-- Idle -->
+        <rect x="120" y="120" width="220" height="90" rx="45" fill="rgba(80,250,123,0.15)" stroke="#50fa7b" stroke-width="2.5"/>
+        <text x="230" y="158" text-anchor="middle" fill="#50fa7b" font-size="17" font-weight="bold">CubeIdle</text>
+        <text x="230" y="184" text-anchor="middle" fill="#e6edf3" font-size="12">待機（ループ）</text>
+        <!-- Jump -->
+        <rect x="560" y="120" width="220" height="90" rx="45" fill="rgba(255,184,108,0.18)" stroke="#ffb86c" stroke-width="2.5"/>
+        <text x="670" y="158" text-anchor="middle" fill="#ffb86c" font-size="17" font-weight="bold">CubeJump</text>
+        <text x="670" y="184" text-anchor="middle" fill="#e6edf3" font-size="12">ジャンプ</text>
+        <!-- transition forward -->
+        <line x1="340" y1="150" x2="555" y2="150" stroke="#64b4ff" stroke-width="2.5" marker-end="url(#arrowState)"/>
+        <text x="447" y="138" text-anchor="middle" fill="#64b4ff" font-size="13" font-weight="bold">JumpTrigger</text>
+        <!-- transition back -->
+        <line x1="555" y1="185" x2="340" y2="185" stroke="#8896b3" stroke-width="2" marker-end="url(#arrowState)"/>
+        <text x="447" y="205" text-anchor="middle" fill="#8896b3" font-size="11">アニメが終わったら自動で戻る</text>
+        <text x="450" y="275" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="bold">ふだんは Idle。JumpTrigger が来たら Jump → 終われば Idle に戻る</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 20. CubeJump.cs -->
+  <div class="slide theme-content">
+    <div class="tag blue">CubeJump.cs（Stage5）</div>
+    <h2>スクリプトからアニメを再生する</h2>
+    <div class="divider left"></div>
+    <div class="code-block"><span class="kw">using</span> <span class="ty">UnityEngine</span>;
+
+<span class="kw">public class</span> <span class="ty">CubeJump</span> : <span class="ty">MonoBehaviour</span>
 {
-    public int scoreValue = 10;  // このアイテムの得点
+    <span class="kw">private</span> <span class="ty">Animator</span> cubeAnim;
 
-    void OnTriggerEnter(Collider other)
+    <span class="kw">void</span> <span class="fn">Start</span>()
     {
-        if (other.CompareTag("Player"))
+        cubeAnim = <span class="fn">GetComponent</span>&lt;<span class="ty">Animator</span>&gt;();   <span class="cm">// 自分の Animator を取得</span>
+    }
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="kw">if</span> (<span class="ty">Input</span>.<span class="fn">GetKeyDown</span>(<span class="ty">KeyCode</span>.Space))   <span class="cm">// スペースを押した瞬間</span>
         {
-            // プレイヤーのScoreSystemを取得してスコア加算
-            ScoreSystem scoreSystem =
-                other.GetComponent&lt;ScoreSystem&gt;();
-
-            if (scoreSystem != null)
-            {
-                scoreSystem.AddScore(scoreValue);
-            }
-
-            Destroy(gameObject);  // アイテムを消す
+            cubeAnim.<span class="fn">SetTrigger</span>(<span class="str">"JumpTrigger"</span>);   <span class="cm">// 合図を送ってJumpへ切り替え</span>
         }
     }
 }</div>
+    <div class="warn-box">
+      <code>"JumpTrigger"</code> の文字は、Animator で作った <strong>Parameter の名前と完全に同じ</strong>にすること（大文字・小文字も一致）。違うと反応しない。
+    </div>
   </div>
 
-  <!-- 9. UIにスコアを表示 -->
+  <!-- 21. ステージ全体のまとめ -->
   <div class="slide theme-content">
-    <div class="tag blue">Score UI</div>
-    <h2>UIにスコアを表示する（TextMeshPro連携）</h2>
+    <div class="tag blue">game1_g 全体まとめ</div>
+    <h2>Stage1 〜 5 の流れ</h2>
     <div class="divider left"></div>
-    <p>ScoreSystem を更新するたびに TextMeshProUGUI を書き換えます。</p>
-    <div class="code-block">using TMPro;
-using UnityEngine;
-
-public class ScoreSystem : MonoBehaviour
-{
-    private int score = 0;
-
-    // InspectorでTextMeshProUGUIを紐づける
-    public TextMeshProUGUI scoreText;
-
-    public void AddScore(int amount)
-    {
-        score += amount;
-        UpdateScoreUI();
-    }
-
-    void UpdateScoreUI()
-    {
-        // スコアをテキストに反映
-        scoreText.text = "Score: " + score.ToString();
-    }
-
-    void Start()
-    {
-        UpdateScoreUI();  // 初期表示
-    }
-}</div>
-  </div>
-
-  <!-- 10. セクション：GameManager -->
-  <div class="slide theme-section">
-    <div class="tag">Section 3</div>
-    <h1>GameManagerを作る</h1>
-    <p class="muted">ゲーム全体の状態を一元管理するスクリプト</p>
-  </div>
-
-  <!-- 11. GameManagerとは -->
-  <div class="slide theme-content">
-    <div class="tag blue">GameManager</div>
-    <h2>GameManagerとは</h2>
-    <div class="divider left"></div>
-    <p>ゲーム全体の状態（スコア・残機・ゲームオーバーフラグなど）を一か所で管理する専用スクリプトです。</p>
-    <div class="two-col" style="margin-top:1rem;">
+    <div class="two-col">
       <div class="col-card">
-        <h3>GameManagerが管理するもの</h3>
-        <ul>
-          <li>スコア・ハイスコア</li>
-          <li>残機数・ライフ</li>
-          <li>ゲームの状態（開始・プレイ中・ゲームオーバー）</li>
-          <li>シーン遷移の制御</li>
-        </ul>
+        <h3>Stage1</h3>
+        <p>Asset Store の Nature Pack を取得・体験して世界をつくる。</p>
       </div>
       <div class="col-card">
-        <h3>なぜ一元管理するのか</h3>
-        <ul>
-          <li>スコアが「どこにあるか」を一か所で把握できる</li>
-          <li>複数のスクリプトから同じデータに安全にアクセスできる</li>
-          <li>デバッグ・修正が楽になる</li>
-          <li>ゲームの規模が大きくなっても管理しやすい</li>
-        </ul>
+        <h3>Stage2</h3>
+        <p>Player.cs で乗り物を操作。<br>AddRelativeForce で前進、Rotate で旋回。</p>
       </div>
-    </div>
-    <div class="highlight-box">
-      <p>まず空のGameObjectを作成し、名前を「GameManager」にしてからスクリプトをアタッチしましょう。</p>
-    </div>
-  </div>
-
-  <!-- 12. staticを使ったスコア管理 -->
-  <div class="slide theme-content">
-    <div class="tag blue">static</div>
-    <h2>staticを使ったスコア管理</h2>
-    <div class="divider left"></div>
-    <p>static 変数はどのスクリプトからも <code style="background:rgba(255,255,255,0.1); padding:0.1em 0.4em; border-radius:4px;">GameManager.score</code> でアクセスできます。</p>
-    <div class="code-block">using TMPro;
-using UnityEngine;
-
-public class GameManager : MonoBehaviour
-{
-    // static にすることでどこからでもアクセス可能
-    public static int score = 0;
-    public static bool isGameOver = false;
-
-    public TextMeshProUGUI scoreText;
-
-    // 他スクリプトからスコアを加算するときに呼ぶ
-    public static void AddScore(int amount)
-    {
-        score += amount;
-    }
-
-    void Update()
-    {
-        // UIを毎フレーム更新（本来はイベント駆動が望ましい）
-        scoreText.text = "Score: " + score;
-    }
-}
-
-// --- 別スクリプトからの呼び出し例 ---
-// GameManager.AddScore(10);  // どこからでも呼べる</div>
-  </div>
-
-  <!-- 13. セクション：ミニゲームを作ろう -->
-  <div class="slide theme-section">
-    <div class="tag">Section 4</div>
-    <h1>ミニゲームを作ろう</h1>
-    <p class="muted">動くキャラ・アイテム・スコアをつなげて完成させる</p>
-  </div>
-
-  <!-- 14. シンプルなコレクションゲームの設計 -->
-  <div class="slide theme-content">
-    <div class="tag blue">ゲーム設計</div>
-    <h2>シンプルなコレクションゲームの設計</h2>
-    <div class="divider left"></div>
-    <p>今回作るミニゲームの構成要素を整理します。</p>
-    <div class="steps" style="margin-top:0.8rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>動くキャラクター（Player）</strong>Rigidbody + Collider + 移動スクリプト。WASDまたは矢印キーで移動する。</div>
+      <div class="col-card">
+        <h3>Stage3</h3>
+        <p>Animation ウィンドウとキーフレーム。<br>回転・拡大縮小のループアニメ。</p>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>アイテム（Collectible）</strong>Is Trigger ON のCollider。OnTriggerEnterでスコアを加算して自分を消す。</div>
+      <div class="col-card">
+        <h3>Stage4</h3>
+        <p>Rotation と Scale を動かす。<br>複数のアニメをつくる。</p>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>スコア表示（Canvas + TextMeshPro）</strong>GameManagerのstatic変数をTextに反映する。</div>
+      <div class="col-card">
+        <h3>Stage5</h3>
+        <p>Animator で Idle ↔ Jump を切り替え。<br>CubeJump.cs の SetTrigger で再生。</p>
       </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body"><strong>ゲームオーバー条件</strong>タイマーが0になるか、HPが0になったらisGameOver = true にする。</div>
+      <div class="col-card">
+        <h3>キーワード</h3>
+        <p>Asset Store / Animation Clip / Animator / Keyframe / Transition / Trigger</p>
       </div>
     </div>
   </div>
 
-  <!-- 15. 練習課題 -->
+  <!-- 22. まとめ -->
   <div class="slide theme-content">
-    <div class="tag orange">練習課題</div>
-    <h2>今日の練習課題</h2>
-    <div class="divider left"></div>
-    <p>アイテムを集めてスコアを表示するゲームを作ろう。</p>
-    <div class="steps" style="margin-top:1rem;">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>プレイヤーを動かす</strong>Rigidbodyを使いWASDキーで移動できるスクリプトを作成する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>アイテムを複数配置</strong>SphereにIs Trigger ColliderをつけてCollectibleItemスクリプトをアタッチ</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>GameManagerを作成</strong>static score変数とAddScore()メソッドをGameManagerに実装する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body"><strong>スコアUIを更新</strong>アイテム取得のたびにTextMeshProのテキストが更新されることを確認する</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 16. まとめ -->
-  <div class="slide theme-content">
-    <div class="tag orange">まとめ</div>
-    <h2>今日のまとめ</h2>
+    <div class="tag blue">まとめ</div>
+    <h2>今日学んだこと</h2>
     <div class="divider left"></div>
     <ul>
-      <li><strong>int / float / bool / string</strong>：ゲームデータを保持する基本的な変数の種類</li>
-      <li><strong>if文</strong>：条件に応じて処理を分岐させるゲームロジックの基本</li>
-      <li><strong>AddScore()</strong>：スコアを加算しUIに反映する一連の流れ</li>
-      <li><strong>GameManager</strong>：ゲーム全体の状態を一元管理する専用スクリプト</li>
-      <li><strong>static変数</strong>：どのスクリプトからも GameManager.score でアクセスできる</li>
+      <li><strong>Asset Store</strong>：無料・有料の素材を取得し、My Assets → Package Manager で導入できる</li>
+      <li><strong>AddRelativeForce</strong>：自分の向きに合わせて前進する（乗り物向き）</li>
+      <li><strong>transform.Rotate</strong>：オブジェクトを旋回させる</li>
+      <li><strong>Animation Clip</strong>：キーフレームで動きを記録する（Position / Rotation / Scale）</li>
+      <li><strong>Animator</strong>：State と Transition でアニメの切り替えを管理する</li>
+      <li><strong>SetTrigger</strong>：スクリプトから合図を送ってアニメを切り替える</li>
     </ul>
-    <div class="highlight-box">
-      <p><strong>次回：第10回 ゲーム制作基礎②</strong><br>
-      シーン遷移・ゲームオーバー画面・タイマーの実装を学び、完成度の高いミニゲームに仕上げます。</p>
+  </div>
+
+  <!-- 23. 配布 -->
+  <div class="slide theme-content" style="align-items:center; text-align:center;">
+    <div class="tag orange">プロジェクト配布</div>
+    <h2>第9回 Unityプロジェクト（game1_g）</h2>
+    <div class="divider"></div>
+    <p style="text-align:center;">今日のスライドで扱った Stage1〜5 が入ったプロジェクトです。<br>ダウンロードして、自分の手で動かしながら確認しましょう。</p>
+    <a class="dl-btn" href="https://github.com/MasahiroFushida/game1_g/archive/refs/heads/main.zip">⬇ game1_g をダウンロード（ZIP）</a>
+    <div class="warn-box" style="margin-top:1.4rem;">
+      Asset Store のパック（Nature Pack / Cars Pack）は各自で取得・Import が必要な場合があります。表示されないモデルは Package Manager から読み込み直してください。
     </div>
   </div>
 
-</div>
+</div><!-- /#slideshow -->
 
 <!-- ナビゲーション -->
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter"></span>
+  <span id="slide-counter">1 / 23</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>
@@ -424,9 +619,9 @@ function changeSlide(dir) { showSlide(current + dir); }
   nextButton.addEventListener("click", () => changeSlide(1));
 document.addEventListener("keydown", e => {
   if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
-  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "ArrowLeft"  || e.key === "ArrowUp") changeSlide(-1);
   if (e.key === "Home") showSlide(0);
-  if (e.key === "End") showSlide(slides.length - 1);
+  if (e.key === "End")  showSlide(slides.length - 1);
 });
 let touchStartX = 0;
 document.addEventListener("touchstart", e => {

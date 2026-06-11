@@ -116,12 +116,16 @@ const SITE_DATA = {
       },
       {
         week: 9,
-        title: "ゲーム制作基礎①",
-        description: "得点やルールを実装する。変数と条件分岐の基礎、スコア表示の作成、簡単なミニゲーム制作を始める。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        title: "アセットとアニメーション",
+        description: "Asset Store の素材でシーンをつくり、動きで表現する。乗り物の操作（AddRelativeForce・Rotate）、Animation ウィンドウとキーフレーム、Animator の状態遷移を学ぶ。",
+        slides: [
+          { label: "第9回 アセットとアニメーション スライド", url: "slides/game1_week09.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_g/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【必修課題】Asset Store の体験 ＋ はじめてのアニメーション（最小ライン）\n\nこの回は「素材を取り込む体験」と「Animation で物を動かす体験」が必修です。必修にスクリプトはありません。\n\n──────────────────────────────\n\n■ 必修① Asset Store から好きな無料素材を取得して置く（Stage1）\n※ アセットは「Free（無料）」のものなら何でもOK。下の Nature Pack でなくても構いません。\n1. Unity の Window メニュー → Asset Store を開く（案内に従ってブラウザで開く）。または直接ブラウザで assetstore.unity.com を開く\n2. 価格を「Free」で絞り込み、好きな素材のページを開いて Unity ID でログインする\n   （例：Low Poly Simple Nature Pack）\n   https://assetstore.unity.com/packages/3d/environments/landscapes/low-poly-simple-nature-pack-162153\n3. 「マイアセットに追加」→「Unityで開く」をクリックする\n4. Unity で Window → Package Manager を開き、左上を「My Assets」に切り替える\n5. 取得した素材を選び、Download → Import する\n6. Prefab を Scene にドラッグして、3つ以上置いてみる\n\n■ 必修② Animation で Cube を回す（Stage3）\n1. 新しいシーンに Cube を1つ配置する\n2. Cube を選択した状態で Window → Animation → Animation を開く\n3. Create を押し、クリップ名を「CubeRotate」にして保存する\n4. 録画ボタン（●）を押し、0秒の位置で Rotation を 0, 0, 0 にする\n5. 1秒の位置に進めて Rotation を 0, 360, 0 に変える（自動でキーフレームが打たれる）\n6. 録画を止め、Project で CubeRotate クリップを選び、Inspector の Loop Time にチェックを入れる\n7. Play して Cube がずっと回り続けることを確認する\n\n■ 提出物（必修）\n・素材を置いた Scene ビューのスクリーンショット 1枚（必修①）\n・Cube が回っている Game ビュー ＋ Animation ウィンドウが見えるスクリーンショット 1枚（必修②）\n\n──────────────────────────────\n\n【応用課題（任意）】余力がある人だけ\n\n● 応用A：乗り物を走らせる（Stage2）\n  ・Plane と Player（Cube）を置き、Player に Rigidbody を追加する\n  ・C#スクリプト「Player」を作成し、スライドのコードをコピーしてアタッチする\n  ・Inspector の Speed を 1.2 などに設定する\n  ・スペースで前進、←→で旋回できることを確認する\n  ・Simple Cars Pack を取得して、Cube を車のモデルに差し替えてみる\n    https://assetstore.unity.com/packages/3d/vehicles/land/simple-cars-pack-97669\n\n● 応用B：拡大縮小アニメも作る（Stage4）\n  ・別の Cube に、Scale を大きく→小さくする「CubeScale」アニメを作る\n  ・回転と拡大縮小の2種類のアニメを並べて動かす\n\n● 応用C：Animator で状態を切り替える（Stage5）\n  ・Cube に「CubeIdle（待機）」と「CubeJump（ジャンプ）」の2つのアニメを作る\n  ・Animator で JumpTrigger という Trigger パラメータを作り、Idle → Jump の矢印（Transition）の条件に設定する\n  ・C#スクリプト「CubeJump」を作成し、スライドのコードをコピーしてアタッチする\n  ・スペースキーでジャンプアニメが再生されることを確認する\n\n応用課題に挑戦した場合は、追加で .cs ファイル（Player.cs / CubeJump.cs）やスクリーンショットを提出してください。",
+        deadline: "第10回授業開始時"
       },
       {
         week: 10,
