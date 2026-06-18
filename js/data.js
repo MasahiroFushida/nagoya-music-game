@@ -129,12 +129,16 @@ const SITE_DATA = {
       },
       {
         week: 10,
-        title: "ゲーム制作基礎②",
-        description: "時間制限やゲームオーバー処理を作る。タイマーの実装、クリア条件と失敗条件、ゲーム全体の流れを組み立てる。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        title: "フラグとパーティクル",
+        description: "true/false で状態を管理する「フラグ」の使い方を学ぶ。パワーアップ（powerup）・接地判定（isGround）・アイテム取得という3つの例でフラグを使い分け、後半はパーティクルシステムで噴水・爆発のエフェクトを作る。",
+        slides: [
+          { label: "第10回 フラグとパーティクル スライド", url: "slides/game1_week10.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト", url: "https://github.com/MasahiroFushida/game1_h/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【課題】フラグの問題とパーティクルの問題を1つずつ\n\n学んだことを使って「自分で作る」課題です。\n配布プロジェクト（game1_h）を使っても、新しいシーンを作ってもOKです。\n\n──────────────────────────────\n\n■ 問題1（フラグ）スイッチを自分で作る\nスペースキーを押すたびに ON／OFF が切りかわるフラグを作り、ON のときだけ何かが起きるようにしよう。\n\n1. Cube を1つ置き、新しい C# スクリプトを作ってアタッチする\n2. 自分で bool のフラグを1つ用意する（例：public bool isOn = false;）\n3. Update() の中で、スペースキーを押すたびにフラグを反対にする\n     if (Input.GetKeyDown(KeyCode.Space)) { isOn = !isOn; }\n4. フラグが ON のときだけ起きることを、自分で1つ決めて書く\n   （例：isOn が true のとき Cube を回す  transform.Rotate(0, 1, 0); ／色を変える など）\n5. Playモードで、スペースを押すたびに動き出す・止まる が切りかわれば成功\n\n■ 問題2（パーティクル）自分のエフェクトを1つ作る\n授業の噴水とは別に、自分で Particle System を作って好きなエフェクトを1つ仕上げよう。\n\n1. 空の GameObject を作り、Add Component → Particle System を追加する\n2. Start Color（色）・Start Speed（速さ）・Start Size（大きさ）・Shape（形）などを調整して、\n   「炎」「雪」「キラキラ」「魔法」など、何かに見えるエフェクトを1つ作る\n3. 何のエフェクトのつもりか分かるように仕上げる\n\n■ 提出物\n・問題1：作った .cs ファイル ＋ 動いているところが分かる Game ビューのスクリーンショット 1枚\n・問題2：作ったエフェクトのスクリーンショット 1枚 ＋「何のエフェクトか」を一言（例：たき火の炎）",
+        deadline: "第11回授業開始時"
       },
       {
         week: 11,
