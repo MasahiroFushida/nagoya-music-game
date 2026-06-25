@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>第11回 音と演出の基礎</title>
+<title>第11回 総合制作準備</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
@@ -57,354 +57,253 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
   <!-- 1. タイトル -->
   <div class="slide theme-title active">
     <div class="tag">Game Programming I</div>
-    <h1>第11回 音と演出の基礎</h1>
+    <h1>第11回 総合制作準備</h1>
     <div class="divider"></div>
-    <h3>AudioSource / Animator / Coroutine / ParticleSystem</h3>
+    <h3>操作することで生まれる、新しい音楽体験の提案</h3>
     <p class="muted" style="margin-top:2rem;">名古屋音楽大学 &nbsp;|&nbsp; 2026年度</p>
   </div>
 
   <!-- 2. 今日の内容 -->
   <div class="slide theme-content">
     <div class="tag blue">今日の内容</div>
-    <h2>第11回 学習目標</h2>
+    <h2>第11回 ゴール</h2>
     <div class="divider left"></div>
     <ul>
-      <li>ゲームにおける音の役割とインタラクティブ音楽を理解する</li>
-      <li>AudioSource / AudioClip を使って BGM・SE を再生できる</li>
-      <li>Animator Controller を作りアニメーションを設定できる</li>
-      <li>スクリプトからアニメーションをトリガーできる</li>
-      <li>Invoke・Coroutine で時間差処理を実装できる</li>
-      <li>ParticleSystem で簡単な視覚エフェクトを作れる</li>
+      <li>グループ制作課題のテーマ「操作 → 音」を理解する</li>
+      <li>グループを編成し、役割分担を決める</li>
+      <li>第12〜15回の制作の流れ・成果物・評価を確認する</li>
+      <li>制作課題テンプレート（game1_template）を入手して開く</li>
+      <li>次回（企画）に向けて作品のアイデアを出し始める</li>
     </ul>
     <div class="music-box">
-      <p>音楽大学ならではの強みを活かして、<strong>「聴かせるゲーム」</strong>を目指しましょう！</p>
+      <p>この回は「<strong>つくり始めるための準備</strong>」。チームと方向性を決めて、第12回からすぐ動き出せる状態にしましょう。</p>
     </div>
   </div>
 
-  <!-- 3. セクション：音楽とゲーム演出 -->
+  <!-- 3. セクション：課題テーマ -->
   <div class="slide theme-section">
-    <div class="tag">Section 1</div>
-    <h1>音楽とゲーム演出</h1>
-    <p style="margin-top:1rem; opacity:0.8;">音楽大学生ならではの視点で<br>ゲームの「音」を考えてみよう</p>
+    <div class="tag">Theme</div>
+    <h1>聴く音楽から、触れる音楽へ</h1>
+    <p style="margin-top:1rem; opacity:0.85;">操作することで生まれる、<br>新しい音楽体験を提案しよう</p>
   </div>
 
-  <!-- 4. インタラクティブ音楽とは -->
+  <!-- 4. 聴く音楽から触れる音楽へ -->
   <div class="slide theme-content">
-    <div class="tag purple">音楽大学生の視点</div>
-    <h2>インタラクティブ音楽とは</h2>
+    <div class="tag purple">課題のテーマ</div>
+    <h2>聴く音楽から、触れる音楽へ</h2>
     <div class="divider left"></div>
-    <p style="margin-bottom:0.8rem;">ゲームの状態に応じて音楽が変化する仕組みのこと。映画やコンサートの「一方向」な音楽と異なり、プレイヤーの行動が音楽を変える。</p>
+    <p style="margin-bottom:0.8rem;">音楽はこれまで「演奏する人」と「聴く人」に分かれていました。しかしゲームエンジンを使うと、<strong>プレイヤーの操作そのものが音楽を生み出す</strong>作品が作れます。</p>
+    <p>ボタンを押す・キャラを動かす・物がぶつかる ―<br>その一つひとつが音になり、リズムになり、ハーモニーになる。</p>
+    <div class="music-box">
+      <p>「遊ぶこと」と「音楽」が一体になった体験を、<strong>グループで提案・制作</strong>してください。</p>
+    </div>
+  </div>
+
+  <!-- 5. キーワード「操作 → 音」 -->
+  <div class="slide theme-content">
+    <div class="tag orange">この課題の中心</div>
+    <h2>キーワードは「操作 → 音」</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">プレイヤーが何かをすると、<strong>必ず音楽的な反応が返ってくる</strong> ― これがこの課題の中心です。</p>
     <div class="two-col">
       <div class="col-card">
-        <h3>状態連動の例</h3>
+        <h3>操作（プレイヤーの行動）</h3>
         <ul>
-          <li>戦闘中 → テンポが上がる</li>
-          <li>HP が低い → 音楽が不安定に</li>
-          <li>クリア時 → ファンファーレ</li>
-          <li>水中 → 音がこもった感じに</li>
+          <li>ボタンを押す</li>
+          <li>キャラクターを動かす</li>
+          <li>物がぶつかる・当たる</li>
+          <li>アイテムを取る</li>
         </ul>
       </div>
       <div class="col-card">
-        <h3>Unity での実現方法</h3>
+        <h3>音（返ってくる反応）</h3>
         <ul>
-          <li>AudioSource の pitch を変える</li>
-          <li>複数 BGM を CrossFade する</li>
-          <li>AudioMixer でエフェクトを切替</li>
-          <li>Wwise・FMOD 等の外部ツール</li>
+          <li>効果音・メロディが鳴る</li>
+          <li>リズムが刻まれる</li>
+          <li>BGM が変化する</li>
+          <li>ハーモニーが重なる</li>
         </ul>
       </div>
     </div>
-    <div class="music-box">
-      <p>まずは<strong>「効果音を鳴らす」→「BGM を流す」→「状態で切り替える」</strong>の順で実装していきましょう。</p>
+  </div>
+
+  <!-- 6. セクション：グループ編成と役割 -->
+  <div class="slide theme-section">
+    <div class="tag">Team</div>
+    <h1>グループ編成と役割</h1>
+    <p style="margin-top:1rem; opacity:0.85;">全員が手を動かす場所をつくる</p>
+  </div>
+
+  <!-- 7. 役割分担 -->
+  <div class="slide theme-content">
+    <div class="tag green">役割分担</div>
+    <h2>4つの役割（兼任OK）</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.6rem;">全員がどれか1つ以上の役割を担当します。</p>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>サウンド</h3>
+        <p>曲・効果音の選定／自作・録音、音の鳴らし方を設計する</p>
+      </div>
+      <div class="col-card">
+        <h3>プログラム</h3>
+        <p>Unity 実装・当たり判定・操作まわりをつくる</p>
+      </div>
+      <div class="col-card">
+        <h3>ビジュアル</h3>
+        <p>素材・アニメ・パーティクルで演出する</p>
+      </div>
+      <div class="col-card">
+        <h3>企画／発表</h3>
+        <p>コンセプト立案・企画書・プレゼン進行を担当する</p>
+      </div>
+    </div>
+    <div class="warn-box">
+      プログラムが苦手な人は、サウンド・ビジュアル・企画で貢献できます。「全員が手を動かす場所がある」ようにチームで分担しましょう。
     </div>
   </div>
 
-  <!-- 5. アニメーションとは -->
+  <!-- 8. セクション：課題の流れ -->
+  <div class="slide theme-section">
+    <div class="tag">Schedule</div>
+    <h1>課題の流れ（第12〜15回）</h1>
+    <p style="margin-top:1rem; opacity:0.85;">企画 → 実装 → 発表</p>
+  </div>
+
+  <!-- 9. 課題の流れ steps -->
   <div class="slide theme-content">
-    <div class="tag blue">Animation</div>
-    <h2>アニメーションとは（Unity のシステム）</h2>
+    <div class="tag blue">スケジュール</div>
+    <h2>第12回 → 第15回の進め方</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>企画（第12回）</strong>作品名・コンセプト・役割分担をパワーポイントにまとめる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>実装（第12〜14回）</strong>グループで分担して Unity 作品をつくる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>発表（第15回）</strong>グループでプレゼン＋デモを計10分おこなう</div>
+      </div>
+    </div>
+    <div class="highlight-box">
+      <p>制作期間は実質3回（第12〜14回）。<strong>「小さくても、ちゃんと動いて音が鳴る」</strong>ことを最優先に、欲張りすぎず仕上げましょう。</p>
+    </div>
+  </div>
+
+  <!-- 10. 成果物 -->
+  <div class="slide theme-content">
+    <div class="tag green">成果物</div>
+    <h2>提出する3つの成果物</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>企画書（PowerPoint）</strong>作品名・コンセプト・操作と音の関係・役割分担をまとめる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Unity 作品</strong>グループで1本、実際に動くものを制作する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>グループ発表＋デモ</strong>第15回・計10分でプレゼンと実演をおこなう</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. 注意点 -->
+  <div class="slide theme-content">
+    <div class="tag orange">注意</div>
+    <h2>提案で必ず示すこと</h2>
     <div class="divider left"></div>
     <ul>
-      <li><strong>Animation Clip</strong> ― オブジェクトの動きを記録したデータ（.anim ファイル）</li>
-      <li><strong>Animator Controller</strong> ― クリップを状態機械（ステートマシン）で管理するグラフ</li>
-      <li><strong>Animator コンポーネント</strong> ― GameObject に付けてコントローラーを駆動する</li>
+      <li><strong>なぜこの音楽体験を提案するのか</strong> ― 理由や根拠を示す</li>
+      <li><strong>プレイした人にどんな新しい体験・気持ちが生まれるか</strong> ― 効果・影響を示す</li>
     </ul>
-    <div class="highlight-box">
-      <p>音楽と同様に「<strong>状態遷移</strong>」の考え方が重要です。<br>
-      "待機 → 走る → ジャンプ" はまるで楽曲の「A メロ → サビ → アウトロ」のような構造です。</p>
-    </div>
-  </div>
-
-  <!-- 6. セクション：Animator を使う -->
-  <div class="slide theme-section">
-    <div class="tag">Section 2</div>
-    <h1>Animator を使う</h1>
-    <p style="margin-top:1rem; opacity:0.8;">キャラクターに「待機」「走る」などの<br>アニメーションをつけてみよう</p>
-  </div>
-
-  <!-- 7. Animator Controller の作り方 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Animator Controller</div>
-    <h2>Animator Controller の作り方</h2>
-    <div class="divider left"></div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>Animator Controller を作成</strong>Project ウィンドウで右クリック → Create &gt; Animator Controller</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>Animation Clip をドロップ</strong>Animator ウィンドウを開き、クリップをドラッグ＆ドロップ → ステートが自動生成される</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>トランジションを設定</strong>ステートを右クリック → "Make Transition" で矢印を引き、Conditions（条件）を設定する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body"><strong>GameObject に割り当て</strong>Animator コンポーネントの "Controller" 欄に作った Controller をセットする</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 8. アニメーションクリップの作成 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Animation Clip</div>
-    <h2>アニメーションクリップの作成</h2>
-    <div class="divider left"></div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>Animation ウィンドウを開く</strong>Window &gt; Animation &gt; Animation（Ctrl+6）</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>オブジェクトを選択して録画開始</strong>対象の GameObject を選択し、"Create" → クリップを保存 → ● 録画ボタンをオン</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>キーフレームを打つ</strong>タイムラインを移動しながら Transform や色などを変更すると自動でキーフレームが追加される</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body"><strong>録画終了 → 再生確認</strong>● ボタンをオフ → Play ボタンでプレビュー</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 9. スクリプトからアニメーションを再生する -->
-  <div class="slide theme-content">
-    <div class="tag blue">コード</div>
-    <h2>スクリプトからアニメーションを再生する</h2>
-    <div class="divider left"></div>
-    <div class="code-block">using UnityEngine;
-
-public class PlayerAnimator : MonoBehaviour
-{
-    private Animator anim;
-
-    void Start()
-    {
-        anim = GetComponent&lt;Animator&gt;();
-    }
-
-    void Update()
-    {
-        // 移動速度に応じてブレンドツリーを切替
-        float speed = GetComponent&lt;Rigidbody&gt;().velocity.magnitude;
-        anim.SetFloat("Speed", speed);
-
-        // ジャンプボタンでトリガーを発火
-        if (Input.GetButtonDown("Jump"))
-        {
-            anim.SetTrigger("Jump");
-        }
-    }
-
-    // アイテム取得時にアニメーション再生
-    public void PlayPickup()
-    {
-        anim.SetTrigger("Pickup");
-    }
-}</div>
-  </div>
-
-  <!-- 10. セクション：タイミングに合わせた演出 -->
-  <div class="slide theme-section">
-    <div class="tag">Section 3</div>
-    <h1>タイミングに合わせた演出</h1>
-    <p style="margin-top:1rem; opacity:0.8;">Invoke と Coroutine で<br>時間差・連続処理を実装しよう</p>
-  </div>
-
-  <!-- 11. Invoke・InvokeRepeating -->
-  <div class="slide theme-content">
-    <div class="tag blue">Invoke</div>
-    <h2>Invoke・InvokeRepeating で時間差処理</h2>
-    <div class="divider left"></div>
-    <div class="code-block">public class TimingExample : MonoBehaviour
-{
-    void Start()
-    {
-        // 2秒後に ShowEffect を1回呼ぶ
-        Invoke("ShowEffect", 2.0f);
-
-        // 1秒後から0.5秒ごとに繰り返し呼ぶ
-        InvokeRepeating("SpawnEnemy", 1.0f, 0.5f);
-    }
-
-    void ShowEffect()
-    {
-        Debug.Log("エフェクト発動！");
-    }
-
-    void SpawnEnemy()
-    {
-        Debug.Log("敵をスポーン");
-    }
-
-    void OnDestroy()
-    {
-        CancelInvoke();  // すべての Invoke をキャンセル
-    }
-}</div>
-    <div class="highlight-box" style="margin-top:0.6rem;">
-      <p>シンプルな遅延処理は <code>Invoke</code>、複雑な流れは次のスライドの <strong>Coroutine</strong> が便利。</p>
-    </div>
-  </div>
-
-  <!-- 12. Coroutine の基本 -->
-  <div class="slide theme-content">
-    <div class="tag blue">Coroutine</div>
-    <h2>Coroutine（コルーチン）の基本</h2>
-    <div class="divider left"></div>
-    <div class="code-block">using UnityEngine;
-using System.Collections;
-
-public class CoroutineExample : MonoBehaviour
-{
-    void Start()
-    {
-        StartCoroutine(PlaySequence());
-    }
-
-    IEnumerator PlaySequence()
-    {
-        Debug.Log("1. ゲームスタート！");
-        yield return new WaitForSeconds(1.0f);  // 1秒待つ
-
-        Debug.Log("2. 敵が出現！");
-        yield return new WaitForSeconds(2.0f);  // 2秒待つ
-
-        Debug.Log("3. BGM がクライマックスへ");
-        yield return new WaitForSeconds(0.5f);
-
-        Debug.Log("4. エフェクト発動！");
-    }
-}</div>
-    <div class="highlight-box" style="margin-top:0.6rem;">
-      <p><code>yield return</code> で処理を一時停止できる。演出シーケンスの記述にとても適している。</p>
-    </div>
-  </div>
-
-  <!-- 13. 音楽のビートに合わせた演出のヒント -->
-  <div class="slide theme-content">
-    <div class="tag purple">音楽大学生の視点</div>
-    <h2>音楽のビートに合わせたオブジェクト演出</h2>
-    <div class="divider left"></div>
-    <p style="margin-bottom:0.8rem;">BPM（テンポ）から1拍の長さ（秒）を計算して Coroutine で同期させる方法</p>
-    <div class="code-block">public class BeatSync : MonoBehaviour
-{
-    public float bpm = 120f;
-
-    void Start()
-    {
-        float beatInterval = 60f / bpm;  // 1拍 = 0.5秒（120BPM の場合）
-        InvokeRepeating("OnBeat", 0f, beatInterval);
-    }
-
-    void OnBeat()
-    {
-        // 1拍ごとにオブジェクトをスケールアップ
-        transform.localScale = Vector3.one * 1.2f;
-        Invoke("ResetScale", 0.1f);
-    }
-
-    void ResetScale()
-    {
-        transform.localScale = Vector3.one;
-    }
-}</div>
     <div class="music-box">
-      <p>曲のBPMを正確に設定するだけで、ビジュアルが音楽に完全同期します。<br>作曲知識がある皆さんにとって、これは大きなアドバンテージです！</p>
+      <p>「かっこいいから」だけでなく、<strong>音楽を学ぶ皆さんならではの理由</strong>を言葉にできると、作品の説得力が一気に上がります。</p>
     </div>
   </div>
 
-  <!-- 14. ParticleSystem で視覚エフェクト -->
+  <!-- 12. 評価のポイント -->
   <div class="slide theme-content">
-    <div class="tag blue">ParticleSystem</div>
-    <h2>ParticleSystem で視覚エフェクト</h2>
+    <div class="tag purple">評価のポイント</div>
+    <h2>どこを見て評価するか</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>「操作 → 音」の発想に<strong>新しさ・工夫</strong>があるか（テーマの達成度）</li>
+      <li>音の使い方に<strong>こだわり</strong>があるか</li>
+      <li>全員が役割を持って貢献したか（<strong>グループワーク点</strong>）</li>
+      <li>発表で「なぜ作ったか」を<strong>チームの言葉</strong>で説明できているか</li>
+    </ul>
+  </div>
+
+  <!-- 13. 制作課題テンプレート -->
+  <div class="slide theme-content">
+    <div class="tag blue">テンプレート</div>
+    <h2>制作課題テンプレート（game1_template）</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.8rem;">ゼロから作る必要はありません。<strong>これまで学んだ仕組みがひと通り入った雛形</strong>を配布します。各グループで複製して、ここから制作を始めましょう。</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>ダウンロードする</strong>授業ページの「配布ファイル」から game1_template の ZIP を入手する</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>解凍して Unity Hub で開く</strong>グループごとにフォルダを複製し、自分たちの作品名にリネームする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>中身を確認する</strong>音の再生・UI・パーティクルなどのサンプルが入っているので、改造して使う</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. 今日やること -->
+  <div class="slide theme-content">
+    <div class="tag green">今日やること</div>
+    <h2>この時間にやること</h2>
     <div class="divider left"></div>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>Particle System を追加</strong>Hierarchy で右クリック → Effects &gt; Particle System</div>
+        <div class="step-body"><strong>グループを決める</strong>メンバーを確定し、4つの役割を担当する</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>主なパラメータを調整</strong>Duration（持続時間）・Start Speed（初速）・Start Color（色）・Emission Rate（発生数/秒）</div>
+        <div class="step-body"><strong>アイデアを出す</strong>「どんな操作で、どんな音が鳴ると面白いか」を自由に出し合う</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><strong>スクリプトから制御</strong><code>GetComponent&lt;ParticleSystem&gt;().Play()</code> で再生、<code>.Stop()</code> で停止</div>
+        <div class="step-body"><strong>テンプレートを開く</strong>game1_template をダウンロードして、全員 Unity で開いておく</div>
       </div>
     </div>
-    <div class="highlight-box" style="margin-top:0.8rem;">
-      <p>「音に合わせてパーティクルを爆発させる」演出はクリア感・達成感を大幅に高めます。<br>色と動きは楽曲のムードに合わせて設定してみましょう。</p>
-    </div>
-  </div>
-
-  <!-- 15. 今日の練習課題 -->
-  <div class="slide theme-content">
-    <div class="tag green">練習課題</div>
-    <h2>今日の練習課題</h2>
-    <div class="divider left"></div>
-    <p style="margin-bottom:0.8rem;">前回作ったミニゲームにアニメーション・音・演出を加えよう</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body"><strong>BGM を追加する</strong>AudioSource コンポーネントを GameObject に追加し、BGM クリップをセットして Loop 再生する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body"><strong>SE を鳴らす</strong>アイテム取得時・ゲームクリア時に <code>AudioSource.PlayClipAtPoint()</code> で効果音を再生する</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body"><strong>アニメーションをつける</strong>プレイヤーに「待機」「移動」の Animation Clip を作り Animator で切り替える</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body"><strong>パーティクルで演出</strong>クリア時に Coroutine で「2秒後にパーティクルを再生」する演出シーケンスを実装する</div>
-      </div>
+    <div class="highlight-box">
+      <p>次回（第12回）は<strong>企画</strong>です。作品名とコンセプトの候補を、いくつか考えてきましょう。</p>
     </div>
   </div>
 
-  <!-- 16. まとめ + 次回予告 -->
+  <!-- 15. まとめ + 次回予告 -->
   <div class="slide theme-content">
     <div class="tag blue">まとめ</div>
     <h2>今日のまとめ</h2>
     <div class="divider left"></div>
     <ul>
-      <li><strong>AudioSource / AudioClip</strong> で BGM・SE を自在に制御できる</li>
-      <li><strong>Animator Controller</strong> はステートマシンで状態に応じたアニメーションを管理する</li>
-      <li><strong>Invoke</strong> はシンプルな遅延、<strong>Coroutine</strong> は複雑な演出シーケンスに使う</li>
-      <li>BPM を計算して <code>InvokeRepeating</code> を使えばビートに同期した演出が作れる</li>
-      <li><strong>ParticleSystem</strong> はスクリプトから簡単に制御できる</li>
+      <li>テーマは<strong>「操作 → 音」</strong>。操作に必ず音楽的な反応を返す作品をつくる</li>
+      <li>グループで<strong>サウンド／プログラム／ビジュアル／企画・発表</strong>を分担する</li>
+      <li>第12回=企画、第12〜14回=実装、第15回=発表（10分）</li>
+      <li>成果物は<strong>企画書・Unity作品・発表＋デモ</strong>の3つ</li>
+      <li>制作は<strong>game1_template</strong>を複製してスタートする</li>
     </ul>
     <div class="highlight-box" style="margin-top:1.2rem;">
-      <p><strong>次回 第12回：総合制作①</strong><br>
-      いよいよ自分のゲーム作品を制作開始！企画書を書き、素材を集め、シーン構成を考えます。<br>
-      第12〜14回で制作し、第15回に発表します。アイデアを温めておいてください。</p>
+      <p><strong>次回 第12回：総合制作①（企画）</strong><br>
+      作品名・コンセプト・役割分担を企画書（PowerPoint）にまとめ、制作をスタートします。<br>
+      チームでアイデアを温めてきてください。</p>
     </div>
   </div>
 
@@ -412,7 +311,7 @@ public class CoroutineExample : MonoBehaviour
 
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter">1 / 16</span>
+  <span id="slide-counter">1 / 15</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>
