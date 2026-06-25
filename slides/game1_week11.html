@@ -42,6 +42,12 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
 .col-card { background: rgba(255,255,255,0.07); border-radius: 8px; padding: 1rem 1.2rem; }
 .col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #64b4ff; }
 .col-card p, .col-card li { font-size: 0.88rem; }
+.video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.45rem; opacity: 0.9; }
+.slide a { color: #8fd0ff; text-decoration: underline; text-underline-offset: 2px; }
+.slide a:hover { color: #bfe4ff; }
 .muted { opacity: 0.6; }
 #nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
 #nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
@@ -71,12 +77,12 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <ul>
       <li>グループ制作課題のテーマ「操作 → 音」を理解する</li>
       <li>グループを編成し、役割分担を決める</li>
-      <li>第12〜15回の制作の流れ・成果物・評価を確認する</li>
+      <li>第11〜15回の制作の流れ・成果物・評価を確認する</li>
       <li>制作課題テンプレート（game1_template）を入手して開く</li>
-      <li>次回（企画）に向けて作品のアイデアを出し始める</li>
+      <li>この回で作品の企画（作品名・コンセプト・役割分担）をまとめる</li>
     </ul>
     <div class="music-box">
-      <p>この回は「<strong>つくり始めるための準備</strong>」。チームと方向性を決めて、第12回からすぐ動き出せる状態にしましょう。</p>
+      <p>この回は「<strong>企画と制作準備</strong>」。チームと方向性を決めて、第12回からすぐ実装に入れる状態にしましょう。</p>
     </div>
   </div>
 
@@ -127,7 +133,61 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     </div>
   </div>
 
-  <!-- 6. セクション：グループ編成と役割 -->
+  <!-- 6. セクション：事例 -->
+  <div class="slide theme-section">
+    <div class="tag">Case Study</div>
+    <h1>ゲームを使ったメディアアート</h1>
+    <p style="margin-top:1rem; opacity:0.85;">「遊び」を表現に変えた作品たち<br>企画のヒントにしよう</p>
+  </div>
+
+  <!-- 7. 事例：ゲームが表現の素材になる -->
+  <div class="slide theme-content">
+    <div class="tag purple">事例 ①</div>
+    <h2>ゲーム・ゲームエンジンが作品の素材になる</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.6rem;">ゲームは「遊ぶもの」であると同時に、アーティストが使う<strong>表現のメディア（素材）</strong>でもあります。</p>
+    <div class="video-grid">
+      <div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/fCmAD0TwGcQ" title="Cory Arcangel - Super Mario Clouds" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <p class="video-cap"><strong>Cory Arcangel「Super Mario Clouds」</strong>（2002）<br>スーパーマリオを改造し、"流れる雲"だけを残した作品。</p>
+      </div>
+      <div class="col-card">
+        <h3>ほかにも…</h3>
+        <p><strong><a href="https://okikata.org/" target="_blank" rel="noopener">谷口暁彦</a></strong>：ゲームエンジン・3DCGで、現実と仮想が混ざる独特の世界をつくるメディアアーティスト（多摩美術大学）。</p>
+        <p style="margin-top:0.5rem;"><strong><a href="https://whitney.org/artists/15261" target="_blank" rel="noopener">JODI</a></strong>：既存のゲームを改造し、ゲームそのものをアートにした先駆者。</p>
+        <p style="margin-top:0.5rem;" class="muted">市販ゲームの改造はマネしなくてOK。「ゲームの仕組みを表現に使う」視点だけ受け取ろう。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. 事例：操作が音楽になる作品 -->
+  <div class="slide theme-content">
+    <div class="tag purple">事例 ②（この課題に直結）</div>
+    <h2>操作が音楽になる作品</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.6rem;">「操作 → 音」をまさに作品化した、ぜひ見てほしい事例です。</p>
+    <div class="video-grid">
+      <div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/PvYIlrzTRyE" title="エレクトロプランクトン Electroplankton" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <p class="video-cap"><strong>岩井俊雄「エレクトロプランクトン」</strong><br>生き物に触れると音が鳴り、遊ぶうちに音楽になる（楽器「TENORI-ON」も制作）。</p>
+      </div>
+      <div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/kLQwdvsKC2I" title="Rez Infinite" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <p class="video-cap"><strong>水口哲也「Rez Infinite」</strong><br>操作するたびに音と光が重なる"共感覚"の作品（「Tetris Effect」も同氏）。</p>
+      </div>
+    </div>
+    <div class="music-box">
+      <p>どれも<strong>「プレイヤーの操作が音楽を生む」</strong>作品。音楽の知識を、こうした体験づくりに活かしましょう。</p>
+    </div>
+  </div>
+
+  <!-- 9. セクション：グループ編成と役割 -->
   <div class="slide theme-section">
     <div class="tag">Team</div>
     <h1>グループ編成と役割</h1>
@@ -166,19 +226,19 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
   <!-- 8. セクション：課題の流れ -->
   <div class="slide theme-section">
     <div class="tag">Schedule</div>
-    <h1>課題の流れ（第12〜15回）</h1>
+    <h1>課題の流れ（第11〜15回）</h1>
     <p style="margin-top:1rem; opacity:0.85;">企画 → 実装 → 発表</p>
   </div>
 
   <!-- 9. 課題の流れ steps -->
   <div class="slide theme-content">
     <div class="tag blue">スケジュール</div>
-    <h2>第12回 → 第15回の進め方</h2>
+    <h2>第11回 → 第15回の進め方</h2>
     <div class="divider left"></div>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>企画（第12回）</strong>作品名・コンセプト・役割分担をパワーポイントにまとめる</div>
+        <div class="step-body"><strong>企画（第11回・今日）</strong>作品名・コンセプト・役割分担をパワーポイントにまとめる</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
@@ -247,7 +307,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <div class="tag blue">テンプレート</div>
     <h2>制作課題テンプレート（game1_template）</h2>
     <div class="divider left"></div>
-    <p style="margin-bottom:0.8rem;">ゼロから作る必要はありません。<strong>これまで学んだ仕組みがひと通り入った雛形</strong>を配布します。各グループで複製して、ここから制作を始めましょう。</p>
+    <p style="margin-bottom:0.8rem;"><strong>これまで学んだ仕組みがひと通り入った雛形</strong>を配布します。使えばゼロから作る必要がなく、各グループで複製してここから制作を始められます。</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
@@ -261,6 +321,9 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
         <div class="step-num">3</div>
         <div class="step-body"><strong>中身を確認する</strong>音の再生・UI・パーティクルなどのサンプルが入っているので、改造して使う</div>
       </div>
+    </div>
+    <div class="warn-box">
+      テンプレートは<strong>使っても使わなくてもOK</strong>です。ゼロから新しいプロジェクトを作っても、これまでの自分の課題を発展させても構いません。やりやすい形で進めましょう。
     </div>
   </div>
 
@@ -276,7 +339,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>アイデアを出す</strong>「どんな操作で、どんな音が鳴ると面白いか」を自由に出し合う</div>
+        <div class="step-body"><strong>企画をまとめる</strong>「どんな操作で、どんな音が鳴ると面白いか」を出し合い、作品名・コンセプト・役割分担を企画書（PowerPoint）にまとめる</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
@@ -284,7 +347,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       </div>
     </div>
     <div class="highlight-box">
-      <p>次回（第12回）は<strong>企画</strong>です。作品名とコンセプトの候補を、いくつか考えてきましょう。</p>
+      <p>次回（第12回）から<strong>実装スタート</strong>です。今日のうちに作品名・コンセプトを固めておきましょう。</p>
     </div>
   </div>
 
@@ -296,14 +359,14 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <ul>
       <li>テーマは<strong>「操作 → 音」</strong>。操作に必ず音楽的な反応を返す作品をつくる</li>
       <li>グループで<strong>サウンド／プログラム／ビジュアル／企画・発表</strong>を分担する</li>
-      <li>第12回=企画、第12〜14回=実装、第15回=発表（10分）</li>
+      <li>第11回=企画、第12〜14回=実装、第15回=発表（10分）</li>
       <li>成果物は<strong>企画書・Unity作品・発表＋デモ</strong>の3つ</li>
       <li>制作は<strong>game1_template</strong>を複製してスタートする</li>
     </ul>
     <div class="highlight-box" style="margin-top:1.2rem;">
-      <p><strong>次回 第12回：総合制作①（企画）</strong><br>
-      作品名・コンセプト・役割分担を企画書（PowerPoint）にまとめ、制作をスタートします。<br>
-      チームでアイデアを温めてきてください。</p>
+      <p><strong>次回 第12回：総合制作①（実装スタート）</strong><br>
+      この回で固めた企画をもとに、グループで分担して Unity 作品づくりを始めます。<br>
+      担当パートの準備を進めてきてください。</p>
     </div>
   </div>
 
@@ -311,7 +374,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
 
 <div id="nav">
   <button type="button" id="btn-prev">&#8592;</button>
-  <span id="slide-counter">1 / 15</span>
+  <span id="slide-counter">1 / 18</span>
   <button type="button" id="btn-next">&#8594;</button>
 </div>
 <div id="progress"></div>
