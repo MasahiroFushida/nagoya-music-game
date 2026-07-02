@@ -156,11 +156,15 @@ const SITE_DATA = {
       {
         week: 12,
         title: "総合制作①",
-        description: "各自で作品制作を進める。音や音楽表現を取り入れた企画を考える。必要な素材や機能の整理、個別に実装を進める。",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        description: "グループ制作の回。冒頭に各グループ1分ほどで「今考えている企画」（作品名・どんな操作でどんな音が鳴るか・今日つくるところ）を共有してから制作に入る。進め方は各グループに任せ、詰まったら先生を呼ぶ。提出は授業終了時の「進捗メモ」（グループで1通）のみ。",
+        slides: [
+          { label: "第12回 総合制作① スライド", url: "slides/game1_week12.html" }
+        ],
+        project: [
+          { label: "ARテンプレート（game1_template_ar）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【提出】進捗メモ（グループで1通だけ・授業終了時）\n\n個人提出はありません。次の5行を書いて、UnityのGameビューのスクリーンショット1枚と一緒に提出してください。\n\n1. 作品名（仮でOK）\n2. 今日できたこと\n3. 次回やること\n4. 困っていること・先生に聞きたいこと（なければ「なし」）\n5. メンバー全員の「今日やったこと」1行ずつ\n\n※評価は「出したか」のみ。内容の質は問いません。スクショは作りかけの画面でOKです。\n※グループ課題全体（企画書・Unity作品・発表）の締切は第15回です。",
+        deadline: "進捗メモ：第12回 授業終了時（作品全体は第15回 グループ発表）"
       },
       {
         week: 13,
