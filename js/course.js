@@ -11,6 +11,8 @@
 
   const isGame2 = courseKey === "game2";
   const colorClass = isGame2 ? "game2" : "";
+  // data.js の openWeeks（第何回まで公開するか）。未設定なら全回有効
+  const openWeeks = typeof course.openWeeks === "number" ? course.openWeeks : course.weeks.length;
 
   // <title>
   document.title = `${course.title} | 名古屋音楽大学`;
@@ -33,12 +35,13 @@
   // 週一覧
   const list = document.getElementById("week-list");
   list.innerHTML = course.weeks.map(w => {
-    const hasSlides = w.slides && w.slides.length > 0;
-    const hasProject = w.project && w.project.length > 0;
-    const hasAssignment = !!w.assignment;
+    const isOpen = w.week <= openWeeks;
+    const hasSlides = isOpen && w.slides && w.slides.length > 0;
+    const hasProject = isOpen && w.project && w.project.length > 0;
+    const hasAssignment = isOpen && !!w.assignment;
 
     const slideUrl = hasSlides ? w.slides[0].url : '';
-    const disabledClass = isGame2 ? 'disabled' : '';
+    const disabledClass = isOpen ? '' : 'disabled';
     return `
       <div class="week-item ${colorClass}">
         <span class="week-num">第${w.week}回</span>

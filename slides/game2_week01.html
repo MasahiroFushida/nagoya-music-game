@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1回 ガイダンス・ARを動かしてみる</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.step-body code, .slide li code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.eval-table { width: 100%; max-width: 700px; border-collapse: collapse; margin-top: 0.5rem; }
+.eval-table th, .eval-table td { padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.15); text-align: left; font-size: 1rem; }
+.eval-table th { font-size: 0.85rem; opacity: 0.6; font-weight: normal; }
+.eval-table .pct { font-size: 1.4rem; font-weight: bold; color: #8fe0a0; }
+.key-table { width: 100%; max-width: 760px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; width: 100%; max-width: 900px; margin-top: 0.8rem; }
+.week-cell { background: rgba(255,255,255,0.07); border-radius: 6px; padding: 0.6rem 0.4rem; text-align: center; font-size: 0.85rem; line-height: 1.4; }
+.week-cell .wn { font-size: 0.7rem; opacity: 0.5; margin-bottom: 0.2rem; }
+.week-cell.now { background: rgba(46,125,50,0.45); border: 1px solid rgba(100,200,120,0.5); }
+.week-cell.ar { background: rgba(26,107,191,0.3); border: 1px solid rgba(100,160,255,0.35); }
+.week-cell.bl { background: rgba(230,120,0,0.25); border: 1px solid rgba(255,170,80,0.35); }
+.week-cell.make { background: rgba(100,50,150,0.3); border: 1px solid rgba(180,130,255,0.35); }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box .big { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.flow-box strong { display: block; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.85rem; opacity: 0.75; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .week-grid { grid-template-columns: repeat(3, 1fr); } .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); } }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第1回 ガイダンス・ARを動かしてみる</h3>
+    <p class="muted" style="margin-top:2rem;">Blender で作って、AR で現実の空間に置く</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の内容</div>
+    <h2>本日のアジェンダ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>秋学期（ゲーム2）で何をやるか ― AR と Blender</li>
+      <li>15回のスケジュール・評価方法・授業のルール</li>
+      <li>ARテンプレートを Unity で動かしてみる（仮想の部屋で）</li>
+      <li>スマホ実機ビルドの準備（宿題）</li>
+      <li>今日の課題</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>今日はインストールと動作確認が中心です。<strong>PC の空き容量</strong>を先に確認しておいてください（Xcode を入れる人は 25GB ほど）。</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション：授業概要 -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">授業概要</div>
+    <h1>秋学期で何を作るか</h1>
+  </div>
+
+  <!-- 4. ゲーム2とは -->
+  <div class="slide theme-content">
+    <div class="tag green">ゲーム2とは</div>
+    <h2>Blender で作って、AR で置く</h2>
+    <div class="divider left"></div>
+    <p style="margin-bottom:0.4rem;">春学期は、画面の中で「操作 → 音」の作品を作りました。秋学期は、その音を<strong>現実の空間</strong>に置きます。</p>
+    <div class="flow">
+      <div class="flow-box">
+        <div class="big">🧊</div>
+        <strong>Blender で作る</strong>
+        <span>楽器・小物など、置きたいモノを自分でモデリング</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">📱</div>
+        <strong>AR で置く</strong>
+        <span>スマホをかざすと、机や床の上にそのモノがある</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">🔊</div>
+        <strong>触れると鳴る</strong>
+        <span>タップすると音が鳴る。「操作 → 音」の AR 版</span>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>秋学期のゴール：<strong>自分でモデリングしたモノを現実の空間に置いて、触れると音が鳴る AR 作品</strong>を1人1つ作る（第15回に発表）。</p>
+    </div>
+  </div>
+
+  <!-- 5. ARとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">AR とは</div>
+    <h2>AR（拡張現実）＝ 現実の空間に、デジタルなモノを重ねる</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>どういう技術？</h3>
+        <ul>
+          <li>スマホのカメラで<strong>床・机などの面を認識</strong>する（平面検出）</li>
+          <li>スマホを動かしても、置いたモノが<strong>その場所にとどまる</strong>（トラッキング）</li>
+          <li>3D オブジェクトも、音も置ける</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>身近な例</h3>
+        <ul>
+          <li>ポケモン GO（Unity 製）</li>
+          <li>IKEA Place（家具を部屋に置いて試す）</li>
+          <li>iPhone の「計測」アプリ</li>
+          <li>Google マップのライブビュー（矢印を道に重ねる）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Unity では <strong>AR Foundation</strong> という仕組みを使うと、iPhone（ARKit）と Android（ARCore）の両方に同じプロジェクトで対応できます。春学期に配った AR テンプレートが、まさにこれです。</p>
+    </div>
+  </div>
+
+  <!-- 6. Blenderとは -->
+  <div class="slide theme-content">
+    <div class="tag orange">Blender とは</div>
+    <h2>無料で使える、本格的な 3DCG ソフト</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Blender でできること</h3>
+        <ul>
+          <li>モデリング（形を作る）・マテリアル（色や質感をつける）</li>
+          <li>アニメーション・レンダリング（絵として書き出す）</li>
+          <li>映画・ゲーム・VTuber のモデルなど、幅広く使われている</li>
+          <li>無料・オープンソース。Mac / Windows どちらでも動く</li>
+          <li>公式サイト：<a href="https://www.blender.org/" target="_blank">blender.org</a>　ダウンロード：<a href="https://www.blender.org/download/" target="_blank">blender.org/download</a></li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>この授業で使う範囲</h3>
+        <ul>
+          <li><strong>モデリングと色づけだけ</strong>（第6〜9回）</li>
+          <li>プリミティブの組み合わせ → 押し出し → モディファイア → 色</li>
+          <li>作ったモデルを FBX で書き出して Unity に持っていく</li>
+          <li>アニメーションや UV 展開はやらない</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Unity にも形はありますが（Cube・Sphere…）、<strong>「自分で作ったモノを置く」</strong>ことで作品になります。Blender はそのための道具です。<strong>インストールは第6回の授業内で行います</strong>（今日は入れなくて OK）。</p>
+    </div>
+  </div>
+
+  <!-- 7. セクション：スケジュール -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">スケジュール</div>
+    <h1>15回の流れ</h1>
+  </div>
+
+  <!-- 8. 15回のスケジュール -->
+  <div class="slide theme-content">
+    <div class="tag green">全15回のスケジュール</div>
+    <h2>授業の流れ</h2>
+    <div class="week-grid">
+      <div class="week-cell now"><div class="wn">第1回</div>ガイダンス<br>ARを動かす</div>
+      <div class="week-cell ar"><div class="wn">第2回</div>ARの仕組み</div>
+      <div class="week-cell ar"><div class="wn">第3回</div>タップして置く</div>
+      <div class="week-cell ar"><div class="wn">第4回</div>スマホ実機ビルド</div>
+      <div class="week-cell ar"><div class="wn">第5回</div>触れると鳴る</div>
+      <div class="week-cell bl"><div class="wn">第6回</div>Blender入門</div>
+      <div class="week-cell bl"><div class="wn">第7回</div>編集モード</div>
+      <div class="week-cell bl"><div class="wn">第8回</div>モディファイア<br>マテリアル</div>
+      <div class="week-cell bl"><div class="wn">第9回</div>FBX書き出し<br>→ Unity</div>
+      <div class="week-cell now"><div class="wn">第10回</div>自作モデルを<br>ARに置く</div>
+      <div class="week-cell make"><div class="wn">第11回</div>企画</div>
+      <div class="week-cell make"><div class="wn">第12〜14回</div>総合制作</div>
+      <div class="week-cell make"><div class="wn">第15回</div>作品発表</div>
+    </div>
+    <p style="font-size:0.85rem; opacity:0.55; margin-top:0.8rem;">青：Unity AR　橙：Blender　緑：合流点　紫：制作・発表</p>
+  </div>
+
+  <!-- 9. 安心してほしいこと -->
+  <div class="slide theme-content">
+    <div class="tag green">最初に伝えておきたいこと</div>
+    <h2>スマホがなくても、全部できます</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>AR は Mac の中の「仮想の部屋」で動かせる</strong>AR テンプレートには XR Simulation という仕組みが入っていて、Play を押すと仮想の部屋の中でタップや平面検出を試せます。課題の必修はすべてこれで OK</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>スマホ実機で動かすのは「できたらうれしい」扱い</strong>第4回で実機ビルドをやりますが、できなくても評価は変わりません。iPhone / Android どちらでも OK</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>第10回でできたものが、そのまま作品の最小ライン</strong>「自作モデルを置いて、タップすると鳴る」まで授業内で一緒に作ります。総合制作はそこに何かを足すだけ</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>春学期と同じく、<strong>「完璧に作る」より「動くところまで行く」</strong>を大事にします。</p>
+    </div>
+  </div>
+
+  <!-- 10. セクション：評価 -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">評価方法</div>
+    <h1>どうやって評価されるか</h1>
+  </div>
+
+  <!-- 11. 評価の内訳 -->
+  <div class="slide theme-content">
+    <div class="tag green">成績評価</div>
+    <h2>評価の内訳</h2>
+    <div class="divider left"></div>
+    <table class="eval-table">
+      <tr>
+        <th>評価項目</th>
+        <th>割合</th>
+        <th>内容</th>
+      </tr>
+      <tr>
+        <td>授業への参加・取り組み</td>
+        <td class="pct">40%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">毎回の授業での作業・進捗</td>
+      </tr>
+      <tr>
+        <td>課題提出</td>
+        <td class="pct">30%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">各回の課題（必修は「最小ライン」だけ。任意課題は加点）</td>
+      </tr>
+      <tr>
+        <td>最終作品・発表</td>
+        <td class="pct">30%</td>
+        <td style="font-size:0.88rem; opacity:0.8;">第15回の作品発表（個人制作）</td>
+      </tr>
+    </table>
+    <div class="warn-box" style="margin-top:1rem;">
+      ⚠️ 欠席が多いと大きく減点されます。遅刻・欠席は事前に連絡してください。
+    </div>
+  </div>
+
+  <!-- 12. 授業のルール -->
+  <div class="slide theme-content">
+    <div class="tag orange">受講にあたってのお願い</div>
+    <h2>授業のルール</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>毎回 PC を持参してください（必須）</li>
+      <li>授業中は授業に関係のないアプリを閉じる</li>
+      <li>分からないことはその場で質問して OK</li>
+      <li>作業が早く終わった人は任意課題や自分の作品づくりに進んで OK</li>
+      <li>AI ツール（ChatGPT 等）の活用は OK、ただし中身を理解すること</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>AR はカメラで部屋を映します。<strong>映したくないものがある場所では撮らない</strong>、人を映すときは一声かける ― これだけ気をつけてください。</p>
+    </div>
+  </div>
+
+  <!-- 13. セクション：ARテンプレ -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">やってみよう</div>
+    <h1>ARテンプレートを動かす</h1>
+  </div>
+
+  <!-- 14. ARテンプレートとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">ARテンプレート（game1_template_ar）</div>
+    <h2>春学期第12回で配ったテンプレートが、秋学期の入り口</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>何が入っている？</h3>
+        <ul>
+          <li>カメラで床・机を認識して面を表示（平面検出）</li>
+          <li>目の前に浮かぶ赤いキューブをタップすると落ち、<strong>着地すると音が鳴る</strong>（「操作 → 音」のAR版）</li>
+          <li>第1回で使うのはここまで。ほかの機能はこの先の回で少しずつ</li>
+          <li>iPhone / Android 両対応</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>環境</h3>
+        <ul>
+          <li>Unity <strong>2022.3.62f3</strong>（春学期と同じ）</li>
+          <li>AR Foundation 5.2.2</li>
+          <li>XR Simulation（仮想の部屋）同梱</li>
+          <li>授業ページの「Unityプロジェクト（配布ファイル）」からダウンロード</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>秋学期はこのテンプレートを少しずつ改造していきます。第3回で「置くモノ」を差し替え、第10回でそれを<strong>自作モデル</strong>にします。</p>
+    </div>
+  </div>
+
+  <!-- 15. 開く手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">手順</div>
+    <h2>ARテンプレートを Unity で開く</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>ダウンロードして解凍する</strong>授業ページ 第1回 → 「ARテンプレート（game1_template_ar）」の zip をダウンロード → ダブルクリックで解凍。フォルダは<strong>日本語やスペースを含まない場所</strong>（例：<code>ユーザ/自分の名前/Unity/</code>）に置く</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Unity Hub に追加する</strong>Unity Hub → プロジェクト → 「追加」→ 解凍したフォルダ（game1_template_ar-main）を選ぶ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>2022.3.62f3 で開く</strong>バージョンの欄が 2022.3.62f3 になっていることを確認してクリック。<strong>初回は数分かかります</strong>（パッケージの取り込み）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>ARScene を開いて Play</strong>Project ウィンドウ → Assets/Scenes/<strong>ARScene</strong> をダブルクリック → ▶ Play。Game ビューに仮想の部屋が出れば成功</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. 仮想の部屋の操作 -->
+  <div class="slide theme-content">
+    <div class="tag blue">XR Simulation</div>
+    <h2>仮想の部屋の歩き方（Play 中の操作）</h2>
+    <div class="divider left"></div>
+    <table class="key-table">
+      <tr><th>キー・マウス</th><th>動作</th><th>実機ではこれ</th></tr>
+      <tr><td class="k">W / A / S / D</td><td>前後左右に移動</td><td>歩く</td></tr>
+      <tr><td class="k">Q / E</td><td>下降 / 上昇</td><td>しゃがむ・背伸び</td></tr>
+      <tr><td class="k">← → ↑ ↓</td><td>視点を回す</td><td>スマホの向きを変える</td></tr>
+      <tr><td class="k">左 Shift ＋ 移動キー</td><td>3倍速で移動</td><td>―</td></tr>
+      <tr><td class="k">キューブを短くクリック</td><td>キューブが落ちる（着地で音）</td><td>タップ</td></tr>
+    </table>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>Play すると<strong>目の前に赤いキューブが浮かんで</strong>います。まず部屋の中を少し歩き回って、<strong>床に半透明の面が出る</strong>のを確認 → キューブを<strong>短くクリック</strong>して落としてみましょう。<strong>音が鳴ったら OK</strong>（音量を確認）。</p>
+    </div>
+  </div>
+
+  <!-- 17. つまずきポイント -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li><strong>バージョンを聞かれる／別のバージョンで開いた</strong> → 必ず 2022.3.62f3 で開く。ない人は Unity Hub → インストール → 2022.3.62f3 を追加</li>
+      <li><strong>開くのに時間がかかる</strong> → 初回は普通です。5〜10分待つ。途中で閉じない</li>
+      <li><strong>Play しても真っ暗・何も出ない</strong> → Window → XR → AR Foundation → <strong>XR Environment</strong> を開き、環境（部屋）が選ばれているか確認</li>
+      <li><strong>面が出ない</strong> → 少し歩き回る・視点を床に向ける。平面検出には数秒かかります</li>
+      <li><strong>クリックしても落ちない</strong> → 短くクリック。押したままにすると「掴む」モードになり落ちません</li>
+      <li><strong>キューブが落ちて消えた／見当たらない</strong> → 面が出る前に落とすと床を突き抜けますが、1〜2秒で目の前に出直します。歩き回って見失ったら矢印キーで視点を回して探す</li>
+      <li><strong>音が鳴らない</strong> → Mac の音量、Game ビュー右上の <strong>Mute Audio</strong> が ON になっていないか</li>
+      <li><strong>Console に赤いエラー</strong> → そのまま先生を呼んでください</li>
+    </ul>
+  </div>
+
+  <!-- 21. セクション：実機ビルド準備 -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">宿題（任意）</div>
+    <h1>スマホ実機ビルドの準備</h1>
+  </div>
+
+  <!-- 22. 実機ビルド -->
+  <div class="slide theme-content">
+    <div class="tag purple">なぜ今から準備するのか</div>
+    <h2>実機ビルドをします。</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>📱 iPhone の人 → Xcode</h3>
+        <ul>
+          <li>Unity で書き出した iPhone アプリは、<strong>Xcode</strong> という Apple のアプリを通してスマホに入れる</li>
+          <li>App Store から無料でインストールできるが、App Store 分 2.4GB ＋ 初回起動時の iOS 用データ 7〜8GB で<strong>ダウンロードは合計 10GB ほど</strong>・空き容量は <strong>25GB ほど</strong>必要</li>
+          <li>Apple ID があれば OK（有料の Developer Program は不要）</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>🤖 Android の人 → Android Build Support</h3>
+        <ul>
+          <li>Unity Hub から <strong>Android 用のモジュール</strong>を追加する</li>
+          <li>OpenJDK・Android SDK & NDK Tools を含めて <strong>数 GB</strong></li>
+          <li>スマホ側の設定（USB デバッグ）は第4回に一緒にやります</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:1rem;">
+      どちらも<strong>任意</strong>です。「実機で動かしてみたい」人だけ、次回までに家の Wi-Fi で進めておいてください。できなくても第4回に一緒にやりますし、その後の授業は仮想の部屋で進められます。
+    </div>
+  </div>
+
+  <!-- 23. iPhone -->
+  <div class="slide theme-content">
+    <div class="tag purple">iPhone の人</div>
+    <h2>Xcode のインストール</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>空き容量を確認する</strong>りんごマーク → 「この Mac について」→ ストレージ。<strong>25GB 以上</strong>空いていない場合は、不要なファイルを整理してから（インストール後に残るのは 15〜20GB ほど）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>App Store で「Xcode」を検索してインストール</strong>ダウンロードに 30 分〜数時間かかります。Wi-Fi のある場所で、電源につないで</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>一度起動する</strong>初回起動時に追加コンポーネントのインストールを聞かれるので「Install」。iOS のプラットフォームにチェックが入っていることを確認</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      現在の Xcode は <strong>macOS 26.2 以降</strong>が必要です。macOS が古いと App Store から入りません（「このバージョンの macOS では使用できません」と出る）。その場合は無理に macOS を上げず、<strong>先生に相談</strong>してください（旧バージョンの Xcode を入れる方法があります）。
+    </div>
+  </div>
+
+  <!-- 24. Android -->
+  <div class="slide theme-content">
+    <div class="tag purple">Android の人</div>
+    <h2>Android Build Support の追加</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Unity Hub → インストール</strong>左のメニューから「インストール」を開き、<strong>2022.3.62f3</strong> の右上の歯車 ⚙ → 「モジュールを加える」</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>3つにチェックを入れる</strong>「Android Build Support」を開いて、<strong>Android Build Support・OpenJDK・Android SDK & NDK Tools</strong> の3つすべてにチェック</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>インストール</strong>「インストール」→ ライセンスに同意。数 GB のダウンロードなので Wi-Fi で</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>確認</strong>ARテンプレートを開き、File → Build Settings → Platform の一覧に <strong>Android</strong> があり、「No Android module loaded」と出なければ OK（<strong>Switch Platform はまだ押さない</strong>）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 25. 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">今日の課題</div>
+    <h2>環境確認のスクリーンショット</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">必</div>
+        <div class="step-body"><strong>① ARテンプレートを Play した画面</strong>仮想の部屋の中にキューブを落とした状態の Game ビュー。Unity のウィンドウ全体を撮る（Cmd + Shift + 3 で画面全体、Cmd + Shift + 4 で範囲指定）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">任</div>
+        <div class="step-body"><strong>② 実機ビルドの準備が終わった画面</strong>iPhone の人：Xcode を起動した画面 ／ Android の人：Unity Hub のモジュール一覧で Android にチェックが入った画面</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p><strong>締切：第2回 授業開始時</strong>　必修は①の1枚。②は任意（できた人だけ）。</p>
+    </div>
+  </div>
+
+  <!-- 26. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第1回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>秋学期は <strong>Blender で作って、AR で現実の空間に置く</strong>。ゴールは「触れると音が鳴る AR 作品」を1人1つ</li>
+      <li>第2〜5回 AR → 第6〜9回 Blender → 第10回で合流 → 第11〜15回 総合制作・発表</li>
+      <li>評価は「参加40% ／ 課題30% ／ 発表30%」。必修課題は最小ラインだけ</li>
+      <li>ARテンプレートを Unity 2022.3.62f3 で開き、仮想の部屋でキューブを落とした</li>
+      <li>Blender は第6回から。インストールもその回で行う</li>
+      <li>スマホ実機は任意。やりたい人は Xcode / Android モジュールを次回までに</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p><strong>次回（第2回）：</strong>AR の仕組みと AR Foundation。ARテンプレートの中身を読み解いて、検出した平面の色を変えてみます。<br>
+      PC と、開けるようになった ARテンプレートを持ってきてください。</p>
+    </div>
+  </div>
+
+  <!-- 27. 質問 -->
+  <div class="slide theme-final">
+    <h1 style="font-size:3.5rem; margin-bottom:0.5rem;">質問はありますか？</h1>
+    <div class="divider"></div>
+    <p class="muted">次回：第2回　ARの仕組みとAR Foundation</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 24</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

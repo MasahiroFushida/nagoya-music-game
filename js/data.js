@@ -6,6 +6,9 @@
  * project:    Unityプロジェクトのダウンロードリンク（配列）。なければ null
  * assignment: 課題の内容（文字列）。なければ null
  * deadline:   課題の締切（文字列）。なければ null
+ *
+ * openWeeks:  コース単位の設定。一覧ページで「第何回まで」を有効にするか（数値）。
+ *             未設定なら全回有効。授業が進むごとに数字を増やしてください。
  */
 
 const SITE_DATA = {
@@ -205,127 +208,149 @@ const SITE_DATA = {
   game2: {
     title: "ゲーム2",
     semester: "秋学期",
-    description: "ゲーム1で習得した基礎をもとに、AR（拡張現実）を使った作品制作に取り組みます。",
+    description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
+    openWeeks: 1,
     weeks: [
       {
         week: 1,
-        title: "ガイダンス・ゲーム1の復習",
-        slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        title: "ガイダンス・ARを動かしてみる",
+        description: "秋学期の概要説明と環境づくり。Blenderで3Dモデルを作り、UnityのAR（拡張現実）で現実の空間に置いて音を鳴らす、という秋学期のゴールを共有する。春学期に配布したARテンプレート（game1_template_ar）をUnityで開き、エディター上の仮想の部屋（XR Simulation）で動かしてみる。スマホ実機ビルドに向けた準備（iPhoneはXcode、AndroidはUnityのAndroid Build Support）を始める。Blenderのインストールは第6回に行う。",
+        slides: [
+          { label: "第1回 ガイダンス・ARを動かしてみる スライド", url: "slides/game2_week01.html" }
+        ],
+        project: [
+          { label: "ARテンプレート（game1_template_ar）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【必修】環境確認のスクリーンショット\n\n次のスクリーンショットを1枚提出してください。\n・ARテンプレート（game1_template_ar）を Unity で開き、Playモードで仮想の部屋にキューブを落とした画面\n\n──────────────────────────────\n\n【任意】スマホ実機ビルドの準備（早めに始めておくと第4回が楽です）\n・iPhone の人：App Store から Xcode をインストールする（ダウンロードが大きいので、Wi-Fi のある場所で早めに）\n・Android の人：Unity Hub で Unity 2022.3.62f3 に「Android Build Support」（OpenJDK・Android SDK & NDK Tools を含む）を追加する\nインストールが終わったら、その画面のスクリーンショットを1枚追加で提出してください。",
+        deadline: "第2回授業開始時"
       },
       {
         week: 2,
-        title: "2Dゲームの仕組み",
+        title: "ARの仕組みとAR Foundation",
+        description: "ARがどうやって現実の空間を認識しているか（カメラ・平面検出・トラッキング）を学ぶ。ARテンプレートのシーン構成（AR Session・XR Origin・AR Plane Manager・AR Raycast Manager）を読み解き、検出した平面の見た目を変えてみる。仮想の部屋の歩き方（W/A/S/D・矢印キー）も確認する。",
         slides: null,
-        project: null,
-        assignment: null,
-        deadline: null
+        project: [
+          { label: "ARテンプレート（game1_template_ar）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
+        ],
+        assignment: "【必修】平面の見た目を変えよう\n\nARテンプレートで、検出した平面（ARPlaneVisualizer）の色を変えてください。\n\n■ 手順\n1. Materials フォルダにある平面用のマテリアルを複製（Cmd + D）する\n2. 複製したマテリアルの色（Base Color）と透明度を好きな値に変える\n3. Prefabs フォルダの ARPlaneVisualizer を選び、複製したマテリアルを割り当てる\n4. Playモードで、変えた色の平面が床や机の上に出ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚（色の変わった平面が見えているもの）\n\n──────────────────────────────\n\n【任意】別の部屋で試す\n・Window > XR > AR Foundation > XR Environment で別の仮想環境（Backyard など）を選んで動かし、スクリーンショットを1枚追加で提出する",
+        deadline: "第3回授業開始時"
       },
       {
         week: 3,
-        title: "Tilemapを使ったステージ作成",
+        title: "タップして置く・ARレイキャスト",
+        description: "画面をタップした場所の平面にオブジェクトを置く仕組み（ARRaycastManager によるレイキャスト）を学ぶ。テンプレートの CubeGameController を読んで、タップで生成する Prefab を差し替える。この「Prefab の差し替え」が、あとで自作モデルをARに置くときにそのまま使う、秋学期の中心になる操作。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】置くものを差し替えよう\n\nタップで落ちてくる赤いキューブを、別のオブジェクトに差し替えてください。\n\n■ 手順\n1. Prefabs フォルダの FallingCube を複製（Cmd + D）し、名前を「MyObject」にする\n2. MyObject の見た目を変える（形を Sphere や Cylinder に変える、Scale を変える、マテリアルの色を変える、Asset Store の素材に入れ替える など、好きな方法でOK）\n3. Hierarchy の XR Origin を選び、CubeGameController の Inspector にある Prefab の欄を MyObject に変更する\n4. Playモードでタップし、MyObject が落ちて着地すると音が鳴ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚（MyObject が置かれているもの）\n\n──────────────────────────────\n\n【任意】音を差し替える\n・MyObject の AudioSource の AudioClip を、自分で用意した音（録音・自作・フリー素材）に差し替える",
+        deadline: "第4回授業開始時"
       },
       {
         week: 4,
-        title: "キャラクターの移動とアニメーション",
+        title: "スマホ実機で動かす（ビルド）",
+        description: "作ったARをスマホの実機で動かす。iPhoneはUnityからXcodeプロジェクトを書き出してXcodeで署名・インストール、AndroidはUSBデバッグを有効にして Build And Run。Bundle Identifier の設定、Apple ID での署名（無料アカウントでOK）、カメラ権限など、つまずきやすいポイントを一緒に確認する。実機がなくても、この先は XR Simulation で進められる。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】実機で動かそう\n\n第3回の課題（MyObject）を自分のスマホで動かしてください。手順はスライド参照（iPhone：Xcode 経由 / Android：Build And Run）。\n\n■ 提出物（A・B どちらか1つ）\nA. 実機で動いた人\n   ・スマホの画面録画（10〜30秒。自分の机や床に MyObject が置けている様子）\nB. 実機で動かせなかった人\n   ・どこまで進めたかのメモ（例：Xcode まで書き出せたが署名でエラーが出た）\n   ・エラーが出た画面のスクリーンショット\n\n※B でも評価は変わりません。次回以降、個別に対応します。実機がなくても、この先は XR Simulation で進められます。",
+        deadline: "第5回授業開始時"
       },
       {
         week: 5,
-        title: "カメラ制御",
+        title: "ARのインタラクション（触れると鳴る）",
+        description: "置いたオブジェクトに触れると反応する仕組みを作る。テンプレートのドラッグ移動・ピンチ拡縮のコードを読んでタッチ入力の基本を知り、置いたオブジェクトをタップしたときに音を鳴らす処理（Physics.Raycast）を実装する。春学期の「操作 → 音」を現実の空間でやるための基本形。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】タップすると鳴るオブジェクト\n\n置いた MyObject をタップすると音が鳴るようにしてください。スクリプトはスライド掲載のコードをそのままコピーして使ってOKです。\n\n■ 手順\n1. C#スクリプト「TapSound」を作成し、スライドのコードをコピーする\n2. MyObject の Prefab に TapSound をアタッチする（AudioSource が付いていることを確認）\n3. Playモードで、置いた MyObject をクリックすると音が鳴ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚\n・TapSound.cs\n\n──────────────────────────────\n\n【応用課題（任意）】余力がある人だけ\n● 応用A：置いた MyObject ごとに違う音が鳴るようにする（Prefab を2種類作る、または AudioClip をランダムに選ぶ）\n● 応用B：タップしたとき、音と一緒に色が変わる・少し跳ねる など、見た目の反応もつける",
+        deadline: "第6回授業開始時"
       },
       {
         week: 6,
-        title: "敵AIの基礎",
+        title: "Blender入門",
+        description: "3Dモデリングソフト Blender のインストール（blender.org から。授業内で行う）と基本操作。画面構成、視点の動かし方（Macのトラックパッド／マウス）、オブジェクトの追加、移動（G）・回転（R）・拡大縮小（S）、保存。プリミティブ（立方体・球・円柱など）を組み合わせて、簡単な形をつくる。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】プリミティブで何か1つ作ろう\n\nBlender のプリミティブ（立方体・球・円柱・円錐 など）を組み合わせて、好きなものを1つ作ってください（例：雪だるま、ロボット、ドラムセット、マイクスタンド、椅子）。\n\n■ 条件\n・プリミティブを5個以上使う\n・移動（G）・回転（R）・拡大縮小（S）をそれぞれ1回以上使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n・.blend ファイル\n\n──────────────────────────────\n\n【任意】色をつける\n・マテリアルプロパティで新規マテリアルを作り、Base Color で色をつける",
+        deadline: "第7回授業開始時"
       },
       {
         week: 7,
-        title: "スコアとゲームオーバー処理",
+        title: "Blenderモデリング①（編集モード）",
+        description: "編集モードで形を作り込む。頂点・辺・面の選択、押し出し（E）、ループカット（Cmd + R）、面の差し込み（I）、ベベル（Cmd + B）。プリミティブを削ったり伸ばしたりして、楽器や小物など「ARで置きたいもの」の形に近づける。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】押し出しで形を作ろう\n\n編集モードを使って、1つのプリミティブから形を作り込んでください（例：円柱から太鼓、立方体からスピーカー、立方体から鍵盤ハーモニカ）。\n\n■ 条件\n・押し出し（E）とループカット（Cmd + R）を両方使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n・.blend ファイル\n\n──────────────────────────────\n\n【任意】\n・ベベル（Cmd + B）で角を丸める\n・面の差し込み（I）で凹みや枠をつける",
+        deadline: "第8回授業開始時"
       },
       {
         week: 8,
-        title: "セーブ・ロード機能",
+        title: "Blenderモデリング②（モディファイア・マテリアル）",
+        description: "モディファイアで効率よく形を作る。ミラー（左右対称）、サブディビジョンサーフェス（なめらかにする）、配列（同じ形を並べる）。マテリアルで色・金属感・つやをつける（Principled BSDF の Base Color・Metallic・Roughness）。UV展開は扱わず、色ベースで仕上げる。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】モディファイアと色で仕上げよう\n\n第7回のモデル（または新しく作ったモデル）に、モディファイアとマテリアルを加えてください。\n\n■ 条件\n・ミラー・サブディビジョンサーフェス・配列のうち、1つ以上を使う\n・マテリアルを2色以上つける（パーツごとに色を分ける）\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚（マテリアルプレビュー表示にして）\n・.blend ファイル\n\n──────────────────────────────\n\n【任意】\n・Metallic や Roughness を変えて、金属や光沢を表現する",
+        deadline: "第9回授業開始時"
       },
       {
         week: 9,
-        title: "エフェクトとパーティクル",
+        title: "BlenderからUnityへ（FBX書き出し）",
+        description: "Blenderで作ったモデルをUnityに持っていく。FBXでの書き出し（スケール・軸の設定）、Unityへのインポート、マテリアルの取り出し（Extract Materials）と色の再設定、Prefab化。Unityの 1 = 1m を意識して、現実に置いたときの大きさを整える。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】自作モデルを Unity に読み込もう\n\n■ 手順\n1. Blender で第8回のモデルを選び、File > Export > FBX で書き出す（設定はスライド参照）\n2. Unity のプロジェクト（第5回のARプロジェクトでOK）の Assets に「Models」フォルダを作り、FBX を入れる\n3. FBX を選んで Inspector の Materials タブで Extract Materials を押し、色をつけ直す\n4. シーンに置いて大きさを確認し（Unity の 1 = 1m）、Prefabs フォルダにドラッグして Prefab にする\n\n■ 提出物\n・Unity の Scene ビューのスクリーンショット1枚（自作モデルが置かれているもの）\n・書き出した .fbx ファイル",
+        deadline: "第10回授業開始時"
       },
       {
         week: 10,
-        title: "WebGLビルドと公開",
+        title: "自作モデルをARに置く",
+        description: "ここまでの内容を1つにつなげる回。第5回のARプロジェクトに第9回の自作モデルを入れ、タップで置く Prefab を自作モデルに差し替える。現実の机や床に置いたときの大きさを調整し、タップすると音が鳴るところまで動かす。この回でできたものが、総合制作の「最小ライン」になる。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【必修】自作モデルを AR に置いて鳴らそう\n\n■ 手順\n1. 第5回のARプロジェクトに、第9回の自作モデル Prefab を用意する\n2. 自作モデルの Prefab に、FallingCube を参考にして必要なコンポーネント（Collider・Rigidbody・AudioSource・TapSound など）を付ける\n3. XR Origin の CubeGameController の Prefab の欄を、自作モデルに差し替える\n4. Playモードで「タップで置ける」「置いたモデルをタップすると音が鳴る」の2つを確認する\n\n■ 提出物\n・Game ビューの画面録画（10〜30秒。XR Simulation でOK。Mac の画面収録は Cmd + Shift + 5）\n\n──────────────────────────────\n\n【任意】\n・実機で動かした画面録画\n・置く場所によって音を変える（床なら低い音、机なら高い音 など）",
+        deadline: "第11回授業開始時"
       },
       {
         week: 11,
-        title: "卒業制作①（企画・仕様書作成）",
+        title: "総合制作準備（企画）",
+        description: "総合制作「現実の空間に、音を置く」の企画をまとめる回。自分でモデリングしたオブジェクトを現実の空間に置き、触れると音が鳴るAR作品を個人で制作する。第10回でできたものを最小ラインとして、そこに何を足すかを決める。企画シート（作品名・どこに何を置くか・どんな操作でどんな音が鳴るか・作る順番）をこの回で書く。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "ゲーム2 制作課題（個人制作）\n\n「現実の空間に、音を置く」\n\n\n〇画面の中から、現実の空間へ\n\n春学期は、画面の中で「操作 → 音」を作りました。\n秋学期は、その音を現実の空間に置きます。\n\n自分の部屋の机、教室の床、廊下の壁 ―\nスマホをかざすと、そこに自分で作ったモノがあり、\n触れると音が鳴る。\n\n「その場所にあるからこそ意味のある音」を、\nBlender と Unity AR で作ってください。\n\nキーワードは「置く → 触れる → 音」。\n\n\n〇制作の条件（最小ライン）\n\n・Blender で自作したモデルを1つ以上使う（第9〜10回のモデルの発展でOK）\n・AR で現実の平面に置ける\n・置いたモノに触れる（タップする）と音が鳴る\n\n※ここまでは第10回でできています。第10回の課題がそのまま最小ラインです。\n\n\n〇発展の例（できる範囲で）\n\n・モデルを複数種類にする／組み合わせて楽器にする\n・置く場所や数によって音が変わる（和音・リズム）\n・ドラッグやピンチで音の高さ・大きさが変わる\n・実機で自分の部屋に置いて撮影する\n\n\n〇課題の流れ（第11回〜第15回）\n\n1. 企画（第11回）　　企画シートを書く\n2. 制作（第12〜14回）　優先順位を決めて作る\n3. 発表（第15回）　　1人3分ほど、動画を見せながら話す\n\n\n〇成果物\n\n1. 企画シート（1枚）… 作品名・置く場所・置くモノ・操作と音の関係・作る順番\n2. AR作品 … プレイ動画（実機 or XR Simulation）＋ Unity プロジェクト＋ .blend ファイル\n3. 発表（第15回）\n\n\n〇評価のポイント\n・「置く → 触れる → 音」が動いているか（最小ライン）\n・「その場所に置く意味」を企画と作品で語れているか\n・モデリングと音に自分なりのこだわりがあるか\n・発表で「なぜ作ったか」を自分の言葉で説明できているか\n\n\n【提出】企画シート（第11回 授業終了時）\n\n次の5つを書いて提出してください（手書きの写真・PowerPoint・テキスト、形式は自由）。\n1. 作品名（仮でOK）\n2. どこに置く？（例：自分の机の上、教室の床）\n3. 何を置く？（Blender で作るモノ。第9回のモデルを発展させてもOK）\n4. どう触れると、どんな音が鳴る？\n5. 作る順番（①最小ライン → ②次に足すもの → ③余裕があれば）",
+        deadline: "企画シート：第11回 授業終了時（作品全体は第15回 発表）"
       },
       {
         week: 12,
-        title: "卒業制作②（実装）",
+        title: "総合制作①",
+        description: "個人制作の回。冒頭に1人1分ほどで企画（作品名・どこに何を置くか・今日つくるところ）を共有してから制作に入る。Blenderでのモデル制作とUnityでのAR実装、どちらから始めてもよい。詰まったら先生を呼ぶ。提出は授業終了時の「進捗メモ」のみ。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【提出】進捗メモ（授業終了時）\n\n次の4行を書いて、作業中の画面のスクリーンショット1枚（Blender でも Unity でも可）と一緒に提出してください。\n\n1. 作品名（仮でOK）\n2. 今日できたこと\n3. 次回やること\n4. 困っていること・先生に聞きたいこと（なければ「なし」）\n\n※評価は「出したか」のみ。内容の質は問いません。スクショは作りかけの画面でOKです。\n※作品全体の締切は第15回です。",
+        deadline: "進捗メモ：第12回 授業終了時（作品全体は第15回 発表）"
       },
       {
         week: 13,
-        title: "卒業制作③（実装・調整）",
+        title: "総合制作②（中間チェック）",
+        description: "制作の続き。冒頭に1人1分ほどで「今の状況」（作品名・前回までにできたこと・今日やること）を共有してから制作に入る。授業内のどこかで、自作モデルをARに置いて音が鳴るところまでを通して動かす「中間チェック」をする。実機で発表したい人は、この回までにビルドが通るかを確認しておく。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【提出】進捗メモ（授業終了時）\n\n次の4行と、中間チェックのスクリーンショット1枚（ARに自作モデルが置かれている画面）を提出してください。\n\n1. 作品名\n2. 今日できたこと\n3. 次回やること\n4. 困っていること・先生に聞きたいこと（なければ「なし」）\n\n※中間チェックで最小ライン（置く → 触れる → 音）まで動いていない人は、次回は「まず最小ラインを動かす」を最優先にしてください。",
+        deadline: "進捗メモ：第13回 授業終了時（作品全体は第15回 発表）"
       },
       {
         week: 14,
-        title: "卒業制作④（デバッグ・仕上げ）",
+        title: "総合制作③（作りきる・発表準備）",
+        description: "最後の制作日。全部は作れなくてもよい前提で「①最小ライン（置く → 触れる → 音）を動かす → ②プレイ動画を撮る → ③余った時間で発展」の順に進める。動画の撮り方（実機：スマホの画面収録／XR Simulation：Mac の画面収録 Cmd + Shift + 5）と、発表で話すこと（作品名・置く場所・なぜその音か）を確認する。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【提出】進捗メモ（授業終了時）\n\n次の4行を書いて提出してください。\n\n1. 作品名\n2. 今日できたこと\n3. 発表までにやること\n4. 発表は「実機」「XR Simulation の動画」のどちらで行うか\n\n※次回は発表です。プレイ動画は発表前に撮っておいてください（発表中に初めて動かすと、うまくいかないことが多いです）。",
+        deadline: "進捗メモ：第14回 授業終了時（作品全体は第15回 発表）"
       },
       {
         week: 15,
-        title: "最終発表・講評",
+        title: "作品発表・まとめ",
+        description: "発表会。1人3分ほど、プレイ動画（または実機）を見せながら、作品名・置く場所・なぜその音か・作ってみてどうだったかを話す。未完成のところがあっても「ここまで作った」をそのまま発表してOK。企画シートとAR作品の最終提出を行い、秋学期とゲーム1・2全体を振り返る。",
         slides: null,
         project: null,
-        assignment: null,
-        deadline: null
+        assignment: "【最終提出】次のものを提出してください。\n\n1. 企画シート（最新版）\n   ・作りながら変わったところは、今の作品に合わせて直したものを提出する\n\n2. AR作品 ― 次の3つで提出\n   ・プレイ動画：作品を操作している様子（30秒〜1分。音が聞こえる状態で。実機ならスマホの画面収録、XR Simulation なら Mac の画面収録 Cmd + Shift + 5 でマイクをオンにして撮る）\n   ・Unity プロジェクト：Assets・Packages・ProjectSettings の3フォルダを zip にしたもの（Library フォルダは入れない）\n   ・.blend ファイル\n\n※発表（1人3分ほど）は授業内で実施。これらを提出すると、成果物3つ（企画シート／AR作品／発表）がすべてそろいます。",
+        deadline: "第15回 当日中（発表は授業内）"
       }
     ]
   }
