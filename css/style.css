@@ -413,6 +413,17 @@ main {
   color: #1a6bbf;
 }
 
+/* 外部サイトへのリンクは「外部へ」のアイコンにする（ダウンロードと区別） */
+.content-card ul li a[href^="http"]::before {
+  content: "↗";
+}
+
+/* ただしファイルを直接落とすリンクは「↓」のまま */
+.content-card ul li a[href$=".zip"]::before,
+.content-card ul li a[href$=".pdf"]::before {
+  content: "↓";
+}
+
 .assignment-box {
   background: #fffbf0;
   border: 1px solid #ffe082;

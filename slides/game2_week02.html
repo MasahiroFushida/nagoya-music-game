@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第2回 ARの仕組みとAR Foundation</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-num.ios { background: #1a6bbf; }
+.step-num.android { background: #2e7d32; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.step-body code, .slide li code, .key-table code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card.ios h3 { color: #8ec5ff; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.compact th, .key-table.compact td { padding: 0.4rem 0.8rem; font-size: 0.88rem; }
+.key-table .sub { display: block; font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box .big { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.flow-box strong { display: block; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.85rem; opacity: 0.75; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+/* ── 画像・動画スライド用 ───────────────────────── */
+.lead { font-size: 1.2rem; line-height: 1.7; max-width: 1000px; }
+.media { width: 100%; max-width: 1000px; margin-top: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.media img, .media video { max-width: 100%; max-height: 58vh; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 8px 28px rgba(0,0,0,0.45); background: #000; display: block; }
+.media figcaption { font-size: 0.9rem; opacity: 0.7; }
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; width: 100%; max-width: 1160px; margin-top: 0.7rem; }
+.shots.two { grid-template-columns: repeat(2, 1fr); max-width: 920px; }
+.shot { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.6rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.shot img, .shot video { width: 100%; height: auto; max-height: 46vh; object-fit: contain; border-radius: 4px; display: block; }
+.shot p { font-size: 0.9rem; line-height: 1.5; max-width: none; margin-top: auto; }
+.shot .n { display: inline-block; min-width: 1.35rem; height: 1.35rem; line-height: 1.35rem; text-align: center; background: #1a6bbf; border-radius: 50%; font-size: 0.72rem; font-weight: bold; margin-right: 0.35rem; }
+.shot .n.g { background: #2e7d32; }
+.split { display: grid; grid-template-columns: 1fr 1.15fr; gap: 1.5rem; align-items: center; width: 100%; max-width: 1060px; margin-top: 0.7rem; }
+.split img, .split video { width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.18); display: block; background: #000; }
+.split ul { max-width: none; }
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+@media (max-width: 900px) { .shots, .shots.two, .split { grid-template-columns: 1fr; } }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); } }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第2回 ARの仕組みとAR Foundation</h3>
+    <p class="muted" style="margin-top:2rem;">ARテンプレートの中身を読み解く・スマホ実機で動かす</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の内容</div>
+    <h2>本日のアジェンダ</h2>
+    <div class="divider left"></div>
+    <ul>
+      <li>前回の課題（キューブを落とした画面）の確認</li>
+      <li>AR はどうやって現実の空間を認識しているか</li>
+      <li>AR テンプレートの中身 ― AR Foundation のシーン構成</li>
+      <li>平面の見た目を変えてみる（今日の課題）</li>
+      <li><strong>スマホ実機で動かす</strong>（iPhone ／ Android）― 環境づくりからビルドまで。手順書 PDF を2つ配ります</li>
+      <li>今日の課題</li>
+    </ul>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>後半は<strong>自分のスマホで AR を動かすところまで</strong>やります。<strong>スマホと USB ケーブル</strong>を出しておいてください（ケーブルが無い人は家で。Xcode などのダウンロードは時間がかかるので、<strong>先に始めてから他の作業をする</strong>のがコツです）。</p>
+    </div>
+  </div>
+
+  <!-- 3. セクション：ARの仕組み -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">ARの仕組み</div>
+    <h1>AR はどうやって「現実」を見ているか</h1>
+  </div>
+
+  <!-- 4. スマホが使っているもの -->
+  <div class="slide theme-content">
+    <div class="tag blue">ARの仕組み</div>
+    <h2>カメラで目印を見つけて、面をさがしている</h2>
+    <svg class="fig" viewBox="0 0 1000 340" role="img" aria-label="スマホのカメラが床の特徴点を捉え、同じ平面上に並んだ点から面を検出する図">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#8fe0a0"/>
+        </marker>
+      </defs>
+      <!-- 視野 -->
+      <path d="M150 120 L780 40 L780 300 L150 190 Z" fill="#64b4ff" opacity="0.07"/>
+      <!-- スマホ -->
+      <rect x="96" y="104" width="62" height="112" rx="9" fill="#1b2340" stroke="#64b4ff" stroke-width="2.5"/>
+      <circle cx="127" cy="126" r="5" fill="#64b4ff"/>
+      <text x="127" y="248" text-anchor="middle" fill="#cfe4ff" font-size="19">スマホ</text>
+      <!-- 床 -->
+      <path d="M300 300 L980 210 L980 300 Z" fill="#ffffff" opacity="0.04"/>
+      <!-- 検出された面 -->
+      <path d="M470 268 L830 222 L900 258 L540 312 Z" fill="#8fe0a0" opacity="0.22" stroke="#8fe0a0" stroke-width="2.5"/>
+      <text x="686" y="272" text-anchor="middle" fill="#8fe0a0" font-size="21" font-weight="bold">検出された面</text>
+      <!-- 特徴点 -->
+      <g fill="#ffd66b">
+        <circle cx="430" cy="130" r="4.5"/><circle cx="520" cy="96" r="4.5"/><circle cx="610" cy="120" r="4.5"/>
+        <circle cx="700" cy="86" r="4.5"/><circle cx="480" cy="180" r="4.5"/><circle cx="596" cy="166" r="4.5"/>
+        <circle cx="690" cy="150" r="4.5"/><circle cx="760" cy="120" r="4.5"/><circle cx="540" cy="252" r="4.5"/>
+        <circle cx="650" cy="238" r="4.5"/><circle cx="760" cy="226" r="4.5"/><circle cx="840" cy="244" r="4.5"/>
+      </g>
+      <text x="520" y="62" text-anchor="middle" fill="#ffd66b" font-size="21" font-weight="bold">特徴点（床の模様・机の角）</text>
+      <!-- 動かす矢印 -->
+      <path d="M104 286 C 150 316, 210 316, 258 290" fill="none" stroke="#8fe0a0" stroke-width="3" marker-end="url(#ar)"/>
+      <text x="186" y="336" text-anchor="middle" fill="#8fe0a0" font-size="19">動かすほど分かる</text>
+    </svg>
+    <div class="highlight-box wide" style="margin-top:0.6rem;">
+      <p><strong>スマホを動かさないと何も分かりません。</strong>AR を始めたら、明るい場所で床や机を<strong>ゆっくり映す</strong>。これが最初の作法です。</p>
+    </div>
+  </div>
+
+  <!-- 5. 3つのキーワード -->
+  <div class="slide theme-content">
+    <div class="tag blue">3つのキーワード</div>
+    <h2>カメラ → 平面検出 → トラッキング</h2>
+    <div class="flow">
+      <div class="flow-box">
+        <div class="big">📷</div>
+        <strong>カメラ＋センサー</strong>
+        <span>映像と動きから、空間の目印（特徴点）を集める</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">▭</div>
+        <strong>平面検出</strong>
+        <span>床・机・壁を「面」として認識。テンプレートでは半透明の板で表示</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">📍</div>
+        <strong>トラッキング</strong>
+        <span>スマホを動かしても、置いたモノが同じ場所にとどまる</span>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:1.2rem;">
+      <p><strong>実機で試すときのコツ</strong>：明るい場所で、模様のある床や机を、ゆっくり映す。真っ白な机・暗い部屋・ガラスや鏡は苦手（目印が見つからない）。このあと実機で「面が出ない！」となったら、まずこれを思い出してください。</p>
+    </div>
+  </div>
+
+  <!-- 6. セクション：AR Foundation -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">AR Foundation</div>
+    <h1>ARテンプレートの中身</h1>
+  </div>
+
+  <!-- 7. AR Foundationとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">AR Foundation とは</div>
+    <h2>作るのは1つ。動かす先で中身が差し替わる</h2>
+    <svg class="fig" viewBox="0 0 1000 360" role="img" aria-label="1つのプロジェクトがAR Foundationを通じてARKit・ARCore・XR Simulationに差し替わる図">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#9fb4d8"/>
+        </marker>
+      </defs>
+      <rect x="300" y="10" width="400" height="60" rx="10" fill="rgba(255,255,255,0.08)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2"/>
+      <text x="500" y="40" text-anchor="middle" fill="#fff" font-size="22" font-weight="bold">自分のプロジェクト</text>
+      <text x="500" y="61" text-anchor="middle" fill="#b9c8e0" font-size="16">ARScene・スクリプト（ここは1つだけ作る）</text>
+      <path d="M500 70 L500 104" stroke="#9fb4d8" stroke-width="2.5" marker-end="url(#a2)"/>
+      <rect x="240" y="108" width="520" height="52" rx="10" fill="rgba(143,224,160,0.16)" stroke="#8fe0a0" stroke-width="2.5"/>
+      <text x="500" y="141" text-anchor="middle" fill="#8fe0a0" font-size="23" font-weight="bold">AR Foundation（差し替え口）</text>
+      <path d="M180 160 L180 196 M500 160 L500 196 M820 160 L820 196" stroke="#9fb4d8" stroke-width="2.5" marker-end="url(#a2)"/>
+      <path d="M180 162 L820 162" stroke="#9fb4d8" stroke-width="2.5" fill="none"/>
+      <g font-size="21" font-weight="bold" text-anchor="middle">
+        <rect x="40" y="200" width="280" height="110" rx="10" fill="rgba(100,180,255,0.14)" stroke="#64b4ff" stroke-width="2"/>
+        <text x="180" y="234" fill="#8ec5ff">ARKit</text>
+        <text x="180" y="266" fill="#e6eefc" font-size="18" font-weight="normal">Apple の AR</text>
+        <text x="180" y="294" fill="#e6eefc" font-size="18" font-weight="normal">📱 iPhone 実機</text>
+
+        <rect x="360" y="200" width="280" height="110" rx="10" fill="rgba(143,224,160,0.14)" stroke="#8fe0a0" stroke-width="2"/>
+        <text x="500" y="234" fill="#8fe0a0">ARCore</text>
+        <text x="500" y="266" fill="#e6eefc" font-size="18" font-weight="normal">Google の AR</text>
+        <text x="500" y="294" fill="#e6eefc" font-size="18" font-weight="normal">🤖 Android 実機</text>
+
+        <rect x="680" y="200" width="280" height="110" rx="10" fill="rgba(180,130,255,0.14)" stroke="#b482ff" stroke-width="2"/>
+        <text x="820" y="234" fill="#cdaaff">XR Simulation</text>
+        <text x="820" y="266" fill="#e6eefc" font-size="18" font-weight="normal">仮想の部屋</text>
+        <text x="820" y="294" fill="#e6eefc" font-size="18" font-weight="normal">💻 Mac で Play</text>
+      </g>
+      <text x="500" y="345" text-anchor="middle" fill="#9fb4d8" font-size="17">切り替えの設定：Edit → Project Settings → XR Plug-in Management（テンプレートは設定済み・触らなくてOK）</text>
+    </svg>
+    <div class="highlight-box wide" style="margin-top:0.5rem;">
+      <p>後半で Platform を iOS ／ Android に切り替えますが、<strong>Play ボタンでは引き続き仮想の部屋が動きます</strong>。</p>
+    </div>
+  </div>
+
+  <!-- 8. ARSceneの構成 -->
+  <div class="slide theme-content">
+    <div class="tag blue">ARScene の構成</div>
+    <h2>Hierarchy にあるのは、たった3つ</h2>
+    <svg class="fig" viewBox="0 0 1000 380" role="img" aria-label="ARSceneのHierarchy構成図。AR Session、XR Origin、Directional Light">
+      <rect x="20" y="16" width="300" height="86" rx="10" fill="rgba(100,180,255,0.14)" stroke="#64b4ff" stroke-width="2"/>
+      <text x="40" y="48" fill="#8ec5ff" font-size="22" font-weight="bold">AR Session</text>
+      <text x="40" y="76" fill="#e6eefc" font-size="17">AR の起動・停止と状態を</text>
+      <text x="40" y="96" fill="#e6eefc" font-size="17">管理する（1つだけ置く）</text>
+
+      <rect x="20" y="276" width="300" height="86" rx="10" fill="rgba(255,255,255,0.06)" stroke="#ffffff" stroke-opacity="0.22" stroke-width="2"/>
+      <text x="40" y="308" fill="#fff" font-size="22" font-weight="bold">Directional Light</text>
+      <text x="40" y="336" fill="#e6eefc" font-size="17">置いたモノに陰影をつける</text>
+      <text x="40" y="356" fill="#e6eefc" font-size="17">（春学期と同じライト）</text>
+
+      <rect x="360" y="16" width="620" height="346" rx="12" fill="rgba(143,224,160,0.10)" stroke="#8fe0a0" stroke-width="2.5"/>
+      <text x="384" y="50" fill="#8fe0a0" font-size="23" font-weight="bold">XR Origin</text>
+      <text x="384" y="74" fill="#e6eefc" font-size="16">現実の空間と Unity の座標をつなぐ「原点」。AR の機能はここに集まる</text>
+
+      <rect x="384" y="92" width="572" height="40" rx="8" fill="rgba(143,224,160,0.18)" stroke="#8fe0a0" stroke-width="1.5"/>
+      <text x="400" y="118" fill="#d6f5de" font-size="17">AR Plane Manager ― 平面検出（今日つかう）</text>
+      <rect x="384" y="138" width="572" height="40" rx="8" fill="rgba(255,255,255,0.06)" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.5"/>
+      <text x="400" y="164" fill="#c8d6ea" font-size="17">AR Raycast Manager ― タップした先の面を調べる（第3回）</text>
+      <rect x="384" y="184" width="572" height="40" rx="8" fill="rgba(255,255,255,0.06)" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1.5"/>
+      <text x="400" y="210" fill="#c8d6ea" font-size="17">Cube Game Controller ― キューブを出す（第3回）</text>
+
+      <rect x="384" y="234" width="572" height="112" rx="10" fill="rgba(100,180,255,0.10)" stroke="#64b4ff" stroke-width="2"/>
+      <text x="404" y="260" fill="#9fb4d8" font-size="15">Camera Offset → Editor Nav Pivot（エディタ専用の仕掛け）</text>
+      <text x="404" y="292" fill="#8ec5ff" font-size="20" font-weight="bold">Main Camera</text>
+      <text x="404" y="316" fill="#e6eefc" font-size="16">スマホのカメラ映像を背景に映す（AR Camera Background）</text>
+      <text x="404" y="338" fill="#e6eefc" font-size="16">スマホの動きに合わせて動く（Tracked Pose Driver）</text>
+    </svg>
+  </div>
+
+  <!-- 9. XR Originについているもの -->
+  <div class="slide theme-content">
+    <div class="tag blue">XR Origin についているもの</div>
+    <h2>面を見つけたら、Plane Prefab を置く</h2>
+    <svg class="fig" viewBox="0 0 1000 330" role="img" aria-label="AR Plane Managerが面を検出しPlane Prefabを生成する流れの図">
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#8fe0a0"/>
+        </marker>
+      </defs>
+      <rect x="20" y="66" width="250" height="100" rx="10" fill="rgba(143,224,160,0.16)" stroke="#8fe0a0" stroke-width="2.5"/>
+      <text x="145" y="106" text-anchor="middle" fill="#8fe0a0" font-size="21" font-weight="bold">AR Plane Manager</text>
+      <text x="145" y="136" text-anchor="middle" fill="#e6eefc" font-size="17">面を見つける担当</text>
+      <path d="M270 116 L352 116" stroke="#8fe0a0" stroke-width="3" marker-end="url(#a3)"/>
+
+      <rect x="360" y="46" width="270" height="140" rx="10" fill="rgba(100,180,255,0.14)" stroke="#64b4ff" stroke-width="2.5"/>
+      <text x="495" y="82" text-anchor="middle" fill="#8ec5ff" font-size="20" font-weight="bold">Plane Prefab</text>
+      <text x="495" y="108" text-anchor="middle" fill="#e6eefc" font-size="17">＝ ARPlaneVisualizer</text>
+      <path d="M400 150 L560 128 L600 148 L440 172 Z" fill="#ffffff" opacity="0.28" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.5"/>
+      <path d="M630 116 L712 116" stroke="#8fe0a0" stroke-width="3" marker-end="url(#a3)"/>
+
+      <rect x="720" y="46" width="260" height="140" rx="10" fill="rgba(255,255,255,0.05)" stroke="#ffffff" stroke-opacity="0.22" stroke-width="2"/>
+      <text x="850" y="82" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold">画面に出る面</text>
+      <path d="M756 150 L916 128 L956 148 L796 172 Z" fill="#8fe0a0" opacity="0.4" stroke="#8fe0a0" stroke-width="1.5"/>
+      <text x="850" y="112" text-anchor="middle" fill="#e6eefc" font-size="17">床・机・壁の上に</text>
+
+      <rect x="180" y="226" width="640" height="80" rx="10" fill="rgba(230,120,0,0.14)" stroke="#ffb066" stroke-width="2"/>
+      <text x="500" y="258" text-anchor="middle" fill="#ffc98a" font-size="20" font-weight="bold">Plane Prefab の見た目を変えれば、出てくる面の見た目が変わる</text>
+      <text x="500" y="288" text-anchor="middle" fill="#e6eefc" font-size="18">＝ これが今日やること</text>
+    </svg>
+    <p class="muted" style="font-size:0.86rem; margin-top:0.5rem;">XR Origin にはほかに AR Raycast Manager（第3回で使う）と Cube Game Controller（キューブを出す）も付いています。</p>
+  </div>
+
+  <!-- 10. セクション：やってみよう -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">やってみよう</div>
+    <h1>平面の見た目を変える</h1>
+  </div>
+
+  <!-- 11. おさらい：仮想の部屋 -->
+  <div class="slide theme-content">
+    <div class="tag blue">おさらい</div>
+    <h2>仮想の部屋の歩き方（Play 中の操作）</h2>
+    <div class="divider left"></div>
+    <table class="key-table" style="max-width:760px;">
+      <tr><th>キー・マウス</th><th>動作</th><th>実機ではこれ</th></tr>
+      <tr><td class="k">W / A / S / D</td><td>前後左右に移動</td><td>歩く</td></tr>
+      <tr><td class="k">Q / E</td><td>下降 / 上昇</td><td>しゃがむ・背伸び</td></tr>
+      <tr><td class="k">← → ↑ ↓</td><td>視点を回す</td><td>スマホの向きを変える</td></tr>
+      <tr><td class="k">左 Shift ＋ 移動キー</td><td>3倍速で移動</td><td>―</td></tr>
+      <tr><td class="k">キューブを短くクリック</td><td>キューブが落ちる（着地で音）</td><td>タップ</td></tr>
+    </table>
+    <div class="highlight-box" style="margin-top:1rem;">
+      <p>まず ARテンプレートを開いて Play → 床の方を向いて歩き回り、<strong>半透明の白い面</strong>が出ることを確認。この面の色を、これから変えます。</p>
+    </div>
+  </div>
+
+  <!-- 12. ARPlaneVisualizerの中身 -->
+  <div class="slide theme-content">
+    <div class="tag blue">Plane Prefab</div>
+    <h2>ARPlaneVisualizer の中身</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>Assets/Prefabs/ARPlaneVisualizer についているもの</h3>
+        <ul>
+          <li><strong>Mesh Filter</strong>：面の形（検出結果に合わせて自動で作られる）</li>
+          <li><strong>Mesh Renderer</strong>：面の<strong>見た目</strong>。Materials に <code>ARPlane</code> マテリアルが入っている</li>
+          <li><strong>Mesh Collider</strong>：キューブが面の上に乗れるようにする</li>
+          <li><strong>AR Plane ／ AR Plane Mesh Visualizer</strong>：AR Foundation の部品（触らない）</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>マテリアル＝色・透明度・質感のデータ</h3>
+        <ul>
+          <li>Assets/Materials/<code>ARPlane</code>：白・半透明（A = 89、35% くらい）</li>
+          <li>春学期にキューブの色を変えたのと同じ仕組み</li>
+          <li>今日は <strong>ARPlane を複製して色を変え、Prefab に割り当てる</strong></li>
+          <li>元の ARPlane は残しておく（戻したくなったとき用）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>変えるのは <strong>Mesh Renderer の Material だけ</strong>。ほかのコンポーネントは触らなくて OK です。</p>
+    </div>
+  </div>
+
+  <!-- 13. 手順 -->
+  <div class="slide theme-content">
+    <div class="tag blue">手順</div>
+    <h2>平面の色を変える</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>マテリアルを複製する</strong>Project → Assets/Materials → <code>ARPlane</code> を選んで <strong>Cmd + D</strong> → できたコピーの名前を <code>MyPlane</code> にする</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>色と透明度を変える</strong>MyPlane を選び、Inspector の <strong>Main Color</strong> の色の四角をクリック → 好きな色に。<strong>A</strong>（アルファ＝不透明度）を下げるほど透明になる。0 だと見えなくなるので <strong>80〜150 くらい</strong></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Prefab に割り当てる</strong>Assets/Prefabs/<code>ARPlaneVisualizer</code> を<strong>ダブルクリック</strong>（Prefab の編集画面が開く）→ Inspector の Mesh Renderer → Materials → <strong>Element 0</strong> に MyPlane をドラッグ → 左上の「<strong>&lt;</strong>」で戻る（自動で保存される）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>Play で確認 → スクリーンショット</strong>歩き回って面が出たら、変えた色になっているか確認 → Cmd + Shift + 4 で Game ビューを撮る（これが今日の課題①）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:900px;">
+      <li><strong>色が変わらない</strong> → Element 0 が <code>ARPlane</code> のままになっていないか。Prefab の編集画面（ダブルクリック）で変えたか（Play 中の Hierarchy にある面を変えても、Play を止めると消える）</li>
+      <li><strong>面が見えなくなった</strong> → A（アルファ）が 0 になっていないか</li>
+      <li><strong>面がピンク色になった</strong> → シェーダーが外れている。MyPlane の Inspector 一番上の Shader が <code>Legacy Shaders/Transparent/Diffuse</code> になっているか確認</li>
+      <li><strong>面がいつまでも出ない</strong> → 床の方を向いて少し歩く。それでも出なければ Window → XR → AR Foundation → XR Environment で環境が選ばれているか確認（第1回と同じ）</li>
+      <li><strong>W/A/S/D や矢印キーを押しても動かない</strong> → Game ビューを一度クリックしてから押す（Inspector などをクリックした後はキーが届きません）</li>
+      <li><strong>Play 中に変えた設定が消えた</strong> → Play 中の変更は止めると元に戻ります。<strong>必ず Play を止めてから</strong>変える</li>
+      <li><strong>Console に赤いエラー</strong> → そのまま先生を呼んでください</li>
+    </ul>
+  </div>
+
+  <!-- 15. 別の部屋（任意） -->
+  <div class="slide theme-content">
+    <div class="tag purple">任意</div>
+    <h2>別の部屋で試す（XR Environment）</h2>
+    <div class="divider left"></div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Window → XR → AR Foundation → XR Environment</strong>Scene ビューが「XR Environment」表示に切り替わり、上にドロップダウンが出る</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>環境を選ぶ</strong>初期設定は Bedroom（寝室）。Backyard（庭）・Kitchen・LivingRoom・Office・Park（公園）・Museum などから選ぶ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>Play して確認</strong>屋外（Park・Backyard）は面が広くて見つけやすい。机や棚の上にも面が出るか試してみよう → スクリーンショット1枚（任意課題）</div>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top:0.8rem;">
+      <p>総合制作で「自分の部屋の机に置く」なら Bedroom や Office、「教室の床に置く」なら広い環境で試しておくと、実機で置いたときの大きさの感覚がつかめます。</p>
+    </div>
+  </div>
+
+  <!-- 16. セクション：実機で動かす -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">今日の後半</div>
+    <h1>スマホ実機で動かす</h1>
+  </div>
+
+  <!-- 17. 全体像 -->
+  <div class="slide theme-content">
+    <div class="tag purple">全体像</div>
+    <h2>今日やること ― 「自分のスマホで AR を動かす」まで</h2>
+    <div class="flow">
+      <div class="flow-box">
+        <div class="big">🧰</div>
+        <strong>① 環境をつくる</strong>
+        <span>Unity のモジュール、Bundle Identifier、iPhone は Xcode</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">🔌</div>
+        <strong>② つないで認識させる</strong>
+        <span>ケーブルでつないで「信頼」／「許可」</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">
+        <div class="big">📱</div>
+        <strong>③ ビルドして動かす</strong>
+        <span>アプリをスマホに入れて、机の上に AR を出す</span>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:1rem;">
+      <strong>順番のコツ</strong>：Unity のモジュールや Xcode のダウンロードは <strong>10〜30 分</strong>かかります。<strong>始めたら待たずに</strong>スマホ側の設定へ進んでください。<strong>今日中に③まで終わらなくて OK</strong>。ケーブルを忘れた人・家でやりたい人は、手順書 PDF の通りに進めれば同じことができます。
+    </div>
+  </div>
+
+  <!-- 18. 配布資料 -->
+  <div class="slide theme-content">
+    <div class="tag purple">配布資料</div>
+    <h2>手順書 PDF を2つ配ります</h2>
+    <div class="divider left"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3>🤖 ① Android端末へのUnityアプリ導入 ＆ 画面ミラーリング手順（Mac）</h3>
+        <ul>
+          <li>Android Build Support の追加、USB デバッグ、<strong>Build And Run</strong></li>
+          <li>うまくいかないときの一覧</li>
+          <li>おまけ：APK を手動で入れる方法、<strong>スマホの画面を Mac に映す</strong>方法（scrcpy）</li>
+        </ul>
+      </div>
+      <div class="col-card ios">
+        <h3>📱 ② Xcode環境構築 ＆ UnityからiPhoneへのビルド手順</h3>
+        <ul>
+          <li>配布の Xcode（.xip）のインストール ― <strong>画面写真つき</strong></li>
+          <li>Unity から iOS ビルド → Xcode で署名 → 実機にインストール</li>
+          <li>うまくいかないときの一覧</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>授業ページ 第2回 の「<strong>配布資料・ダウンロード</strong>」から入手できます。同じ場所に <strong>iPhone の人が使う Xcode（.xip）のダウンロードリンク</strong>も置いてあります。<strong>今日はこの手順書を最初から最後まで使います</strong>。このあとのスライドは要点だけなので、<strong>手元で手順書を開きながら</strong>進めてください。</p>
+    </div>
+  </div>
+
+  <!-- 19. 共通：Unityモジュール -->
+  <div class="slide theme-content">
+    <div class="tag purple">共通</div>
+    <h2>Unity のモジュールを追加する（iPhone・Android 共通）</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Unity Hub → インストール</strong>左のメニューから「インストール」→ <strong>2022.3.62f3</strong> の右上の ⚙ → 「モジュールを加える」</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>自分のスマホに合わせてチェック</strong>iPhone の人：<strong>iOS Build Support</strong> ／ Android の人：<strong>Android Build Support</strong> を開いて <strong>OpenJDK・Android SDK &amp; NDK Tools</strong> にもチェック。容量は iOS 2.8GB／Android 一式 7.5GB（空き 15GB 目安）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>インストール（10〜30分）→ 終わったら Unity を開き直す</strong>Android は「続行する」→ Google のライセンスに同意 →「インストール」。終わったら Unity をいったん閉じて開き直す（開き直さないと次のタブが出ません）。失敗するときは <strong>Unity Hub を最新版に更新</strong>してやり直す</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>File → Build Settings → 自分のスマホを選んで Switch Platform</strong>「No … module loaded」と出なければ OK。<strong>Switch Platform</strong> を押す（数分。Play の仮想の部屋はそのまま動きます）。Android で <strong>Rosetta</strong> を求められたら「インストール」</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      第1回では iPhone の人に Xcode だけ案内しましたが、<strong>Unity 側にも iOS Build Support が必要</strong>です。<strong>ケーブル</strong>は iPhone 15 以降・Android が <strong>USB-C – USB-C</strong>、iPhone 14 以前が <strong>USB-C – Lightning</strong>（充電専用は NG）。
+    </div>
+  </div>
+
+  <!-- 20. 共通：Player Settings -->
+  <div class="slide theme-content">
+    <div class="tag purple">共通</div>
+    <h2>Player Settings を自分用にする（Bundle Identifier）</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>Edit → Project Settings → Player → 自分のスマホのタブ（iOS ／ Android）</strong>下の <strong>Other Settings</strong> を開き、<strong>Identification</strong> の欄を見る。<strong>iOS ／ Android のタブが無い人</strong>は前のスライドのモジュール追加と Unity の開き直しがまだ</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>Bundle Identifier（Android では Package Name）を自分だけの名前にする</strong><code>com.example.game1ar</code> → 例：<code>com.fushidamasahiro.arsound</code>（<strong>com.名字＋名前（ローマ字・英小文字）.arsound</strong>。同じ名字の人とぶつからないよう名前まで入れる。使えるのは英小文字・数字・ピリオドだけ）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>iPhone の人はあと2つ：Target minimum iOS Version を 15.0 以上に ／ Automatically Sign にチェック</strong>どちらも同じ Other Settings の中（Configuration ／ Identification）。<code>12.0</code> のままだと今の Xcode でビルドできない。Signing Team ID は空のままで OK（あとで Xcode で選びます）</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>File → Save Project で保存</strong>設定はプロジェクトに保存される。この先ずっとこの名前を使う（変えない）</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      <strong>なぜ変える？</strong> Bundle Identifier は「世界で1つだけのアプリの名前」。全員が <code>com.example.game1ar</code> のままだと、<strong>最初の1人しか iPhone に入れられません</strong>（Failed to register bundle identifier）。
+    </div>
+  </div>
+
+  <!-- 21. iPhone ① Xcodeを入れる -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ①　Xcode を入れる</div>
+    <h2>配布の .xip から Xcode をインストールする</h2>
+    <table class="key-table compact" style="margin-top:0;">
+      <tr><th>自分の macOS（りんごマーク → このMacについて）</th><th>使うファイル</th><th>大きさ</th></tr>
+      <tr><td>macOS <strong>15.3</strong> 以降</td><td class="k">Xcode_16.4.xip</td><td>約 3.0GB</td></tr>
+      <tr><td>macOS <strong>26.5</strong> 以降</td><td class="k">Xcode_26.5_Apple_silicon.xip</td><td>約 2.3GB</td></tr>
+    </table>
+    <div class="shots">
+      <div class="shot">
+        <img src="../img/game2/xcode_xip_click.jpg" alt="Finder で .xip ファイルをダブルクリック">
+        <p><span class="n">1</span>配った <strong>.xip</strong> をダブルクリック</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcode_expanding.jpg" alt="アーカイブユーティリティが展開している画面">
+        <p><span class="n">2</span>展開を待つ（<strong>数分〜十数分</strong>）</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcode_drag_applications.jpg" alt="Xcode をアプリケーションフォルダへドラッグ">
+        <p><span class="n">3</span><strong>アプリケーション</strong>へドラッグ</p>
+      </div>
+    </div>
+    <p class="muted" style="font-size:0.85rem; margin-top:0.7rem;">授業で配ります。受け取れなかった人は授業ページの「配布資料・ダウンロード」から。空き容量 25GB 以上。</p>
+  </div>
+
+  <!-- 22. iPhone ② Xcodeの初回起動 -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ②　Xcode の初回起動</div>
+    <h2>iOS にチェックを入れて Download &amp; Install</h2>
+    <div class="shots">
+      <div class="shot">
+        <img src="../img/game2/xcode_agree.jpg" alt="Xcode and Apple SDKs Agreement の画面で Agree を押す">
+        <p><span class="n">1</span>使用許諾 → <strong>Agree</strong></p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcode_components_ios.jpg" alt="コンポーネント選択画面で iOS にチェックを入れる">
+        <p><span class="n">2</span><strong>iOS にチェック</strong> → Download &amp; Install</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcode_welcome.jpg" alt="Xcode のようこそ画面">
+        <p><span class="n">3</span>この画面が出れば<strong>完了</strong></p>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      <strong>iOS のチェックを忘れると実機に入れられません</strong>。忘れた人は Xcode → Settings… → Components から後で追加できます。
+    </div>
+  </div>
+
+  <!-- 23. iPhone ③ AppleAccount -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ③　Apple Account</div>
+    <h2>Xcode に自分の Apple Account を登録する</h2>
+    <div class="divider left"></div>
+    <p class="lead">Xcode → <strong>Settings…（Cmd + ,）</strong> → <strong>Accounts</strong> タブ → 左下の「<strong>+</strong>」→ Apple Account でサインイン。</p>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>「<strong>（自分の名前）(Personal Team)</strong>」と出れば OK。iPhone で使っている Apple ID でサインインしてください（2ファクタ認証のコードが iPhone に届きます）。有料の Developer Program は<strong>不要</strong>です。</p>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      無料の Personal Team の制限：入れた自作アプリは <strong>7日で期限切れ</strong>（Xcode から入れ直せば OK）。同時に入れられるのは <strong>3つまで</strong>。
+    </div>
+  </div>
+
+  <!-- 24. iPhone ④ iPhoneをつなぐ -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ④　iPhone をつなぐ</div>
+    <h2>つないで「信頼」→ デベロッパモードを ON</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num ios">1</div>
+        <div class="step-body"><strong>ケーブルで Mac につなぐ（iOS は当分アップデートしない）</strong>Xcode は自分より新しい iOS の iPhone を扱えません。<strong>しばらく iPhone の iOS を上げないでください</strong>（設定 → 一般 → ソフトウェアアップデート → 自動アップデートを OFF）。ケーブルは充電専用 NG。ロックは解除しておく</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">2</div>
+        <div class="step-body"><strong>「このコンピュータを信頼しますか？」→ 信頼 → パスコード</strong>Mac 側に「この USB アクセサリをこの Mac に接続しますか？」が先に出るので「<strong>許可</strong>」（押さないと「信頼」が出ません）</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">3</div>
+        <div class="step-body"><strong>Xcode → Window → Devices and Simulators</strong>左の一覧に iPhone が出る（これで iPhone 側に「デベロッパモード」の項目が現れる）。「Pair」が出たら押す。<strong>黄色い ⚠ はまだ出ていて OK</strong> → 手順 4 へ</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">4</div>
+        <div class="step-body"><strong>iPhone：設定 → プライバシーとセキュリティ → デベロッパモード → ON</strong>一番下の「セキュリティ」欄。ON → 再起動 → 再起動後にもう一度「オンにする」→ パスコード（未設定の人は先に設定）→ <strong>ロックを解除してつないだまま待つ</strong>（初回は数分〜10分）→ ⚠ が消えれば完了</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:0.8rem;">
+      「デベロッパモード」が出ないときは、手順 3 を先に（一度 Xcode につながないと項目が現れません）。iOS をアップデートしたら、つなぎ直してペアリングをやり直します。
+    </div>
+  </div>
+
+  <!-- 25. iPhone ⑤ ビルド -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ⑤　ビルド</div>
+    <h2>Unity から書き出す</h2>
+    <div class="shots">
+      <div class="shot">
+        <img src="../img/game2/unity_build_settings_ios.jpg" alt="Build Settings で iOS を選び Build を押す">
+        <p><span class="n">1</span>File → Build Settings → iOS →「<strong>Build</strong>」（Build And Run ではない）</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/unity_save_app_folder.jpg" alt="保存先ダイアログで App フォルダを作って選ぶ">
+        <p><span class="n">2</span>New Folder で <strong>App</strong> を作って Choose（次回も同じ場所 → Replace）</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcrun_install.jpg" alt="コマンドラインデベロッパツールのインストールを求めるダイアログ">
+        <p><span class="n">3</span>初回だけ出る → <strong>インストール</strong> → 同意する → もう一度 Build</p>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:0.8rem;">
+      <p>ビルドには数分〜十数分かかります。終わったら次のスライドへ。</p>
+    </div>
+  </div>
+
+  <!-- 26. iPhone ⑥ Xcodeで開く -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ⑥　Xcode で開く</div>
+    <h2>App フォルダの中のプロジェクトを開く</h2>
+    <div class="shots two">
+      <div class="shot">
+        <img src="../img/game2/finder_xcodeproj.jpg" alt="App フォルダの中の Unity-iPhone.xcodeproj">
+        <p><span class="n">1</span>Finder で <strong>App</strong> フォルダ → <strong>Unity-iPhone.xcodeproj</strong> をダブルクリック</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/xcode_project_open.jpg" alt="Xcode でプロジェクトが開いた画面">
+        <p><span class="n">2</span>Xcode でこの画面が開けば<strong>ここまで成功</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 27. iPhone ⑦ 署名して実行 -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ⑦　署名して実行</div>
+    <h2>Xcode で署名して、iPhone に入れる</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num ios">1</div>
+        <div class="step-body"><strong>左の一覧の一番上「Unity-iPhone」（青いアイコン）をクリック</strong>中央の <strong>TARGETS</strong> で <strong>Unity-iPhone</strong> を選び、上の「<strong>Signing &amp; Capabilities</strong>」タブを開く</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">2</div>
+        <div class="step-body"><strong>Automatically manage signing にチェック → Team を選ぶ</strong>「<strong>自分の名前 (Personal Team)</strong>」を選択。赤いエラーが消えれば OK（消えないときは次のスライド）</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">3</div>
+        <div class="step-body"><strong>上の実行先（Any iOS Device など）をクリックして、自分の iPhone を選ぶ</strong>つないだ iPhone が一覧に出ます。「デバイスの準備中」と出たら数分待つ</div>
+      </div>
+      <div class="step">
+        <div class="step-num ios">4</div>
+        <div class="step-body"><strong>左上の ▶（Cmd + R）→ iPhone にアプリが入る</strong>iPhone で「<strong>信頼されていないデベロッパ</strong>」と出たら 設定 → 一般 → <strong>VPNとデバイス管理</strong> → 自分の Apple ID → 「信頼」→ もう一度 ▶</div>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:0.8rem;">
+      <p>起動したらカメラの許可を「<strong>許可</strong>」。<strong>本体横のサイレントスイッチをオフ（マナーモード解除）</strong>にしないと音が鳴りません。</p>
+    </div>
+  </div>
+
+  <!-- 28. iPhone ⑧ つまずき -->
+  <div class="slide theme-content">
+    <div class="tag blue">iPhone ⑧</div>
+    <h2>つまずきやすいポイント</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:900px;">
+      <li><strong>iPhone が一覧に出ない</strong> → 別のケーブル・別のポート（充電専用は NG）・ロックを解除して「信頼」をやり直す。Mac 側で「許可しない」を押した人は抜き差しすればもう一度出る</li>
+      <li><strong>Signing for "Unity-iPhone" requires a development team</strong> → Team が選べていない。Automatically manage signing にチェック → Team を選ぶ（Team が空なら Xcode → Settings → Accounts でサインイン）</li>
+      <li><strong>Failed to register bundle identifier</strong> → 名前が他の人とかぶっている。Xcode の Bundle Identifier を変える（Unity の Player Settings も同じ名前に直す）</li>
+      <li><strong>「iOS ○○ is not supported」「A software update is required」</strong> → iPhone の iOS に対して Xcode が古い。新しいほうの配布ファイル（Xcode_26.5）を使う</li>
+      <li><strong>Unity で再ビルドしたら署名が消えた</strong> → Replace でビルドすると Xcode の設定が戻ります。Signing をもう一度選び直す</li>
+      <li><strong>7日たったらアプリが起動しなくなった</strong> → 無料アカウントの期限切れ。つないで ▶ を押し直せば直ります</li>
+      <li><strong>赤いエラーが読めない</strong> → そのまま先生を呼んでください</li>
+    </ul>
+  </div>
+
+  <!-- 29. Android ① スマホ側 -->
+  <div class="slide theme-content">
+    <div class="tag green">Android ①　スマホ側</div>
+    <h2>開発者向けオプションを出して、USB デバッグを ON</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num android">1</div>
+        <div class="step-body"><strong>設定 → デバイス情報 → 「ビルド番号」を7回連続タップ</strong>「開発者向けオプションが有効になりました」（機種によって「これでデベロッパーになりました！」など）と出れば OK。途中でパスコードを聞かれる</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">2</div>
+        <div class="step-body"><strong>設定 → システム → 開発者向けオプション → 「USB デバッグ」を ON</strong>確認ダイアログが出たら OK。<strong>Galaxy</strong> は先に 設定 → セキュリティおよびプライバシー → <strong>自動ブロッカーを OFF</strong>（ON のままだと USB デバッグが押せない）。<strong>Xiaomi</strong> は「USB 経由でインストール」「USB デバッグ（セキュリティ設定）」も ON</div>
+      </div>
+    </div>
+    <table class="key-table compact" style="margin-top:0.8rem;">
+      <tr><th>メーカー</th><th>「ビルド番号」の場所 → 「開発者向けオプション」の場所（機種・OS のバージョンで多少違います）</th></tr>
+      <tr><td class="k">Pixel</td><td>設定 → デバイス情報 → ビルド番号 → 設定 → システム → 開発者向けオプション</td></tr>
+      <tr><td class="k">Galaxy</td><td>設定 → 端末情報 → <strong>ソフトウェア情報</strong> → ビルド番号 → 設定の<strong>一番下</strong>に「開発者向けオプション」</td></tr>
+      <tr><td class="k">Xperia ／ AQUOS</td><td>設定 → デバイス情報 → ビルド番号 → 設定 → システム →（詳細設定 →）開発者向けオプション</td></tr>
+      <tr><td class="k">Xiaomi ／ POCO</td><td>設定 → デバイス情報 → <strong>OS バージョン</strong>（MIUI バージョン）を7回 → 設定 → <strong>追加設定</strong> → 開発者向けオプション</td></tr>
+      <tr><td class="k">OPPO</td><td>設定 → デバイスについて → バージョン → ビルド番号（バージョン番号）を7回 → 設定 → <strong>その他の設定</strong> → 開発者向けオプション</td></tr>
+    </table>
+    <p style="font-size:0.85rem; opacity:0.6; margin-top:0.5rem;">見つからないときは、設定アプリの検索欄に「開発者」と入力すると出てきます。</p>
+  </div>
+
+  <!-- 30. Android ② Macにつないで確認 -->
+  <div class="slide theme-content">
+    <div class="tag green">Android ②　Mac につなぐ</div>
+    <h2>「許可」して、Unity で認識を確認する</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num android">1</div>
+        <div class="step-body"><strong>USB ケーブルで Mac につなぐ（ロックは解除したまま）</strong>Mac 側に「この USB アクセサリをこの Mac に接続しますか？」が出たら「許可」。ドライバのインストールは要りません</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">2</div>
+        <div class="step-body"><strong>Play ストアで「Google Play 開発者サービス（AR）」をインストール／更新</strong>これが ARCore の本体。無いと AR アプリが起動時に止まります（空き 1GB ほど）</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">3</div>
+        <div class="step-body"><strong>Unity：File → Build Settings → Android の Run Device の右の「Refresh」を押す → スマホを見る</strong>「<strong>USB デバッグを許可しますか？</strong>」が出るので「このパソコンからの USB デバッグを常に許可する」にチェック → <strong>許可</strong>（ロック中は出ません）</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">4</div>
+        <div class="step-body"><strong>もう一度「Refresh」→ 自分のスマホが出れば OK</strong>「samsung SC-…」「Sony SO-…」のように<strong>メーカー名＋型番</strong>で出ます（「Galaxy」「Xperia」とは出ません）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 31. Android ③ Build And Run -->
+  <div class="slide theme-content">
+    <div class="tag green">Android ③　ビルド</div>
+    <h2>Build And Run でスマホに入れる</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num android">1</div>
+        <div class="step-body"><strong>Run Device に自分のスマホが選ばれているのを確認 → 「Build And Run」</strong>ショートカットは <strong>Cmd + B</strong>。ビルドとインストールと起動を一度にやってくれます</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">2</div>
+        <div class="step-body"><strong>APK の保存先とファイル名を聞かれる</strong>デスクトップに <code>arsound.apk</code> など、分かる名前で保存（この .apk がアプリ本体のファイルです）</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">3</div>
+        <div class="step-body"><strong>数分待つ → スマホにアプリが入り、自動で起動する</strong>初回は 5〜10 分かかることも。Unity の左下のバーが進んでいれば動いています</div>
+      </div>
+      <div class="step">
+        <div class="step-num android">4</div>
+        <div class="step-body"><strong>「写真と動画の撮影を…に許可しますか？」→ 「アプリの使用時のみ」</strong>音が鳴るように<strong>メディア音量</strong>を上げておく（マナーモードでも音量が 0 だと鳴りません）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 32. Android ④ つまずき -->
+  <div class="slide theme-content">
+    <div class="tag green">Android ④</div>
+    <h2>つまずきやすいポイント</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:900px;">
+      <li><strong>Run Device に出ない／許可のダイアログが出ない</strong> → 充電専用ケーブル／ロックを解除して Refresh をもう一度／USB デバッグが OFF に戻っている／通知から USB の用途を「ファイル転送」にする</li>
+      <li><strong>USB デバッグが灰色で押せない</strong> → Galaxy：設定 → セキュリティおよびプライバシー → 自動ブロッカー を OFF ／ それ以外：開発者向けオプションの一番上のスイッチが ON か確認</li>
+      <li><strong>INSTALL_FAILED_USER_RESTRICTED（Xiaomi）</strong> → 「USB 経由でインストール」が OFF。ON にするのに Xiaomi アカウントと SIM が必要な場合あり。できなければ先生に相談</li>
+      <li><strong>INSTALL_FAILED_UPDATE_INCOMPATIBLE</strong> → 同じ名前の古いアプリが入っている。スマホから一度アンインストールして、もう一度 Build And Run</li>
+      <li><strong>Gradle build failed</strong> → プロジェクトの置き場所に日本語やスペースが入っていないか確認（半角英数のフォルダに置く）</li>
+      <li><strong>アプリは入るが画面が真っ黒</strong> → 「Google Play 開発者サービス（AR）」が入っていない、またはその機種が AR 非対応（<a href="https://developers.google.com/ar/devices?hl=ja" target="_blank">対応機種一覧</a>で確認）</li>
+      <li><strong>赤いエラーが読めない</strong> → そのまま先生を呼んでください</li>
+    </ul>
+  </div>
+
+  <!-- 33. 実機で確認 -->
+  <div class="slide theme-content">
+    <div class="tag orange">実機で確認</div>
+    <h2>スマホで動かしてみよう</h2>
+    <div class="steps wide">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body"><strong>明るい場所で、模様のある床や机を、ゆっくり映す</strong>数秒で<strong>半透明の面</strong>（今日変えた色）が出ます。真っ白な机・暗い部屋・ガラスは苦手</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body"><strong>目の前に浮かぶ赤いキューブを短くタップ</strong>落ちて、着地で<strong>音が鳴れば成功</strong>。長押しすると掴んで動かせる、2本指で大きさも変わる</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body"><strong>歩いて回り込んでみる</strong>置いたキューブが<strong>その場所にとどまる</strong>のがトラッキング。仮想の部屋との違いを感じてみてください</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body"><strong>スクリーンショットを撮る（今日の課題）</strong>面が出ている画面、またはキューブが見えている画面を1枚。iPhone：サイドボタン＋音量を上げるボタン ／ Android：電源ボタン＋音量を下げるボタン</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 34. 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag orange">今日の課題</div>
+    <h2>スマホで動いている画面のスクショ 1枚</h2>
+    <div class="divider left"></div>
+    <p>自分のスマホに AR アプリを入れて、<strong>机や床に面が出ている画面</strong>（またはキューブが見えている画面）を1枚撮って提出してください。それだけです。</p>
+    <div class="highlight-box wide" style="margin-top:1.2rem;">
+      <p><strong>締切：第3回 授業開始時</strong><br>
+      うまくいかなかった人は、<strong>止まったところの画面を1枚</strong>で OK。スマホを使わない人はその旨をひとこと。<strong>評価は変わりません。</strong></p>
+    </div>
+  </div>
+
+  <!-- 35. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第2回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:900px;">
+      <li>AR は<strong>カメラ＋センサー</strong>で目印（特徴点）を追いかけ、<strong>平面検出</strong>と<strong>トラッキング</strong>をしている</li>
+      <li><strong>AR Foundation</strong>：1つのプロジェクトで ARKit（iPhone）／ARCore（Android）／XR Simulation（Mac）を差し替える</li>
+      <li>Plane Prefab（ARPlaneVisualizer）の<strong>マテリアル</strong>を変えると、検出した面の見た目が変わる</li>
+      <li>実機：モジュール追加 → Bundle Identifier → つないで「信頼」／「許可」→ <strong>ビルドして自分のスマホで AR が動いた</strong></li>
+      <li>手順とつまずきポイントは<strong>配布の手順書 PDF 2つ</strong>。この先も同じ手順で入れ直せます</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p><strong>次回（第3回）：</strong>タップして置く・AR レイキャスト。Cube Prefab を差し替えて、置くモノを自分のオブジェクト（MyObject）にします。<br>
+      PC と、今日の ARテンプレート（MyPlane 入り）を持ってきてください。</p>
+    </div>
+  </div>
+
+  <!-- 36. 質問 -->
+  <div class="slide theme-final">
+    <h1 style="font-size:3.5rem; margin-bottom:0.5rem;">質問はありますか？</h1>
+    <div class="divider"></div>
+    <p class="muted">次回：第3回　タップして置く・ARレイキャスト</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 36</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

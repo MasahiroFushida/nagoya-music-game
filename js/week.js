@@ -65,6 +65,19 @@
       `<li><span class="empty-message">配布ファイルはありません</span></li>`;
   }
 
+  // 配布資料（PDF）。ない回はカードごと非表示
+  const documentCard = document.getElementById("document-card");
+  if (documentCard) {
+    if (weekData.documents && weekData.documents.length > 0) {
+      documentCard.hidden = false;
+      documentCard.querySelector("ul").innerHTML = weekData.documents.map(d =>
+        `<li><a href="${d.url}" target="_blank">${d.label}</a></li>`
+      ).join("");
+    } else {
+      documentCard.hidden = true;
+    }
+  }
+
   // 課題
   const assignCard = document.getElementById("assignment-card");
   if (weekData.assignment) {

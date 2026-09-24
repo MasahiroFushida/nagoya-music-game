@@ -4,6 +4,7 @@
  *
  * slides:     スライドのURL（配列）。なければ null
  * project:    Unityプロジェクトのダウンロードリンク（配列）。なければ null
+ * documents:  配布資料PDFのリンク（配列）。なければ省略。files/ に置いたPDFを指す
  * assignment: 課題の内容（文字列）。なければ null
  * deadline:   課題の締切（文字列）。なければ null
  *
@@ -209,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 1,
+    openWeeks: 2,
     weeks: [
       {
         week: 1,
@@ -221,18 +222,26 @@ const SITE_DATA = {
         project: [
           { label: "ARテンプレート（game1_template_ar）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
         ],
-        assignment: "【必修】環境確認のスクリーンショット\n\n次のスクリーンショットを1枚提出してください。\n・ARテンプレート（game1_template_ar）を Unity で開き、Playモードで仮想の部屋にキューブを落とした画面\n\n──────────────────────────────\n\n【任意】スマホ実機ビルドの準備（早めに始めておくと第4回が楽です）\n・iPhone の人：App Store から Xcode をインストールする（ダウンロードが大きいので、Wi-Fi のある場所で早めに）\n・Android の人：Unity Hub で Unity 2022.3.62f3 に「Android Build Support」（OpenJDK・Android SDK & NDK Tools を含む）を追加する\nインストールが終わったら、その画面のスクリーンショットを1枚追加で提出してください。",
+        assignment: "【必修】環境確認のスクリーンショット\n\n次のスクリーンショットを1枚提出してください。\n・ARテンプレート（game1_template_ar）を Unity で開き、Playモードで仮想の部屋にキューブを落とした画面\n\n──────────────────────────────\n\n【任意】スマホ実機ビルドの準備（早めに始めておくと第4回が楽です）\n・iPhone の人：Mac の空き容量を 25GB 以上あけておく（Xcode は第2回に配布します。App Store から入れる必要はありません）\n・Android の人：Unity Hub で Unity 2022.3.62f3 に「Android Build Support」（OpenJDK・Android SDK & NDK Tools を含む）を追加する\n終わったら、その画面のスクリーンショットを1枚追加で提出してください（iPhone の人は「この Mac について」でストレージの空きが見えている画面）。",
         deadline: "第2回授業開始時"
       },
       {
         week: 2,
         title: "ARの仕組みとAR Foundation",
-        description: "ARがどうやって現実の空間を認識しているか（カメラ・平面検出・トラッキング）を学ぶ。ARテンプレートのシーン構成（AR Session・XR Origin・AR Plane Manager・AR Raycast Manager）を読み解き、検出した平面の見た目を変えてみる。仮想の部屋の歩き方（W/A/S/D・矢印キー）も確認する。",
-        slides: null,
+        description: "ARがどうやって現実の空間を認識しているか（カメラ・平面検出・トラッキング）を学ぶ。ARテンプレートのシーン構成（AR Session・XR Origin・AR Plane Manager・AR Raycast Manager）を読み解き、検出した平面の見た目を変えてみる。仮想の部屋の歩き方（W/A/S/D・矢印キー）も確認する。後半は自分のスマホで AR を動かすところまで。手順書PDFを2つ配布し、iPhone は配布の Xcode・Unity の iOS Build Support・Apple Account 登録・デベロッパモード、Android は Android Build Support・開発者向けオプション（USB デバッグ）・Google Play 開発者サービス（AR）を整えたうえで、iPhone は Unity から書き出して Xcode で署名・実行、Android は Build And Run でインストールし、実際の机や床に面を出してキューブを落とすところまで確認する。",
+        slides: [
+          { label: "第2回 ARの仕組みとAR Foundation スライド", url: "slides/game2_week02.html" }
+        ],
         project: [
           { label: "ARテンプレート（game1_template_ar）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
         ],
-        assignment: "【必修】平面の見た目を変えよう\n\nARテンプレートで、検出した平面（ARPlaneVisualizer）の色を変えてください。\n\n■ 手順\n1. Materials フォルダにある平面用のマテリアルを複製（Cmd + D）する\n2. 複製したマテリアルの色（Base Color）と透明度を好きな値に変える\n3. Prefabs フォルダの ARPlaneVisualizer を選び、複製したマテリアルを割り当てる\n4. Playモードで、変えた色の平面が床や机の上に出ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚（色の変わった平面が見えているもの）\n\n──────────────────────────────\n\n【任意】別の部屋で試す\n・Window > XR > AR Foundation > XR Environment で別の仮想環境（Backyard など）を選んで動かし、スクリーンショットを1枚追加で提出する",
+        documents: [
+          { label: "① Android端末へのUnityアプリ導入 & 画面ミラーリング手順（Mac）［PDF］", url: "files/game2_android_build_and_run.pdf" },
+          { label: "② Xcode環境構築 & UnityからiPhoneへのビルド手順［PDF］", url: "files/game2_xcode_setup.pdf" },
+          { label: "Xcode 16.4（macOS 15.3 以降の人）― Apple 開発者サイト［要 Apple ID・約3GB］", url: "https://developer.apple.com/download/all/?q=xcode%2016.4" },
+          { label: "Xcode 26.5（macOS 26.5 以降の人）― Apple 開発者サイト［要 Apple ID・約2.3GB］", url: "https://developer.apple.com/download/all/?q=xcode%2026.5" }
+        ],
+        assignment: "自分のスマホに AR アプリを入れて、動いているところのスクリーンショットを1枚提出してください。\n\n・机や床に面が出ている画面、またはキューブが見えている画面\n\n※うまくいかなかった人は、止まったところの画面を1枚でOK。スマホを使わない人はその旨をひとこと。評価は変わりません。\n\n手順は授業スライドと、上の【配布資料・ダウンロード】の手順書PDFを見てください。",
         deadline: "第3回授業開始時"
       },
       {

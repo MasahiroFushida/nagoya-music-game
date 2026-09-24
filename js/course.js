@@ -37,9 +37,14 @@
   list.innerHTML = course.weeks.map(w => {
     const isOpen = w.week <= openWeeks;
     const hasSlides = isOpen && w.slides && w.slides.length > 0;
-    const hasProject = isOpen && w.project && w.project.length > 0;
+    const hasDocuments = isOpen && w.documents && w.documents.length > 0;
+    const hasProject = isOpen && ((w.project && w.project.length > 0) || hasDocuments);
     const hasAssignment = isOpen && !!w.assignment;
 
+    // 「配布」バッジは Unityプロジェクトを優先し、無ければ配布資料PDFを開く
+    const projectUrl = (w.project && w.project.length > 0)
+      ? w.project[0].url
+      : (hasDocuments ? w.documents[0].url : '');
     const slideUrl = hasSlides ? w.slides[0].url : '';
     const disabledClass = isOpen ? '' : 'disabled';
     return `
@@ -50,7 +55,7 @@
         </span>
         <span class="week-icons">
           <span class="icon-badge ${hasSlides ? 'active clickable' : ''}" ${hasSlides ? `data-slide-url="${slideUrl}"` : ''}>スライド</span>
-          <span class="icon-badge ${hasProject ? 'active project clickable' : ''}" ${hasProject ? `data-project-url="${w.project[0].url}"` : ''}>配布</span>
+          <span class="icon-badge ${hasProject ? 'active project clickable' : ''}" ${hasProject ? `data-project-url="${projectUrl}"` : ''}>配布</span>
           <span class="icon-badge ${hasAssignment ? 'active clickable assignment' : ''}" ${hasAssignment ? `data-course="${courseKey}" data-week="${w.week}"` : ''}>課題</span>
         </span>
       </div>

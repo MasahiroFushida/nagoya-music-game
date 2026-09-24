@@ -395,7 +395,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
         <h3>📱 iPhone の人 → Xcode</h3>
         <ul>
           <li>Unity で書き出した iPhone アプリは、<strong>Xcode</strong> という Apple のアプリを通してスマホに入れる</li>
-          <li>App Store から無料でインストールできるが、App Store 分 2.4GB ＋ 初回起動時の iOS 用データ 7〜8GB で<strong>ダウンロードは合計 10GB ほど</strong>・空き容量は <strong>25GB ほど</strong>必要</li>
+          <li><strong>Xcode は第2回の授業で配布します</strong>（App Store から入れなくてOK）。空き容量は <strong>25GB ほど</strong>必要なので、今のうちに整理しておく</li>
           <li>Apple ID があれば OK（有料の Developer Program は不要）</li>
         </ul>
       </div>
@@ -404,7 +404,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
         <ul>
           <li>Unity Hub から <strong>Android 用のモジュール</strong>を追加する</li>
           <li>OpenJDK・Android SDK & NDK Tools を含めて <strong>数 GB</strong></li>
-          <li>スマホ側の設定（USB デバッグ）は第4回に一緒にやります</li>
+          <li>スマホ側の設定（USB デバッグ）は第2回に一緒にやります</li>
         </ul>
       </div>
     </div>
@@ -416,23 +416,23 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
   <!-- 19. iPhone -->
   <div class="slide theme-content">
     <div class="tag purple">iPhone の人</div>
-    <h2>Xcode のインストール</h2>
+    <h2>Xcode の準備（配布は第2回）</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-body"><strong>空き容量を確認する</strong>りんごマーク → 「この Mac について」→ ストレージ。<strong>25GB 以上</strong>空いていない場合は、不要なファイルを整理してから（インストール後に残るのは 15〜20GB ほど）</div>
+        <div class="step-body"><strong>空き容量を確認する</strong>りんごマーク → 「この Mac について」→ ストレージ。<strong>25GB 以上</strong>空いていない場合は、不要なファイルを整理しておく（これが今回やること）</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-body"><strong>App Store で「Xcode」を検索してインストール</strong>ダウンロードに 30 分〜数時間かかります。Wi-Fi のある場所で、電源につないで</div>
+        <div class="step-body"><strong>macOS のバージョンを控えておく</strong>同じ「この Mac について」に出ています。第2回に、そのバージョンに合う Xcode のファイルを配ります</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-body"><strong>一度起動する</strong>初回起動時に追加コンポーネントのインストールを聞かれるので「Install」。iOS のプラットフォームにチェックが入っていることを確認</div>
+        <div class="step-body"><strong>インストールは第2回の授業で</strong>配布ファイル（.xip）から入れるので、<strong>App Store からダウンロードする必要はありません</strong>（すでに入れた人はそのままで OK）。第2回の授業ページに<strong>ダウンロードリンク</strong>も載せます</div>
       </div>
     </div>
     <div class="warn-box" style="margin-top:0.8rem;">
-      現在の Xcode は <strong>macOS 26.2 以降</strong>が必要です。macOS が古いと App Store から入りません（「このバージョンの macOS では使用できません」と出る）。その場合は無理に macOS を上げず、<strong>先生に相談</strong>してください（旧バージョンの Xcode を入れる方法があります）。
+      App Store の最新 Xcode は新しい macOS（26.6 以降）と Apple シリコン Mac が必要で、入れられない人が出ます。そのため<strong>授業で配る Xcode を使います</strong>。iPhone の iOS は、実機ビルドが終わるまで<strong>アップデートしない</strong>でください（Xcode より新しい iOS は扱えません）。
     </div>
   </div>
 
@@ -472,7 +472,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       </div>
       <div class="step">
         <div class="step-num">任</div>
-        <div class="step-body"><strong>② 実機ビルドの準備が終わった画面</strong>iPhone の人：Xcode を起動した画面 ／ Android の人：Unity Hub のモジュール一覧で Android にチェックが入った画面</div>
+        <div class="step-body"><strong>② 実機ビルドの準備が終わった画面</strong>iPhone の人：「この Mac について」でストレージの空きが見えている画面 ／ Android の人：Unity Hub のモジュール一覧で Android にチェックが入った画面</div>
       </div>
     </div>
     <div class="highlight-box" style="margin-top:0.8rem;">
@@ -491,7 +491,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       <li>評価は「参加40% ／ 課題30% ／ 発表30%」。必修課題は最小ラインだけ</li>
       <li>ARテンプレートを Unity 2022.3.62f3 で開き、仮想の部屋でキューブを落とした</li>
       <li>Blender は第6回から。インストールもその回で行う</li>
-      <li>スマホ実機は任意。やりたい人は Xcode / Android モジュールを次回までに</li>
+      <li>スマホ実機は任意。iPhone の人は空き容量の確保（Xcode は第2回に配布）、Android の人はモジュール追加を次回までに</li>
     </ul>
     <div class="highlight-box" style="margin-top:1rem;">
       <p><strong>次回（第2回）：</strong>AR の仕組みと AR Foundation。ARテンプレートの中身を読み解いて、検出した平面の色を変えてみます。<br>
