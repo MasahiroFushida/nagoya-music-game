@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第3回 AR開発環境を整える</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card.muted-card h3 { color: #c8d6ea; }
+.col-card p, .col-card li { font-size: 0.88rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.compact th, .key-table.compact td { padding: 0.4rem 0.8rem; font-size: 0.88rem; }
+.key-table .sub { display: block; font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.note { color: #ffc98a; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box .big { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.flow-box strong { display: block; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.85rem; opacity: 0.75; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.85rem; line-height: 1.6; opacity: 0.65; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.05rem; line-height: 1.7; max-width: 960px; }
+/* ── 画像・図 ───────────────────────── */
+.shots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; max-width: 1060px; margin-top: 0.7rem; }
+.shot { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.6rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.shot img { width: 100%; height: auto; max-height: 42vh; object-fit: contain; border-radius: 4px; display: block; background: #000; }
+.shot p { font-size: 0.92rem; line-height: 1.5; max-width: none; margin-top: auto; }
+.shot .n { display: inline-block; min-width: 1.35rem; height: 1.35rem; line-height: 1.35rem; text-align: center; background: #2e7d32; border-radius: 50%; font-size: 0.72rem; font-weight: bold; margin-right: 0.35rem; }
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+/* メニューの道順 */
+.path { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0 0 0.8rem; font-size: 0.92rem; }
+.path span { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22); border-radius: 6px; padding: 0.15rem 0.6rem; white-space: nowrap; }
+.path span.end { background: rgba(46,125,50,0.35); border-color: rgba(143,224,160,0.6); }
+.path i { font-style: normal; opacity: 0.5; }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 0.98rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.8rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .wait { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; background: rgba(230,81,0,0.35); border: 1px solid rgba(255,160,80,0.5); border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+/* コード */
+.code-block { background: #0d1b2a; border: 1px solid rgba(100,200,120,0.3); border-radius: 10px; padding: 1rem 1.4rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 0.84rem; line-height: 1.6; white-space: pre; overflow: auto; color: #e6edf3; text-align: left; max-width: 900px; width: 100%; user-select: text; -webkit-user-select: text; }
+.code-block .kw { color: #ff79c6; }
+.code-block .ty { color: #8be9fd; }
+.code-block .fn { color: #50fa7b; }
+.code-block .num { color: #ffb86c; }
+.code-block .cm { color: #8896b3; font-style: italic; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .shots, .guide { grid-template-columns: 1fr; }
+  .roadmap { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第3回 AR開発環境を整える</h3>
+    <p class="muted" style="margin-top:2rem;">Unity Learn「Configure your AR development environment」に沿って</p>
+  </div>
+
+  <!-- 2. 今日の内容 -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の内容</div>
+    <h2>本日のアジェンダ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:900px;">
+      <li>前回の課題（スマホで動いた画面）の確認</li>
+      <li>Unity Learn の AR 講座と、今日のチュートリアル</li>
+      <li>① 準備の確認（スマホの OS・Xcode・Unity のモジュール）</li>
+      <li>② AR Mobile テンプレートで新しいプロジェクトを作る</li>
+      <li>③ プロジェクトの中身を見る（パッケージ・Player 設定）</li>
+      <li>④ AR のシーンを新しく作る　⑤ シーンの中身を見て Play する</li>
+      <li>⑥ もっとやってみよう（任意）</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>今日は、Unity 公式の学習サイト <strong>Unity Learn</strong> の AR 講座にある1本のチュートリアルに沿って進めます。<strong>マウス</strong>があると仮想の部屋を見回しやすいです（無くても OK）。</p>
+    </div>
+  </div>
+
+  <!-- 3. Unity Learn -->
+  <div class="slide theme-content">
+    <div class="tag green">Unity Learn</div>
+    <h2>Unity 公式の講座「Mobile AR Development」</h2>
+    <p class="lead" style="margin-bottom:0.2rem;">Unity Learn は Unity 公式の無料の学習サイト（英語）。その中のモバイル AR の講座の、最初の単元「Get started with AR」の2本目が今日の内容です。</p>
+    <div class="flow">
+      <div class="flow-box"><strong>Welcome to AR Development</strong><span>AR とは（紹介）</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><strong>Configure your AR development environment</strong><span>AR の開発環境を整える（今日）</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box"><strong>Deploy your project to iOS or Android</strong><span>スマホに入れて確かめる</span></div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>講座全体：Get started with AR ／ Create a basic face filter ／ Create an interactive face filter ／ Create a marker-based AR app ／ Create a plane detection AR app ／ AR experience design</p>
+    </div>
+    <p class="small-note">チュートリアル：<a href="https://learn.unity.com/pathway/mobile-ar-development/unit/get-started-with-ar/tutorial/configure-your-ar-development-environment?version=2022.3" target="_blank">Configure your AR development environment（Unity 2022.3 版）</a>。ページ上部のバージョンは <strong>2022.3</strong> を選んでおく。</p>
+  </div>
+
+  <!-- 4. 今日のゴール -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のゴール</div>
+    <h2>AR 用のプロジェクトとシーンを作って、Play で動かす</h2>
+    <div class="shots">
+      <div class="shot">
+        <img src="../img/game2/week03_xrenv_start.jpg" alt="AR のシーンを Play した直後の画面。仮想の部屋の床と壁、Unity のロゴが見え、右端に灰色のキューブが少し見えている">
+        <p><span class="n">1</span>AR 用のシーンを Play → Unity の中の仮想の部屋（<strong>XR Environment</strong>）が映る</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/week03_xrenv_cube.jpg" alt="右を向いたあとの画面。部屋の奥の暗いところで灰色のキューブが回っている">
+        <p><span class="n">2</span>見回すと、奥で<strong>回っているキューブ</strong>（テンプレートの目印）が見つかる</p>
+      </div>
+    </div>
+    <p class="small-note">どちらも、今日の手順どおりに作ったプロジェクトを実際に Play した画面です（Unity 2022.3.62f3 ／ AR Mobile テンプレート 1.1.1）。</p>
+  </div>
+
+  <!-- 5. なぜ準備が多い -->
+  <div class="slide theme-content">
+    <div class="tag green">なぜ準備が多い？</div>
+    <h2>AR はパソコンとスマホ、2台で作る</h2>
+    <div class="flow">
+      <div class="flow-box"><div class="big">💻</div><strong>パソコン（Mac）</strong><span>Unity で作る。iPhone 用は Xcode でスマホに入れる</span></div>
+      <div class="flow-arrow">⇄</div>
+      <div class="flow-box"><div class="big">🔌</div><strong>ケーブル</strong><span>作ったアプリをスマホへ</span></div>
+      <div class="flow-arrow">⇄</div>
+      <div class="flow-box"><div class="big">📱</div><strong>スマホ</strong><span>カメラとセンサーで現実を認識（iPhone は ARKit、Android は ARCore）</span></div>
+    </div>
+    <div class="highlight-box wide" style="margin-top:1.2rem;">
+      <p>ふつうの Unity の作品より準備が多いのは、<strong>2台の機械の両方</strong>にソフトが必要だから。今日は、その準備ができているかを確かめてから、<strong>最初から AR 用に設定されたプロジェクト</strong>を作って中身を見ていきます。</p>
+    </div>
+  </div>
+
+  <!-- 6. 全体の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">全体の流れ</div>
+    <h2>今日やること ― ① から ⑥</h2>
+    <div class="roadmap">
+      <div class="rm"><div class="no">①</div><strong>準備の確認</strong><span>スマホの OS・Xcode・Unity のモジュール</span></div>
+      <div class="rm"><span class="wait">待ち 数分</span><div class="no">②</div><strong>プロジェクトを作る</strong><span>AR Mobile テンプレート</span></div>
+      <div class="rm"><div class="no">③</div><strong>中身を見る</strong><span>パッケージ・Player 設定</span></div>
+      <div class="rm"><div class="no">④</div><strong>AR のシーンを作る</strong><span>AR Scene Template</span></div>
+      <div class="rm"><div class="no">⑤</div><strong>シーンを見て Play</strong><span>XR Environment（仮想の部屋）</span></div>
+      <div class="rm opt"><div class="no">⑥</div><strong>もっとやってみよう</strong><span>回り方を変える・形を変える（任意）</span></div>
+    </div>
+    <div class="warn-box" style="margin-top:1rem;">
+      ② はテンプレートのダウンロードとプロジェクトの準備に<strong>数分〜10分</strong>かかります。待っている間に次のスライドを読んでおきましょう。
+    </div>
+  </div>
+
+  <!-- 7. セクション：準備 -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">①</div>
+    <h1>準備の確認</h1>
+  </div>
+
+  <!-- 8. ① 準備の確認 -->
+  <div class="slide theme-content">
+    <div class="tag purple">STEP ①　準備の確認</div>
+    <h2>自分のスマホは iOS？ Android？ ― 必要なもの</h2>
+    <table class="key-table">
+      <tr><th></th><th>iPhone（iOS）</th><th>Android</th></tr>
+      <tr><td class="k">Unity</td><td colspan="2"><strong>2022.3.62f3 LTS</strong>（春学期から使っているもの）</td></tr>
+      <tr><td class="k">Unity のモジュール</td><td>iOS Build Support</td><td>Android Build Support<span class="sub">OpenJDK・Android SDK &amp; NDK Tools も</span></td></tr>
+      <tr><td class="k">そのほか</td><td>Xcode（<strong>第2回で配った .xip</strong>）</td><td>なし（USB デバッグは第2回で設定済み）</td></tr>
+    </table>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p><strong>第2回でスマホにアプリを入れるところまでできた人は、確認だけで OK</strong>。モジュールがまだの人は、Unity Hub →「インストール」→ 2022.3.62f3 の ⚙ →「モジュールを加える」（第2回と同じ）。Unity Hub は、起動したときに更新の案内が出たら最新にしておきます。</p>
+    </div>
+    <div class="warn-box">
+      チュートリアルには「App Store から Xcode を入れる（12GB 以上）」とありますが、App Store の最新の Xcode は macOS 26.6 以降が必要です。<strong>授業では第2回で配った Xcode 16.4／26.5 を使います</strong>（入れ直さない）。
+    </div>
+  </div>
+
+  <!-- 9. セクション：プロジェクト -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">②</div>
+    <h1>AR Mobile テンプレートで<br>新しいプロジェクトを作る</h1>
+  </div>
+
+  <!-- 10. ② Unity Hub -->
+  <div class="slide theme-content">
+    <div class="tag purple">STEP ②　プロジェクトを作る</div>
+    <h2>Unity Hub で「AR Mobile」テンプレートを選ぶ</h2>
+    <div class="guide">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>左の「プロジェクト」→ 右上の「新しいプロジェクト」</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>「エディターのバージョン」を確認</strong>2022.3.62f3 になっているか。違っていたらクリックして選ぶ</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>テンプレート「AR Mobile」を選ぶ</strong>チュートリアルでは「AR Mobile Core」と書かれている（Hub では「AR Mobile」＋「コア」の表示）</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>「テンプレートをダウンロード」</strong>最初の1回だけ（約 70MB）</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>プロジェクト名：自分の名前_AR_Project</strong>例：<code>yamada_AR_Project</code>（半角英数字）。保存場所も確認</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>組織は自分のもの →「プロジェクトを作成」</strong>Unity Cloud などのチェックは付けない</div></div>
+      </div>
+      <svg class="fig" viewBox="0 0 1000 440" role="img" aria-label="Unity Hub の新しいプロジェクト画面の簡略図。上にエディターのバージョン、中央のテンプレート一覧で AR Mobile を選び、右側でテンプレートをダウンロード、プロジェクト名、保存場所、組織を入れてプロジェクトを作成">
+        <rect x="6" y="6" width="988" height="428" rx="12" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+        <path d="M6 18 a12 12 0 0 1 12 -12 h964 a12 12 0 0 1 12 12 v48 h-988 z" fill="#212a3f"/>
+        <text x="28" y="44" fill="#fff" font-size="21" font-weight="bold">新しいプロジェクト</text>
+        <rect x="292" y="18" width="392" height="36" rx="7" fill="#2b3552" stroke="#8fe0a0" stroke-width="2.5"/>
+        <text x="488" y="42" text-anchor="middle" fill="#e6eefc" font-size="17">エディターのバージョン：2022.3.62f3 LTS ▾</text>
+        <g font-size="16" fill="#aebbd3">
+          <text x="26" y="104" fill="#fff">すべてのテンプレート</text>
+          <text x="26" y="138">コア</text>
+          <text x="26" y="172">サンプル</text>
+          <text x="26" y="206">学ぶ</text>
+        </g>
+        <line x1="188" y1="66" x2="188" y2="434" stroke="#2f3a55" stroke-width="2"/>
+        <rect x="204" y="82" width="334" height="48" rx="8" fill="rgba(255,255,255,0.04)" stroke="#2f3a55"/>
+        <text x="224" y="112" fill="#8a9bbb" font-size="17">2D <tspan dx="10" font-size="13">コア</tspan></text>
+        <rect x="204" y="138" width="334" height="48" rx="8" fill="rgba(255,255,255,0.04)" stroke="#2f3a55"/>
+        <text x="224" y="168" fill="#8a9bbb" font-size="17">3D <tspan dx="10" font-size="13">コア</tspan></text>
+        <rect x="204" y="194" width="334" height="48" rx="8" fill="rgba(143,224,160,0.2)" stroke="#8fe0a0" stroke-width="3"/>
+        <text x="224" y="225" fill="#fff" font-size="19" font-weight="bold">AR Mobile <tspan dx="8" font-size="13" font-weight="normal" fill="#8fe0a0">コア ⬇</tspan></text>
+        <rect x="204" y="250" width="334" height="48" rx="8" fill="rgba(255,255,255,0.04)" stroke="#2f3a55"/>
+        <text x="224" y="280" fill="#8a9bbb" font-size="17">Universal 3D など</text>
+        <text x="224" y="330" fill="#8a9bbb" font-size="14">（並び順は Hub のバージョンで変わる）</text>
+        <line x1="554" y1="66" x2="554" y2="434" stroke="#2f3a55" stroke-width="2"/>
+        <text x="576" y="102" fill="#fff" font-size="22" font-weight="bold">AR Mobile</text>
+        <text x="576" y="124" fill="#8a9bbb" font-size="12">The AR Mobile Project Template configures project settings …</text>
+        <rect x="576" y="138" width="230" height="36" rx="7" fill="#1a6bbf" stroke="#8fe0a0" stroke-width="2.5"/>
+        <text x="691" y="162" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">テンプレートをダウンロード</text>
+        <text x="576" y="202" fill="#aebbd3" font-size="15">プロジェクト名</text>
+        <rect x="576" y="210" width="360" height="34" rx="7" fill="#2b3552" stroke="#8fe0a0" stroke-width="2.5"/>
+        <text x="590" y="233" fill="#fff" font-size="16">yamada_AR_Project</text>
+        <text x="576" y="268" fill="#aebbd3" font-size="15">保存場所</text>
+        <rect x="576" y="276" width="360" height="34" rx="7" fill="#2b3552" stroke="#4a5877" stroke-width="2"/>
+        <text x="590" y="299" fill="#c8d6ea" font-size="15">/Users/（自分）/Unity</text>
+        <text x="576" y="334" fill="#aebbd3" font-size="15">組織</text>
+        <rect x="576" y="342" width="200" height="32" rx="7" fill="#2b3552" stroke="#4a5877" stroke-width="2"/>
+        <text x="590" y="364" fill="#c8d6ea" font-size="15">（自分の名前） ▾</text>
+        <rect x="576" y="394" width="16" height="16" rx="3" fill="none" stroke="#aebbd3" stroke-width="1.6"/>
+        <text x="600" y="407" fill="#aebbd3" font-size="14">Unity Cloud → オフ</text>
+        <rect x="786" y="384" width="180" height="40" rx="8" fill="#1a6bbf"/>
+        <text x="876" y="410" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">プロジェクトを作成</text>
+        <g font-size="17" font-weight="bold" text-anchor="middle" fill="#fff">
+          <circle cx="708" cy="36" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="708" y="42">2</text>
+          <circle cx="512" cy="218" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="512" y="224">3</text>
+          <circle cx="830" cy="156" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="830" y="162">4</text>
+          <circle cx="960" cy="227" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="960" y="233">5</text>
+          <circle cx="762" cy="404" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="762" y="410">6</text>
+        </g>
+      </svg>
+    </div>
+    <p class="small-note">図は画面を簡略化したものです（Unity Hub 3.21・日本語表示）。名前・保存場所には日本語やスペースを使わない（おすすめはホームフォルダの中の「Unity」フォルダ）。</p>
+  </div>
+
+  <!-- 11. ② 開いたら -->
+  <div class="slide theme-content">
+    <div class="tag purple">STEP ②　開いたら</div>
+    <h2>プロジェクトが開いたら</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:960px;">
+      <li><strong>最初は開くまで数分〜10分</strong>かかります（AR や見た目の部品をたくさん準備している）。止まって見えても待つ</li>
+      <li>「<strong>AR Mobile Template</strong>」のウィンドウ（Welcome to the AR Mobile Template project!）が出たら →「<strong>Close</strong>」</li>
+      <li>最初に開いているシーンは <strong>SampleScene</strong>（物を置いて遊べる、テンプレートのサンプル）。今日はこれとは別に、自分で新しいシーンを作ります</li>
+      <li>このテンプレートは <strong>URP</strong>（ユニバーサルレンダーパイプライン）。春学期の「3D」とはマテリアルの設定が少し違う（色は Albedo ではなく <strong>Base Map</strong>）</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>第1・2回の ARテンプレート（授業用に用意したもの）と同じく、AR に必要な設定が最初から入ったプロジェクトです。今日は、その中に<strong>何が入っているのか</strong>を見ていきます。</p>
+    </div>
+  </div>
+
+  <!-- 12. セクション：中身 -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">③</div>
+    <h1>プロジェクトの中身を見る</h1>
+  </div>
+
+  <!-- 13. ③ パッケージ -->
+  <div class="slide theme-content">
+    <div class="tag blue">STEP ③　パッケージ</div>
+    <h2>AR のための4つのパッケージ</h2>
+    <div class="path"><span>Window</span><i>›</i><span>Package Manager</span><i>›</i><span class="end">左上を「Packages: In Project」に</span></div>
+    <table class="key-table compact">
+      <tr><th>パッケージ</th><th>役割</th></tr>
+      <tr><td class="k">AR Foundation <span class="sub">5.2.0</span></td><td>AR の部品（GameObject やスクリプト）の共通の窓口。iPhone でも Android でも同じ作り方ができる</td></tr>
+      <tr><td class="k">Apple ARKit XR Plugin <span class="sub">5.2.0</span></td><td>iPhone の AR（Apple の <strong>ARKit</strong>）と AR Foundation をつなぐ</td></tr>
+      <tr><td class="k">Google ARCore XR Plugin <span class="sub">5.2.0</span></td><td>Android の AR（Google の <strong>ARCore</strong>）と AR Foundation をつなぐ</td></tr>
+      <tr><td class="k">XR Plugin Management <span class="sub">4.5.0</span></td><td>iPhone・Android・Play（XR Simulation）で、どの AR を使うかを切り替える</td></tr>
+    </table>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>ARKit のほうが使える機能が多い（3D の物体や体の動きの認識など）。ほかに <strong>XR Interaction Toolkit</strong>（画面のタッチで物をつかむ・動かすための部品）なども入っています。第2回の図と同じく、AR Foundation が「差し替え口」になっています。</p>
+    </div>
+  </div>
+
+  <!-- 14. ③ Player 設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">STEP ③　Player 設定</div>
+    <h2>AR のための設定も、最初から入っている</h2>
+    <div class="path"><span>Edit</span><i>›</i><span>Project Settings…</span><i>›</i><span>Player</span><i>›</i><span>iOS／Android のタブ</span><i>›</i><span class="end">Other Settings</span></div>
+    <table class="key-table compact">
+      <tr><th>設定</th><th>テンプレートの値</th><th>意味</th></tr>
+      <tr><td class="k">Graphics APIs <span class="sub">Android</span></td><td>OpenGLES3 だけ</td><td>ARCore が Vulkan に対応していないので外してある</td></tr>
+      <tr><td class="k">Minimum API Level <span class="sub">Android</span></td><td>Android 11.0（API level 30）</td><td>これより古い Android には入らない</td></tr>
+      <tr><td class="k">Scripting Backend <span class="sub">Android</span></td><td>IL2CPP</td><td>64bit で動かすため（Mono ではない）</td></tr>
+      <tr><td class="k">Target Architectures <span class="sub">Android</span></td><td>ARMv7 ＋ ARM64</td><td>Google Play の「64bit 必須」に合わせる</td></tr>
+      <tr><td class="k">Target minimum iOS Version <span class="sub">iOS</span></td><td>12.0</td><td class="note">授業の Xcode では 15.0 以上が必要 → スマホに入れるときは <strong>15.0</strong> に</td></tr>
+      <tr><td class="k">Camera Usage Description <span class="sub">iOS</span></td><td>AR Camera</td><td>カメラを使う許可をもらうときの説明文</td></tr>
+    </table>
+    <div class="warn-box">
+      <strong>Bundle Identifier</strong> はテンプレートのまま（<code>com.unity.template.armobile</code>）だと全員同じ名前 → スマホに入れるときは第2回と同じく <code>com.名字＋名前.～</code> に変えます。
+    </div>
+  </div>
+
+  <!-- 15. セクション：シーン -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">④</div>
+    <h1>AR のシーンを新しく作る</h1>
+  </div>
+
+  <!-- 16. ④ New Scene -->
+  <div class="slide theme-content">
+    <div class="tag blue">STEP ④　AR Scene Template</div>
+    <h2>AR 用のひな形からシーンを作る</h2>
+    <div class="guide">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>File → New Scene（Cmd + N）</strong>「New Scene」ウィンドウが開く</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>左の一覧で「AR」を選ぶ</strong>説明に「A scene configured for AR Development.」。Basic (URP)／Standard (URP) ではない</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>右下の「Create」</strong>AR 用のシーンができる（まだ名前なし＝Untitled）</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>File → Save As… → Assets の Scenes フォルダ → 名前「AR Template Scene」→ Save</strong></div></div>
+      </div>
+      <svg class="fig" viewBox="0 0 1000 380" role="img" aria-label="New Scene ウィンドウの簡略図。左の一覧で AR を選び、右にプレビューと説明、右下の Create ボタン">
+        <rect x="6" y="6" width="988" height="368" rx="12" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+        <path d="M6 18 a12 12 0 0 1 12 -12 h964 a12 12 0 0 1 12 12 v28 h-988 z" fill="#212a3f"/>
+        <text x="26" y="34" fill="#fff" font-size="17" font-weight="bold">New Scene</text>
+        <rect x="20" y="58" width="300" height="30" rx="15" fill="#2b3552" stroke="#4a5877"/>
+        <text x="36" y="79" fill="#8a9bbb" font-size="14">🔍</text>
+        <rect x="20" y="100" width="300" height="46" rx="6" fill="rgba(143,224,160,0.2)" stroke="#8fe0a0" stroke-width="2.5"/>
+        <text x="40" y="130" fill="#fff" font-size="18" font-weight="bold">AR</text>
+        <rect x="20" y="152" width="300" height="46" rx="6" fill="rgba(255,255,255,0.04)" stroke="#2f3a55"/>
+        <text x="40" y="182" fill="#8a9bbb" font-size="16">Basic (URP)</text>
+        <rect x="20" y="204" width="300" height="46" rx="6" fill="rgba(255,255,255,0.04)" stroke="#2f3a55"/>
+        <text x="40" y="234" fill="#8a9bbb" font-size="16">Standard (URP)</text>
+        <line x1="336" y1="46" x2="336" y2="374" stroke="#2f3a55" stroke-width="2"/>
+        <rect x="356" y="60" width="370" height="200" rx="6" fill="#3b4150"/>
+        <path d="M356 190 L726 150 L726 260 L356 260 Z" fill="#5a5750"/>
+        <polygon points="600,176 640,164 676,172 636,184" fill="#e8ecf2"/>
+        <polygon points="600,176 636,184 634,226 598,216" fill="#c3c9d4"/>
+        <polygon points="636,184 676,172 674,212 634,226" fill="#9aa2b1"/>
+        <circle cx="440" cy="100" r="12" fill="#fff" opacity="0.85"/>
+        <text x="746" y="96" fill="#fff" font-size="22" font-weight="bold">AR</text>
+        <text x="746" y="126" fill="#c8d6ea" font-size="14">A scene configured</text>
+        <text x="746" y="146" fill="#c8d6ea" font-size="14">for AR Development.</text>
+        <rect x="690" y="318" width="150" height="36" rx="6" fill="#2b3552" stroke="#4a5877"/>
+        <text x="765" y="342" text-anchor="middle" fill="#aebbd3" font-size="15">Create Additive</text>
+        <rect x="852" y="318" width="120" height="36" rx="6" fill="#1a6bbf" stroke="#8fe0a0" stroke-width="2.5"/>
+        <text x="912" y="342" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold">Create</text>
+        <g font-size="17" font-weight="bold" text-anchor="middle" fill="#fff">
+          <circle cx="300" cy="123" r="15" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="300" y="129">2</text>
+          <circle cx="912" cy="296" r="15" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="912" y="302">3</text>
+        </g>
+      </svg>
+    </div>
+    <div class="highlight-box wide" style="margin-top:0.8rem;">
+      <p>保存すると、Scenes フォルダに <strong>AR Template Scene</strong>（シーン）と、同じ名前の<strong>フォルダ</strong>ができます。フォルダの中はシーンで使う部品のコピーなので、<strong>消さない</strong>でください。</p>
+    </div>
+  </div>
+
+  <!-- 17. セクション：Play -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">⑤</div>
+    <h1>シーンの中身を見て、Play する</h1>
+  </div>
+
+  <!-- 18. ⑤ Hierarchy -->
+  <div class="slide theme-content">
+    <div class="tag blue">STEP ⑤　シーンの中身</div>
+    <h2>AR のシーンに入っているもの</h2>
+    <svg class="fig" viewBox="0 0 1000 380" role="img" aria-label="AR Template Scene の Hierarchy。XR Origin (AR Rig) の中に Camera Offset、その中に Main Camera と Screen Space Ray Interactor。ほかに AR Session、Cube、Directional Light">
+      <rect x="10" y="10" width="980" height="360" rx="12" fill="rgba(255,255,255,0.04)" stroke="#4a5877" stroke-width="2"/>
+      <text x="30" y="42" fill="#c8d6ea" font-size="18" font-weight="bold">Hierarchy</text>
+      <text x="140" y="42" fill="#8a9bbb" font-size="15">AR Template Scene</text>
+      <line x1="10" y1="56" x2="990" y2="56" stroke="#4a5877" stroke-width="1.5"/>
+      <g font-size="18">
+        <text x="30" y="94" fill="#8fe0a0" font-weight="bold">▼ XR Origin (AR Rig)</text>
+        <text x="60" y="132" fill="#c8d6ea">▼ Camera Offset</text>
+        <text x="92" y="170" fill="#8ec5ff" font-weight="bold">Main Camera</text>
+        <text x="92" y="208" fill="#c8d6ea">▶ Screen Space Ray Interactor</text>
+        <text x="30" y="252" fill="#8fe0a0" font-weight="bold">AR Session</text>
+        <text x="30" y="296" fill="#ffd166" font-weight="bold">Cube</text>
+        <text x="30" y="340" fill="#c8d6ea">Directional Light</text>
+      </g>
+      <g font-size="15" fill="#e6eefc">
+        <line x1="260" y1="88" x2="400" y2="88" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="93">スマホそのもの。現実でスマホを動かすと、同じように動く</text>
+        <line x1="220" y1="165" x2="400" y2="165" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="170">AR のカメラ（MainCamera タグ）。スマホのカメラの映像を映す</text>
+        <line x1="376" y1="203" x2="400" y2="203" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="208">画面のタッチで物を操作する部品（XR Interaction Toolkit）</text>
+        <line x1="140" y1="247" x2="400" y2="247" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="252">AR 全体の管理（起動・状態）。シーンに1つだけ</text>
+        <line x1="88" y1="291" x2="400" y2="291" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="296">目印のキューブ。前に 7m・1m の大きさで、回り続ける</text>
+        <line x1="186" y1="335" x2="400" y2="335" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+        <text x="410" y="340">ライト</text>
+      </g>
+    </svg>
+    <p class="small-note">Hierarchy の名前をクリックすると、Inspector にその部品（コンポーネント）が出ます。第2回で見たテンプレートとは名前が少し違っても、しくみは同じです。</p>
+  </div>
+
+  <!-- 19. ⑤ カメラの部品 -->
+  <div class="slide theme-content">
+    <div class="tag blue">STEP ⑤　カメラと AR Session</div>
+    <h2>Main Camera についている3つの部品</h2>
+    <table class="key-table">
+      <tr><th>コンポーネント</th><th>役割</th></tr>
+      <tr><td class="k">Tracked Pose Driver</td><td>スマホの位置と向きに合わせて、カメラを動かす</td></tr>
+      <tr><td class="k">AR Camera Manager</td><td>スマホのカメラを使う（明るさなどの情報も受け取る）</td></tr>
+      <tr><td class="k">AR Camera Background</td><td>カメラの映像を背景に映す（Play では仮想の部屋が映る）</td></tr>
+    </table>
+    <div class="two-col" style="margin-top:1rem;">
+      <div class="col-card">
+        <h3>AR Session は1つだけ</h3>
+        <p>AR 全体を管理する部品。1つのシーンに1つだけ置きます。</p>
+      </div>
+      <div class="col-card">
+        <h3>ほかのカメラは消す</h3>
+        <p>AR のカメラは XR Origin (AR Rig) の中の Main Camera。別のカメラがあるとぶつかるので消します。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20. ⑤ Play -->
+  <div class="slide theme-content">
+    <div class="tag orange">STEP ⑤　Play</div>
+    <h2>Play すると、仮想の部屋（XR Environment）で試せる</h2>
+    <div class="shots" style="max-width:980px;">
+      <div class="shot">
+        <img src="../img/game2/week03_xrenv_start.jpg" alt="Play した直後。仮想の部屋の床と壁が映り、右端にキューブが少し見える">
+        <p><span class="n">1</span>▶ Play → 仮想の部屋（床・壁・Unity のロゴ）。キューブは<strong>右の奥</strong>（画面の右端に少し見えることも）</p>
+      </div>
+      <div class="shot">
+        <img src="../img/game2/week03_xrenv_cube.jpg" alt="右を向いたところ。奥の暗いところでキューブが回っている">
+        <p><span class="n">2</span>右を向くと、7m 先で<strong>キューブが回っている</strong></p>
+      </div>
+    </div>
+    <ul style="max-width:980px; margin-top:0.6rem;">
+      <li>Play 中の Hierarchy には、<strong>XRInteractionManager</strong>（物を操作するしくみのまとめ役）と、XR Origin (AR Rig) の中に <strong>Trackables</strong>（見つけた面・点・顔などが入る入れ物）が現れる</li>
+      <li>確認できたら、もう一度 <strong>▶</strong> を押して止める</li>
+    </ul>
+  </div>
+
+  <!-- 21. ⑤ 見回し方 -->
+  <div class="slide theme-content">
+    <div class="tag orange">STEP ⑤　見回し方</div>
+    <h2>仮想の部屋を見回す・歩く</h2>
+    <div class="two-col" style="max-width:1000px;">
+      <div class="col-card muted-card">
+        <h3>マウスがある人（チュートリアルの方法）</h3>
+        <ul>
+          <li><strong>右クリックを押したまま</strong>マウスを動かす → 向きが変わる</li>
+          <li>押したまま <strong>W / A / S / D</strong> で移動、<strong>Q / E</strong> で下・上、<strong>Shift</strong> で速く</li>
+          <li>右クリックを離すと止まる</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>トラックパッドの人（おすすめ）</h3>
+        <ul>
+          <li>Finder で <code>game1_template_ar</code> → Assets → Scripts → <code>EditorCameraNavigation.cs</code></li>
+          <li>Unity の Project の <strong>Assets にドラッグ</strong>（コピーされる）</li>
+          <li>それを Hierarchy の <strong>XR Origin (AR Rig) にドラッグ</strong></li>
+          <li>→ <strong>矢印キー＋W / A / S / D</strong>で見回せる（第1・2回と同じ操作）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="max-width:1000px; margin-top:1rem;">
+      <p>キーが効かないときは、<strong>Game ビューを一度クリック</strong>してから。EditorCameraNavigation はエディターの中だけで働くスクリプトです（スマホのアプリでは何もしません）。テンプレートが手元に無い人は、授業ページ第1回の「配布」から。</p>
+    </div>
+  </div>
+
+  <!-- 22. セクション：もっと -->
+  <div class="slide theme-section">
+    <div class="tag" style="background:rgba(255,255,255,0.15);">⑥ 任意</div>
+    <h1>もっとやってみよう</h1>
+  </div>
+
+  <!-- 23. ⑥ 回転のスクリプト -->
+  <div class="slide theme-content">
+    <div class="tag green">⑥　キューブを回しているスクリプト</div>
+    <h2>SceneTemplate_RotateCube を読んでみよう</h2>
+    <pre class="code-block"><span class="kw">public class</span> <span class="ty">SceneTemplate_RotateCube</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public float</span> rotateSpeed = <span class="num">1f</span>;          <span class="cm">// 回る速さ</span>
+    <span class="kw">public</span> <span class="ty">Vector3</span> objectRotation;           <span class="cm">// どの向きに回るか</span>
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        transform.<span class="fn">Rotate</span>(objectRotation * <span class="ty">Time</span>.deltaTime * rotateSpeed);
+    }
+}</pre>
+    <table class="key-table compact" style="margin-top:0.8rem;">
+      <tr><td class="k"><code>public</code> の変数</td><td>Inspector に出てくる（春学期と同じ）。Cube を選ぶと「Scene Template_Rotate Cube」の <strong>Rotate Speed</strong>（このシーンでは 4）と <strong>Object Rotation</strong>（4, 5, 1）</td></tr>
+      <tr><td class="k"><code>transform.Rotate(…)</code></td><td>毎フレーム、少しずつ回す</td></tr>
+      <tr><td class="k"><code>Time.deltaTime</code></td><td>前のフレームからの時間。パソコンやスマホの速さに関係なく、同じ速さで回る</td></tr>
+    </table>
+    <p class="small-note">ファイルは Assets → Settings → Project Configuration の中にあります（ここではコメントを日本語にして短くしています）。</p>
+  </div>
+
+  <!-- 24. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第3回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:920px;">
+      <li>AR は<strong>パソコンとスマホの2台</strong>で作る → 両方に準備がいる（Xcode／Build Support）</li>
+      <li><strong>AR Mobile テンプレート</strong>：AR のパッケージ（AR Foundation・ARKit・ARCore・XR Plugin Management）と Player 設定が最初から入ったプロジェクト</li>
+      <li><strong>AR Scene Template</strong>（New Scene の「AR」）で、XR Origin (AR Rig)・AR Session 入りのシーンがすぐ作れる</li>
+      <li>Play すると <strong>XR Environment</strong>（仮想の部屋）で試せる。右クリック（または矢印キー）で見回す</li>
+      <li>次のチュートリアル：<strong>Deploy your project to iOS or Android</strong>（スマホに入れて確かめる）</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>今日作った <strong>自分の名前_AR_Project</strong> は、消さずに取っておいてください。</p>
+    </div>
+  </div>
+
+  <!-- 25. 質問 -->
+  <div class="slide theme-final">
+    <h1 style="font-size:3.5rem; margin-bottom:0.5rem;">質問はありますか？</h1>
+    <div class="divider"></div>
+    <p class="muted">次回：第4回</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 25</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

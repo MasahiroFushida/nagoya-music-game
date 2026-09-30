@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 2,
+    openWeeks: 3,
     weeks: [
       {
         week: 1,
@@ -246,11 +246,14 @@ const SITE_DATA = {
       },
       {
         week: 3,
-        title: "タップして置く・ARレイキャスト",
-        description: "画面をタップした場所の平面にオブジェクトを置く仕組み（ARRaycastManager によるレイキャスト）を学ぶ。テンプレートの CubeGameController を読んで、タップで生成する Prefab を差し替える。この「Prefab の差し替え」が、あとで自作モデルをARに置くときにそのまま使う、秋学期の中心になる操作。",
-        slides: null,
-        project: null,
-        assignment: "【必修】置くものを差し替えよう\n\nタップで落ちてくる赤いキューブを、別のオブジェクトに差し替えてください。\n\n■ 手順\n1. Prefabs フォルダの FallingCube を複製（Cmd + D）し、名前を「MyObject」にする\n2. MyObject の見た目を変える（形を Sphere や Cylinder に変える、Scale を変える、マテリアルの色を変える、Asset Store の素材に入れ替える など、好きな方法でOK）\n3. Hierarchy の XR Origin を選び、CubeGameController の Inspector にある Prefab の欄を MyObject に変更する\n4. Playモードでタップし、MyObject が落ちて着地すると音が鳴ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚（MyObject が置かれているもの）\n\n──────────────────────────────\n\n【任意】音を差し替える\n・MyObject の AudioSource の AudioClip を、自分で用意した音（録音・自作・フリー素材）に差し替える",
+        title: "AR開発環境を整える（AR Mobile テンプレート）",
+        slides: [
+          { label: "第3回 AR開発環境を整える スライド", url: "slides/game2_week03.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト（game2_a）", url: "https://github.com/MasahiroFushida/game2_a/archive/refs/heads/main.zip" }
+        ],
+        assignment: "スマホの画面で、自分が置いたオブジェクトが出ている様子のキャプチャ（スクリーンショット）を1枚提出してください。\n\n※うまくいかなかった人は、Unity の画面のキャプチャを送ってください。スマホを使わない人はその旨をひとこと。評価は変わりません。",
         deadline: "第4回授業開始時"
       },
       {
