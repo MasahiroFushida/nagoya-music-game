@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 3,
+    openWeeks: 4,
     weeks: [
       {
         week: 1,
@@ -258,11 +258,19 @@ const SITE_DATA = {
       },
       {
         week: 4,
-        title: "スマホ実機で動かす（ビルド）",
-        description: "作ったARをスマホの実機で動かす。iPhoneはUnityからXcodeプロジェクトを書き出してXcodeで署名・インストール、AndroidはUSBデバッグを有効にして Build And Run。Bundle Identifier の設定、Apple ID での署名（無料アカウントでOK）、カメラ権限など、つまずきやすいポイントを一緒に確認する。実機がなくても、この先は XR Simulation で進められる。",
-        slides: null,
-        project: null,
-        assignment: "【必修】実機で動かそう\n\n第3回の課題（MyObject）を自分のスマホで動かしてください。手順はスライド参照（iPhone：Xcode 経由 / Android：Build And Run）。\n\n■ 提出物（A・B どちらか1つ）\nA. 実機で動いた人\n   ・スマホの画面録画（10〜30秒。自分の机や床に MyObject が置けている様子）\nB. 実機で動かせなかった人\n   ・どこまで進めたかのメモ（例：Xcode まで書き出せたが署名でエラーが出た）\n   ・エラーが出た画面のスクリーンショット\n\n※B でも評価は変わりません。次回以降、個別に対応します。実機がなくても、この先は XR Simulation で進められます。",
+        title: "スキャンしたモノに音をつけて、ARで出す（Scaniverse）",
+        slides: [
+          { label: "第4回 スキャンしたモノに音をつけて、ARで出す スライド", url: "slides/game2_week04.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト（game2_b：第4回の完成形。Stage4 に OrbitSound、Stage5 に SwingSound）", url: "https://github.com/MasahiroFushida/game2_b/archive/refs/heads/main.zip" },
+          { label: "Unityプロジェクト（game2_a：第3回の配布）", url: "https://github.com/MasahiroFushida/game2_a/archive/refs/heads/main.zip" }
+        ],
+        documents: [
+          { label: "Scaniverse（iPhone）― App Store［無料］", url: "https://apps.apple.com/jp/app/scaniverse-3d-scanner/id1541433223" },
+          { label: "Scaniverse（Android）― Google Play［無料］", url: "https://play.google.com/store/apps/details?id=com.nianticlabs.scaniverse&hl=ja" }
+        ],
+        assignment: "スキャンしたモノが自分のまわりを回りながら音が鳴っている様子の画面録画（10〜30秒）を1つ提出してください。\n\n・スマホの画面収録でも、Unity の Game ビュー（XR Simulation）の画面収録でも OK（Mac は Cmd + Shift + 5、オプションでマイクをオンにすると音が入ります）\n\n※動かすところまでいかなかった人は、置いたモノから音が鳴っているだけで OK。うまくいかなかった人は、止まったところの画面のキャプチャを1枚。スマホを使わない人は XR Simulation で OK。評価は変わりません。",
         deadline: "第5回授業開始時"
       },
       {
