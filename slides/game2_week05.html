@@ -182,7 +182,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
       </svg>
     </div>
     <div class="warn-box" style="max-width:1100px;">
-      <strong>スキャンが無い人</strong>：配布の <strong>game2_b</strong> → Scenes の <strong>Stage1</strong> → <strong>Cube</strong> で代用
+      <strong>スキャンが無い人</strong>：配布の <strong>game2_c</strong> → Scenes の <strong>Stage1</strong> → <strong>Cube</strong> で代用
     </div>
   </div>
 
@@ -192,7 +192,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <h2>スキャンしたモノに AudioSource をつける</h2>
     <div class="guide">
       <div class="steps compact">
-        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Assets に Audio フォルダ → game2_b の Assets/sound の .wav を入れる</strong></div></div>
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Assets に Audio フォルダ → game2_c の Assets/sound の .wav を入れる</strong></div></div>
         <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Hierarchy でスキャンしたモノを選ぶ</strong></div></div>
         <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Add Component → Audio Source</strong></div></div>
         <div class="step"><div class="step-num">4</div><div class="step-body"><strong>AudioClip に音をドラッグ</strong></div></div>
@@ -225,7 +225,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
         </g>
       </svg>
     </div>
-    <p class="small-note">game2_b の Stage3 の Cube と同じ設定（迷ったら見比べる）</p>
+    <p class="small-note">game2_c の Stage3 の Cube と同じ設定（迷ったら見比べる）</p>
   </div>
 
   <!-- 5. ⑤ Play で確認 -->
@@ -447,7 +447,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <div class="guide">
       <div class="steps">
         <div class="step"><div class="step-num">1</div><div class="step-body"><strong>スキャンしたモノに Add Component → Box Collider</strong></div></div>
-        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>impact.wav を Audio フォルダに入れる</strong>第1回の AR テンプレートの Assets/Audio にある</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>impact.wav を Audio フォルダに入れる</strong>game2_c の Assets/sound にある</div></div>
         <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Create → C# Script → <code>TapSound</code> → コードを貼る → Cmd + S</strong></div></div>
         <div class="step"><div class="step-num">4</div><div class="step-body"><strong>スキャンしたモノに TapSound をドラッグ → Tap Clip に impact</strong></div></div>
         <div class="step"><div class="step-num">5</div><div class="step-body"><strong>▶ Play → モノをクリック →「コツン」</strong></div></div>
@@ -508,7 +508,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <div class="roadmap">
       <div class="rm opt"><div class="no">A</div><strong>そのモノの音</strong><span>実際に叩いた音を録って Tap Clip に</span></div>
       <div class="rm opt"><div class="no">B</div><strong>タップで鳴り始める</strong><span>Play On Awake を外し、<code>Play()</code> に</span></div>
-      <div class="rm opt"><div class="no">C</div><strong>往復・ドップラー</strong><span>SwingSound（game2_b の Stage5）</span></div>
+      <div class="rm opt"><div class="no">C</div><strong>往復・ドップラー</strong><span>SwingSound（game2_c の Stage5）</span></div>
       <div class="rm opt"><div class="no">D</div><strong>2つ以上置く</strong><span>別のモノに別の音</span></div>
       <div class="rm opt"><div class="no">E</div><strong>その場所だけの音</strong><span>Max Distance を小さく</span></div>
       <div class="rm opt"><div class="no">F</div><strong>スマホで歩く</strong><span>歩きながら・振り向きながら聴く</span></div>

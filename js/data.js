@@ -280,8 +280,7 @@ const SITE_DATA = {
           { label: "第5回 スキャンしたモノに音をつけて動かす・タップで鳴らす スライド", url: "slides/game2_week05.html" }
         ],
         project: [
-          { label: "Unityプロジェクト（game2_b：Stage3 に音、Stage4 に OrbitSound、Stage5 に SwingSound）", url: "https://github.com/MasahiroFushida/game2_b/archive/refs/heads/main.zip" },
-          { label: "ARテンプレート（game1_template_ar：タップ用の短い音 impact.wav が Assets/Audio に入っています）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
+          { label: "Unityプロジェクト（game2_c：第5回の完成形。Stage3 に音、Stage4 に OrbitSound、Stage6 に TapSound。Assets/sound にループ音とタップ音 impact.wav）", url: "https://github.com/MasahiroFushida/game2_c/archive/refs/heads/main.zip" }
         ],
         assignment: "スキャンしたモノが自分のまわりを回りながら音が鳴っている様子の画面録画（10〜30秒）を1つ提出してください。\n\n・スマホの画面収録でも、Unity の Game ビュー（XR Simulation）の画面収録でも OK（Mac は Cmd + Shift + 5、オプションでマイクをオンにすると音が入ります）\n・タップで鳴らすところまでできた人は、タップして鳴る様子も同じ録画に入れてください\n\n※動かすところまでいかなかった人は、置いたモノから音が鳴っているだけで OK。うまくいかなかった人は、止まったところの画面のキャプチャを1枚。スマホを使わない人は XR Simulation で OK。評価は変わりません。",
         deadline: "第6回授業開始時"
