@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 4,
+    openWeeks: 5,
     weeks: [
       {
         week: 1,
@@ -270,16 +270,20 @@ const SITE_DATA = {
           { label: "Scaniverse（iPhone）― App Store［無料］", url: "https://apps.apple.com/jp/app/scaniverse-3d-scanner/id1541433223" },
           { label: "Scaniverse（Android）― Google Play［無料］", url: "https://play.google.com/store/apps/details?id=com.nianticlabs.scaniverse&hl=ja" }
         ],
-        assignment: "スキャンしたモノが自分のまわりを回りながら音が鳴っている様子の画面録画（10〜30秒）を1つ提出してください。\n\n・スマホの画面収録でも、Unity の Game ビュー（XR Simulation）の画面収録でも OK（Mac は Cmd + Shift + 5、オプションでマイクをオンにすると音が入ります）\n\n※動かすところまでいかなかった人は、置いたモノから音が鳴っているだけで OK。うまくいかなかった人は、止まったところの画面のキャプチャを1枚。スマホを使わない人は XR Simulation で OK。評価は変わりません。",
+        assignment: "スマホの画面で、スキャンしたモノが出ている様子のキャプチャ（スクリーンショット）を1枚提出してください。\n\n※うまくいかなかった人は、Unity の画面のキャプチャを送ってください。スマホを使わない人はその旨をひとこと。評価は変わりません。",
         deadline: "第5回授業開始時"
       },
       {
         week: 5,
-        title: "ARのインタラクション（触れると鳴る）",
-        description: "置いたオブジェクトに触れると反応する仕組みを作る。テンプレートのドラッグ移動・ピンチ拡縮のコードを読んでタッチ入力の基本を知り、置いたオブジェクトをタップしたときに音を鳴らす処理（Physics.Raycast）を実装する。春学期の「操作 → 音」を現実の空間でやるための基本形。",
-        slides: null,
-        project: null,
-        assignment: "【必修】タップすると鳴るオブジェクト\n\n置いた MyObject をタップすると音が鳴るようにしてください。スクリプトはスライド掲載のコードをそのままコピーして使ってOKです。\n\n■ 手順\n1. C#スクリプト「TapSound」を作成し、スライドのコードをコピーする\n2. MyObject の Prefab に TapSound をアタッチする（AudioSource が付いていることを確認）\n3. Playモードで、置いた MyObject をクリックすると音が鳴ることを確認する\n\n■ 提出物\n・Game ビューのスクリーンショット1枚\n・TapSound.cs\n\n──────────────────────────────\n\n【応用課題（任意）】余力がある人だけ\n● 応用A：置いた MyObject ごとに違う音が鳴るようにする（Prefab を2種類作る、または AudioClip をランダムに選ぶ）\n● 応用B：タップしたとき、音と一緒に色が変わる・少し跳ねる など、見た目の反応もつける",
+        title: "スキャンしたモノに音をつけて動かす・タップで鳴らす",
+        slides: [
+          { label: "第5回 スキャンしたモノに音をつけて動かす・タップで鳴らす スライド", url: "slides/game2_week05.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト（game2_b：Stage3 に音、Stage4 に OrbitSound、Stage5 に SwingSound）", url: "https://github.com/MasahiroFushida/game2_b/archive/refs/heads/main.zip" },
+          { label: "ARテンプレート（game1_template_ar：タップ用の短い音 impact.wav が Assets/Audio に入っています）", url: "https://github.com/MasahiroFushida/game1_template_ar/archive/refs/heads/main.zip" }
+        ],
+        assignment: "スキャンしたモノが自分のまわりを回りながら音が鳴っている様子の画面録画（10〜30秒）を1つ提出してください。\n\n・スマホの画面収録でも、Unity の Game ビュー（XR Simulation）の画面収録でも OK（Mac は Cmd + Shift + 5、オプションでマイクをオンにすると音が入ります）\n・タップで鳴らすところまでできた人は、タップして鳴る様子も同じ録画に入れてください\n\n※動かすところまでいかなかった人は、置いたモノから音が鳴っているだけで OK。うまくいかなかった人は、止まったところの画面のキャプチャを1枚。スマホを使わない人は XR Simulation で OK。評価は変わりません。",
         deadline: "第6回授業開始時"
       },
       {

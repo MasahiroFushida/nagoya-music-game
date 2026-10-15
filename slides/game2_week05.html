@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第5回 スキャンしたモノに音をつけて動かす・タップで鳴らす</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 画像・図 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.guide.code-guide { grid-template-columns: 1.6fr 0.9fr; align-items: start; }
+.guide.code-guide .code-block { max-width: none; }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+/* コード */
+.code-block { background: #0d1b2a; border: 1px solid rgba(100,200,120,0.3); border-radius: 10px; padding: 1rem 1.4rem; font-family: "SF Mono", "Menlo", "Consolas", "Monaco", "Courier New", monospace; font-size: 0.84rem; line-height: 1.6; white-space: pre; overflow: auto; color: #e6edf3; text-align: left; max-width: 900px; width: 100%; user-select: text; -webkit-user-select: text; }
+.code-block .kw { color: #ff79c6; }
+.code-block .ty { color: #8be9fd; }
+.code-block .fn { color: #50fa7b; }
+.code-block .num { color: #ffb86c; }
+.code-block .cm { color: #8896b3; font-style: italic; }
+.code-block.small { font-size: 0.78rem; line-height: 1.5; padding: 0.8rem 1.1rem; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第5回 スキャンしたモノに音をつけて動かす・タップで鳴らす</h3>
+    <p class="muted" style="margin-top:2rem;">第4回の続き</p>
+  </div>
+
+  <!-- 2. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>前回は ④ まで。今日は ⑤ から</h2>
+    <div class="roadmap cols4">
+      <div class="rm done"><span class="ok">済</span><div class="no">①</div><strong>Scaniverse を入れる</strong></div>
+      <div class="rm done"><span class="ok">済</span><div class="no">②</div><strong>スキャンする</strong></div>
+      <div class="rm done"><span class="ok">済</span><div class="no">③</div><strong>FBX で Mac へ</strong></div>
+      <div class="rm done"><span class="ok">済</span><div class="no">④</div><strong>Unity に置く・スマホに書き出す</strong></div>
+      <div class="rm today"><div class="no">⑤</div><strong>音をつける</strong><span>AudioSource</span></div>
+      <div class="rm today"><div class="no">⑥</div><strong>動かす</strong><span>OrbitSound.cs</span></div>
+      <div class="rm opt"><span class="later">できた人から</span><div class="no">⑦</div><strong>スマホで聴く</strong><span>音つきで書き出し直す</span></div>
+      <div class="rm opt"><span class="later">できた人から</span><div class="no">⑧</div><strong>タップで鳴らす</strong><span>TapSound.cs</span></div>
+    </div>
+    <div class="flow" style="max-width:1140px; margin-top:1rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>⑤ 音が鳴る</strong></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>⑥ 音が回る</strong><span>画面録画して提出</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できた人から</span><strong>⑦ スマホ ／ ⑧ タップ</strong></div>
+    </div>
+    <p class="small-note">スマホを使わない人は仮想の部屋（XR Simulation）で OK。イヤホンがあると分かりやすい。</p>
+  </div>
+
+  <!-- 3. 前回のシーンを開く -->
+  <div class="slide theme-content">
+    <div class="tag blue">はじめに</div>
+    <h2>前回のシーンを開く</h2>
+    <div class="guide even">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Unity Hub → 自分の名前_AR_Project</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Scenes → AR Template Scene</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Hierarchy にスキャンしたモノ（例：guitarcase）</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>▶ Play で見えれば OK → ■</strong></div></div>
+      </div>
+      <svg class="fig" viewBox="0 0 760 330" role="img" aria-label="Hierarchy の簡略図。XR Origin (AR Rig) の中に Camera Offset と Main Camera、AR Session、スキャンしたモノ guitarcase、Directional Light。Main Camera は耳（Audio Listener）、guitarcase には今日 AudioSource・OrbitSound・TapSound を付ける">
+        <rect x="10" y="10" width="740" height="310" rx="12" fill="rgba(255,255,255,0.04)" stroke="#4a5877" stroke-width="2"/>
+        <text x="30" y="42" fill="#c8d6ea" font-size="18" font-weight="bold">Hierarchy</text>
+        <text x="140" y="42" fill="#8a9bbb" font-size="15">AR Template Scene</text>
+        <line x1="10" y1="56" x2="750" y2="56" stroke="#4a5877" stroke-width="1.5"/>
+        <g font-size="18">
+          <text x="30" y="96" fill="#8fe0a0" font-weight="bold">▼ XR Origin (AR Rig)</text>
+          <text x="60" y="134" fill="#c8d6ea">▼ Camera Offset</text>
+          <text x="92" y="172" fill="#8ec5ff" font-weight="bold">Main Camera</text>
+          <text x="30" y="212" fill="#8fe0a0" font-weight="bold">AR Session</text>
+          <text x="30" y="252" fill="#ffd166" font-weight="bold">guitarcase</text>
+          <text x="30" y="292" fill="#c8d6ea">Directional Light</text>
+        </g>
+        <g font-size="14" fill="#e6eefc">
+          <line x1="230" y1="167" x2="330" y2="167" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+          <text x="340" y="172">カメラ＝スマホ＝<tspan fill="#8fe0a0">耳（Audio Listener）</tspan></text>
+          <line x1="150" y1="247" x2="330" y2="247" stroke="#5b6b8c" stroke-dasharray="4 4"/>
+          <text x="340" y="244">スキャンしたモノ</text>
+          <text x="340" y="266" fill="#ffd166">今日ここに ⑤ 音 ・ ⑥ 動き ・ ⑧ タップ を足す</text>
+        </g>
+      </svg>
+    </div>
+    <div class="warn-box" style="max-width:1100px;">
+      <strong>スキャンが無い人</strong>：配布の <strong>game2_b</strong> → Scenes の <strong>Stage1</strong> → <strong>Cube</strong> で代用
+    </div>
+  </div>
+
+  <!-- 4. ⑤ AudioSource -->
+  <div class="slide theme-content">
+    <div class="tag orange">⑤ 音をつける</div>
+    <h2>スキャンしたモノに AudioSource をつける</h2>
+    <div class="guide">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Assets に Audio フォルダ → game2_b の Assets/sound の .wav を入れる</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Hierarchy でスキャンしたモノを選ぶ</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Add Component → Audio Source</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>AudioClip に音をドラッグ</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Play On Awake ✓ ／ Loop ✓</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Spatial Blend → 右端（3D）</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Linear Rolloff ／ Min Distance 1 ／ Max Distance 2</strong></div></div>
+      </div>
+      <svg class="fig" viewBox="0 0 900 470" role="img" aria-label="Audio Source コンポーネントの簡略図。AudioClip に音ファイル、Play On Awake と Loop にチェック、Spatial Blend のつまみが右端の 3D、3D Sound Settings の Volume Rolloff が Linear Rolloff、Min Distance 1、Max Distance 2">
+        <rect x="6" y="6" width="888" height="458" rx="12" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+        <path d="M6 18 a12 12 0 0 1 12 -12 h864 a12 12 0 0 1 12 12 v34 h-888 z" fill="#212a3f"/>
+        <text x="26" y="40" fill="#fff" font-size="18" font-weight="bold">▼ 🔊 Audio Source</text>
+        <g font-size="15" fill="#c8d6ea">
+          <text x="30" y="84">AudioClip</text><rect x="300" y="64" width="330" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="314" y="83" fill="#e6eefc">♪ shs_eerie_tape_65_…_loop</text>
+          <text x="30" y="122">Output</text><rect x="300" y="102" width="330" height="28" rx="5" fill="#2b3552" stroke="#4a5877"/><text x="314" y="121" fill="#8a9bbb">None (Audio Mixer Group)</text>
+          <text x="30" y="160">Mute</text><rect x="300" y="146" width="18" height="18" rx="3" fill="#2b3552" stroke="#aebbd3"/>
+          <text x="30" y="198">Play On Awake</text><rect x="300" y="184" width="18" height="18" rx="3" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="304" y="199" fill="#8fe0a0" font-size="14">✓</text>
+          <text x="30" y="236">Loop</text><rect x="300" y="222" width="18" height="18" rx="3" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="304" y="237" fill="#8fe0a0" font-size="14">✓</text>
+          <text x="30" y="274">Volume</text><line x1="300" y1="270" x2="560" y2="270" stroke="#4a5877" stroke-width="4"/><circle cx="560" cy="270" r="7" fill="#c8d6ea"/><text x="580" y="279" fill="#e6eefc">1</text>
+          <text x="30" y="312">Spatial Blend</text><line x1="300" y1="308" x2="560" y2="308" stroke="#4a5877" stroke-width="4"/><line x1="300" y1="308" x2="560" y2="308" stroke="#8fe0a0" stroke-width="4"/><circle cx="560" cy="308" r="8" fill="#8fe0a0" stroke="#fff" stroke-width="2"/><text x="300" y="330" fill="#8a9bbb" font-size="12">2D</text><text x="548" y="330" fill="#8fe0a0" font-size="12" font-weight="bold">3D</text><text x="580" y="317" fill="#e6eefc">1</text>
+          <text x="30" y="366" fill="#fff" font-weight="bold">▼ 3D Sound Settings</text>
+          <text x="50" y="398">Volume Rolloff</text><rect x="300" y="378" width="200" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="314" y="397" fill="#e6eefc">Linear Rolloff ▾</text>
+          <text x="50" y="436">Min Distance</text><rect x="300" y="416" width="80" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="340" y="435" text-anchor="middle" fill="#e6eefc">1</text>
+          <text x="420" y="436">Max Distance</text><rect x="560" y="416" width="80" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="600" y="435" text-anchor="middle" fill="#e6eefc">2</text>
+        </g>
+        <g font-size="17" font-weight="bold" text-anchor="middle" fill="#fff">
+          <circle cx="660" cy="78" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="660" y="84">4</text>
+          <circle cx="350" cy="193" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="350" y="199">5</text>
+          <circle cx="620" cy="308" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="620" y="314">6</text>
+          <circle cx="680" cy="430" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="680" y="436">7</text>
+        </g>
+      </svg>
+    </div>
+    <p class="small-note">game2_b の Stage3 の Cube と同じ設定（迷ったら見比べる）</p>
+  </div>
+
+  <!-- 5. ⑤ Play で確認 -->
+  <div class="slide theme-content">
+    <div class="tag orange">⑤ Play で確認</div>
+    <h2>近づくと大きく、離れると消える</h2>
+    <svg class="fig" viewBox="0 0 1000 370" role="img" aria-label="スキャンしたモノを中心に、半径 1m の円（この中はそのままの大きさ）と半径 2m の円（ここで聞こえなくなる）。カメラ＝耳が近づく・離れるイメージ" style="max-height:40vh;">
+      <defs>
+        <radialGradient id="snd" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(143,224,160,0.45)"/><stop offset="55%" stop-color="rgba(143,224,160,0.18)"/><stop offset="100%" stop-color="rgba(143,224,160,0)"/></radialGradient>
+      </defs>
+      <circle cx="330" cy="185" r="150" fill="url(#snd)"/>
+      <circle cx="330" cy="185" r="150" fill="none" stroke="#8fe0a0" stroke-width="2" stroke-dasharray="8 6" opacity="0.7"/>
+      <circle cx="330" cy="185" r="80" fill="none" stroke="#8fe0a0" stroke-width="2.5"/>
+      <path d="M302 200 L302 158 Q330 144 358 158 L358 200 Z" fill="#6c5b4a"/>
+      <ellipse cx="330" cy="200" rx="32" ry="9" fill="#3b4150"/>
+      <text x="330" y="22" text-anchor="middle" fill="#8fe0a0" font-size="14" opacity="0.85">Max Distance 2m（この外は聞こえない）</text>
+      <text x="330" y="94" text-anchor="middle" fill="#8fe0a0" font-size="14" font-weight="bold">Min Distance 1m</text>
+      <text x="330" y="358" text-anchor="middle" fill="#ffd166" font-size="15" font-weight="bold">スキャンしたモノ（AudioSource）</text>
+      <g transform="translate(560,170)">
+        <rect x="0" y="0" width="34" height="24" rx="4" fill="#8ec5ff"/><polygon points="34,6 52,0 52,24 34,18" fill="#8ec5ff"/>
+        <text x="26" y="48" text-anchor="middle" fill="#8ec5ff" font-size="13" font-weight="bold">カメラ＝耳</text>
+        <text x="26" y="66" text-anchor="middle" fill="#8ec5ff" font-size="12">（Audio Listener）</text>
+      </g>
+      <g fill="#8fe0a0" font-size="22"><text x="510" y="190" text-anchor="middle">⟵</text></g>
+      <g font-size="16" fill="#e6eefc">
+        <text x="660" y="120">1m まで：そのまま</text>
+        <text x="660" y="160">1〜2m：だんだん小さく</text>
+        <text x="660" y="200">2m より遠く：聞こえない</text>
+        <text x="660" y="256" fill="#8a9bbb" font-size="14">右にあれば右から聞こえる</text>
+      </g>
+    </svg>
+    <div class="steps wide" style="max-width:1000px; margin-top:0.8rem;">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><strong>▶ Play → 目の前にモノが出て、音が鳴る</strong></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><strong>矢印キーで前後に動く → 音が大きく・小さく</strong></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><strong>■ で止めて Cmd + S　← ここまでが最小ライン</strong></div></div>
+    </div>
+  </div>
+
+  <!-- 6. ⑥ OrbitSound.cs -->
+  <div class="slide theme-content">
+    <div class="tag orange">⑥ 動かす</div>
+    <h2>OrbitSound.cs ― モノを動かすと、音も動く</h2>
+    <p class="lead" style="margin-bottom:0.6rem;">音の位置 ＝ GameObject の位置。<code>transform.position</code> を動かせば、音も一緒に動く。</p>
+    <pre class="code-block"><span class="kw">using</span> UnityEngine;
+
+<span class="cm">// 自分のまわりを、半径 1m の円でゆっくり回す</span>
+<span class="kw">public class</span> <span class="ty">OrbitSound</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public float</span> radius = <span class="num">1.0f</span>;   <span class="cm">// 円の半径（m）</span>
+    <span class="kw">public float</span> speed  = <span class="num">30f</span>;    <span class="cm">// 1秒に進む角度（度）</span>
+    <span class="kw">public float</span> height = <span class="num">0f</span>;     <span class="cm">// 耳の高さからの上下（m）</span>
+
+    <span class="kw">float</span> angle = <span class="num">0f</span>;
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        angle += speed * <span class="ty">Time</span>.deltaTime;                        <span class="cm">// 角度を進める</span>
+        <span class="kw">float</span> rad = angle * <span class="ty">Mathf</span>.Deg2Rad;                      <span class="cm">// 度 → ラジアン</span>
+        <span class="kw">float</span> y = <span class="ty">Camera</span>.main.transform.position.y + height;    <span class="cm">// カメラ（耳）の高さ</span>
+        transform.position = <span class="kw">new</span> <span class="ty">Vector3</span>(<span class="ty">Mathf</span>.<span class="fn">Cos</span>(rad) * radius, y, <span class="ty">Mathf</span>.<span class="fn">Sin</span>(rad) * radius);
+    }
+}</pre>
+  </div>
+
+  <!-- 7. ⑥ 付けて Play -->
+  <div class="slide theme-content">
+    <div class="tag orange">⑥ 付けて Play</div>
+    <h2>スキャンしたモノに付ける</h2>
+    <div class="guide">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Assets を右クリック → Create → C# Script → <code>OrbitSound</code></strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>前のスライドのコードを貼る → Cmd + S</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>スキャンしたモノに OrbitSound をドラッグ</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>▶ Play → モノが自分のまわりを回る。音も回る</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Radius ・ Speed ・ Height を変えてみる</strong></div></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 520 470" role="img" aria-label="上から見た図。中央に自分（カメラ＝耳）、そのまわりを半径 1m の円に沿ってスキャンしたモノが回り、音も 右・前・左・後ろ と回る" style="max-height:40vh;">
+          <defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8fe0a0"/></marker></defs>
+          <circle cx="260" cy="245" r="160" fill="rgba(143,224,160,0.06)" stroke="#8fe0a0" stroke-width="2" stroke-dasharray="8 6" opacity="0.8"/>
+          <path d="M 410 300 A 160 160 0 0 0 205 95" fill="none" stroke="#8fe0a0" stroke-width="3" marker-end="url(#arr)"/>
+          <g font-size="15" font-weight="bold" fill="#c8d6ea" text-anchor="middle">
+            <text x="260" y="62">前</text><text x="447" y="250">右</text><text x="260" y="440">後ろ</text><text x="73" y="250">左</text>
+          </g>
+          <line x1="260" y1="245" x2="373" y2="132" stroke="#8fe0a0" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.7"/>
+          <text x="298" y="200" fill="#8fe0a0" font-size="13">半径 1m</text>
+          <circle cx="260" cy="245" r="26" fill="#8ec5ff"/>
+          <circle cx="236" cy="245" r="7" fill="#8ec5ff"/><circle cx="284" cy="245" r="7" fill="#8ec5ff"/>
+          <polygon points="250,222 270,222 260,206" fill="#8ec5ff"/>
+          <text x="260" y="294" text-anchor="middle" fill="#8ec5ff" font-size="13" font-weight="bold">自分（カメラ＝耳）</text>
+          <path d="M353 148 L353 118 Q373 108 393 118 L393 148 Z" fill="#6c5b4a"/>
+          <ellipse cx="373" cy="148" rx="22" ry="7" fill="#3b4150"/>
+          <text x="402" y="112" fill="#ffd166" font-size="13" font-weight="bold">スキャンしたモノ</text>
+          <text x="402" y="130" fill="#ffd166" font-size="13" font-weight="bold">＋ AudioSource</text>
+          <text x="404" y="166" fill="#8fe0a0" font-size="18">♪</text><text x="422" y="188" fill="#8fe0a0" font-size="14">♪</text>
+        </svg>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem;">
+          <p><strong>ここまでが今日のゴール。</strong>画面録画（Cmd + Shift + 5）して提出 ＝ 今日の課題</p>
+        </div>
+        <div class="warn-box" style="margin-top:0.6rem;">
+          回って聞こえない → Spatial Blend が 3D か確認
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. ⑦ スマホで聴く -->
+  <div class="slide theme-content">
+    <div class="tag purple">⑦ スマホで聴く（できた人から）</div>
+    <h2>前回と同じ手順で、音つきで書き出し直す</h2>
+    <div class="two-col" style="max-width:1000px;">
+      <div class="col-card">
+        <h3>iPhone</h3>
+        <ul>
+          <li>Build → 前回の App フォルダ → <strong>Replace</strong></li>
+          <li>Xcode → Signing &amp; Capabilities → <strong>Team を選び直す</strong> → ▶</li>
+          <li>サイレントスイッチをオフ・音量を上げる</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>Android</h3>
+        <ul>
+          <li>USB でつなぐ → <strong>Build And Run</strong></li>
+          <li>メディアの音量を上げる</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small-note">アプリを起動した場所を中心に回る。音のする方へ振り向いてみる。</p>
+  </div>
+
+  <!-- 9. ⑧ タップのしくみ -->
+  <div class="slide theme-content">
+    <div class="tag purple">⑧ タップで鳴らす（できた人から）</div>
+    <h2>タップした点から線を飛ばす ― Raycast</h2>
+    <svg class="fig" viewBox="0 0 1000 390" role="img" aria-label="横から見た図。左のカメラから、スマホの画面のタップした点を通って、奥へ見えない線（Ray）がのびる。線はスキャンしたモノを囲む Collider の箱に当たり、音が鳴る。下のもう1本の線は何にも当たらず、何も起きない" style="max-height:48vh;">
+      <rect x="200" y="62" width="120" height="280" rx="18" fill="rgba(255,255,255,0.04)" stroke="#4a5877" stroke-width="2"/>
+      <text x="260" y="364" text-anchor="middle" fill="#c8d6ea" font-size="14">スマホの画面</text>
+      <g transform="translate(40,195)">
+        <rect x="0" y="0" width="34" height="24" rx="4" fill="#8ec5ff"/><polygon points="34,6 52,0 52,24 34,18" fill="#8ec5ff"/>
+      </g>
+      <text x="66" y="250" text-anchor="middle" fill="#8ec5ff" font-size="13" font-weight="bold">カメラ</text>
+      <line x1="92" y1="207" x2="490" y2="380" stroke="#8a9bbb" stroke-width="2" stroke-dasharray="6 5"/>
+      <circle cx="260" cy="280" r="6" fill="#8a9bbb"/>
+      <text x="520" y="372" fill="#8a9bbb" font-size="14">当たらない → 何もしない</text>
+      <line x1="92" y1="207" x2="640" y2="184" stroke="#8fe0a0" stroke-width="3"/>
+      <circle cx="260" cy="200" r="16" fill="none" stroke="#ffd166" stroke-width="2" opacity="0.6"/>
+      <circle cx="260" cy="200" r="7" fill="#ffd166"/>
+      <text x="260" y="48" text-anchor="middle" fill="#ffd166" font-size="15" font-weight="bold">① タップした点</text>
+      <line x1="260" y1="56" x2="260" y2="184" stroke="#ffd166" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
+      <text x="450" y="176" text-anchor="middle" fill="#8fe0a0" font-size="15" font-weight="bold">② 奥へのびる線（Ray）</text>
+      <rect x="640" y="110" width="150" height="170" fill="rgba(143,224,160,0.06)" stroke="#8fe0a0" stroke-width="2" stroke-dasharray="7 5"/>
+      <path d="M680 255 L680 178 Q715 158 750 178 L750 255 Z" fill="#6c5b4a"/>
+      <ellipse cx="715" cy="255" rx="35" ry="9" fill="#3b4150"/>
+      <text x="715" y="98" text-anchor="middle" fill="#8fe0a0" font-size="14">Collider（当たり判定の箱）</text>
+      <circle cx="640" cy="184" r="9" fill="#ffd166" stroke="#fff" stroke-width="2"/>
+      <text x="808" y="160" fill="#8fe0a0" font-size="24">♪</text><text x="832" y="190" fill="#8fe0a0" font-size="18">♪</text>
+      <text x="715" y="312" text-anchor="middle" fill="#e6eefc" font-size="15" font-weight="bold">③ 当たったら → 鳴らす</text>
+    </svg>
+    <div class="two-col" style="max-width:1000px; margin-top:0.6rem;">
+      <div class="col-card"><p>線は見た目ではなく <strong>Collider</strong> に当たる → スキャンしたモノに Collider を付ける</p></div>
+      <div class="col-card"><p>スマホは<strong>タップ</strong>、Mac は<strong>クリック</strong>。同じコードで動く</p></div>
+    </div>
+  </div>
+
+  <!-- 10. ⑧ TapSound.cs -->
+  <div class="slide theme-content">
+    <div class="tag purple">⑧ スクリプト</div>
+    <h2>TapSound.cs ― タップしたら 1回鳴らす</h2>
+    <div class="guide code-guide">
+    <pre class="code-block small"><span class="kw">using</span> UnityEngine;
+<span class="kw">using</span> UnityEngine.InputSystem;   <span class="cm">// 新しい Input System</span>
+
+<span class="cm">// タップ（Mac ではクリック）すると、音を1回鳴らす</span>
+<span class="kw">public class</span> <span class="ty">TapSound</span> : <span class="ty">MonoBehaviour</span>
+{
+    <span class="kw">public</span> <span class="ty">AudioClip</span> tapClip;          <span class="cm">// タップで鳴らす短い音</span>
+    <span class="kw">private</span> <span class="ty">AudioSource</span> audioSource;
+
+    <span class="kw">void</span> <span class="fn">Start</span>()
+    {
+        audioSource = <span class="fn">GetComponent</span>&lt;<span class="ty">AudioSource</span>&gt;();
+    }
+
+    <span class="kw">void</span> <span class="fn">Update</span>()
+    {
+        <span class="cm">// 画面を押した瞬間</span>
+        <span class="kw">if</span> (<span class="ty">Pointer</span>.current.press.wasPressedThisFrame)
+        {
+            <span class="cm">// 押した点から、奥へ線（Ray）を飛ばす</span>
+            <span class="ty">Vector2</span> point = <span class="ty">Pointer</span>.current.position.<span class="fn">ReadValue</span>();
+            <span class="ty">Ray</span> ray = <span class="ty">Camera</span>.main.<span class="fn">ScreenPointToRay</span>(point);
+
+            <span class="cm">// 線が当たったのが、このモノなら</span>
+            <span class="kw">if</span> (<span class="ty">Physics</span>.<span class="fn">Raycast</span>(ray, <span class="kw">out</span> <span class="ty">RaycastHit</span> hit) &amp;&amp; hit.transform.<span class="fn">IsChildOf</span>(transform))
+            {
+                audioSource.<span class="fn">PlayOneShot</span>(tapClip);   <span class="cm">// 1回鳴らす</span>
+            }
+        }
+    }
+}</pre>
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong><code>Pointer.current.press</code></strong>押した瞬間（タップもクリックも）</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong><code>ScreenPointToRay</code> → <code>Raycast</code></strong>線を飛ばして、当たったか</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong><code>IsChildOf(transform)</code></strong>当たったのが自分か</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong><code>PlayOneShot(tapClip)</code></strong>1回鳴らす（ループは止めない）</div></div>
+        </div>
+        <div class="warn-box" style="margin-top:0.7rem; font-size:0.9rem;">
+          春学期の <code>Input.GetKeyDown</code> は、このプロジェクトでは使えない
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. ⑧ 付けて Play -->
+  <div class="slide theme-content">
+    <div class="tag purple">⑧ 付けて Play</div>
+    <h2>Collider と短い音をつけて、クリックする</h2>
+    <div class="guide">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>スキャンしたモノに Add Component → Box Collider</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>impact.wav を Audio フォルダに入れる</strong>第1回の AR テンプレートの Assets/Audio にある</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Create → C# Script → <code>TapSound</code> → コードを貼る → Cmd + S</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>スキャンしたモノに TapSound をドラッグ → Tap Clip に impact</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>▶ Play → モノをクリック →「コツン」</strong></div></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 520 330" role="img" aria-label="スキャンしたモノの Inspector の簡略図。上から Transform、Mesh Renderer など、Audio Source（⑤）、Orbit Sound（⑥）、Box Collider（⑧）、Tap Sound（⑧）。Tap Sound の Tap Clip は impact" style="max-height:42vh;">
+          <rect x="4" y="4" width="512" height="322" rx="10" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+          <path d="M4 14 a10 10 0 0 1 10 -10 h492 a10 10 0 0 1 10 10 v28 h-512 z" fill="#212a3f"/>
+          <text x="20" y="32" fill="#fff" font-size="16" font-weight="bold">Inspector　<tspan fill="#ffd166">guitarcase</tspan></text>
+          <g font-size="15">
+            <text x="22" y="72" fill="#8a9bbb">▶ Transform</text>
+            <text x="22" y="104" fill="#8a9bbb">▶ Mesh Renderer など</text>
+            <text x="22" y="136" fill="#e6eefc">▶ 🔊 Audio Source</text>
+            <text x="22" y="168" fill="#e6eefc">▶ # Orbit Sound (Script)</text>
+            <rect x="12" y="180" width="496" height="28" rx="5" fill="rgba(180,130,255,0.14)" stroke="#b482ff" stroke-width="1.5"/>
+            <text x="22" y="200" fill="#fff" font-weight="bold">▶ Box Collider</text>
+            <rect x="12" y="214" width="496" height="70" rx="5" fill="rgba(180,130,255,0.14)" stroke="#b482ff" stroke-width="1.5"/>
+            <text x="22" y="234" fill="#fff" font-weight="bold">▼ # Tap Sound (Script)</text>
+            <text x="44" y="268" fill="#c8d6ea" font-size="14">Tap Clip</text>
+            <rect x="160" y="252" width="200" height="24" rx="4" fill="#2b3552" stroke="#8fe0a0" stroke-width="1.5"/>
+            <text x="172" y="269" fill="#e6eefc" font-size="14">♪ impact</text>
+          </g>
+          <g font-size="13" font-weight="bold" text-anchor="middle">
+            <rect x="436" y="120" width="64" height="22" rx="11" fill="rgba(46,125,50,0.5)" stroke="#8fe0a0"/><text x="468" y="136" fill="#fff">⑤ 音</text>
+            <rect x="436" y="152" width="64" height="22" rx="11" fill="rgba(46,125,50,0.5)" stroke="#8fe0a0"/><text x="468" y="168" fill="#fff">⑥ 動き</text>
+            <rect x="436" y="183" width="64" height="22" rx="11" fill="rgba(100,50,150,0.6)" stroke="#b482ff"/><text x="468" y="199" fill="#fff">⑧</text>
+            <rect x="436" y="218" width="64" height="22" rx="11" fill="rgba(100,50,150,0.6)" stroke="#b482ff"/><text x="468" y="234" fill="#fff">⑧</text>
+          </g>
+          <rect x="170" y="294" width="180" height="24" rx="5" fill="#2b3552" stroke="#4a5877"/>
+          <text x="260" y="311" text-anchor="middle" fill="#c8d6ea" font-size="13">Add Component</text>
+        </svg>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem;">
+          <p><strong>置く → 音 → 動く → 触れると鳴る</strong>　＝ 総合制作の最小ライン</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <table class="key-table wrap" style="max-width:1000px;">
+      <tr><td class="k">音が鳴らない</td><td>AudioClip が空／Play On Awake が外れている／Mac の音量／2m より遠い</td></tr>
+      <tr><td class="k">音が回らない</td><td>Spatial Blend を 3D（右端）に</td></tr>
+      <tr><td class="k">Console に赤いエラー</td><td>ファイル名とクラス名が違う／貼り付けもれ</td></tr>
+      <tr><td class="k">UnityEngine.Input … のエラー</td><td><code>Input.GetKeyDown</code> は使えない → <code>Pointer.current</code></td></tr>
+      <tr><td class="k">クリックしても鳴らない</td><td>Collider が無い／Tap Clip が空／2m より遠い</td></tr>
+      <tr><td class="k">スマホで音が出ない</td><td>サイレントスイッチ・音量</td></tr>
+      <tr><td class="k">Xcode の署名エラー</td><td>Team を選び直す</td></tr>
+    </table>
+  </div>
+
+  <!-- 13. 発展（任意） -->
+  <div class="slide theme-content">
+    <div class="tag green">発展（任意）</div>
+    <h2>余裕があったら</h2>
+    <div class="roadmap">
+      <div class="rm opt"><div class="no">A</div><strong>そのモノの音</strong><span>実際に叩いた音を録って Tap Clip に</span></div>
+      <div class="rm opt"><div class="no">B</div><strong>タップで鳴り始める</strong><span>Play On Awake を外し、<code>Play()</code> に</span></div>
+      <div class="rm opt"><div class="no">C</div><strong>往復・ドップラー</strong><span>SwingSound（game2_b の Stage5）</span></div>
+      <div class="rm opt"><div class="no">D</div><strong>2つ以上置く</strong><span>別のモノに別の音</span></div>
+      <div class="rm opt"><div class="no">E</div><strong>その場所だけの音</strong><span>Max Distance を小さく</span></div>
+      <div class="rm opt"><div class="no">F</div><strong>スマホで歩く</strong><span>歩きながら・振り向きながら聴く</span></div>
+    </div>
+  </div>
+
+  <!-- 14. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第5回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:960px;">
+      <li>⑤ AudioSource：<strong>Spatial Blend 3D</strong>・Min 1 ／ Max 2</li>
+      <li>⑥ 音の位置 ＝ GameObject の位置。OrbitSound で回す</li>
+      <li>⑦ 同じ手順で書き出し直す（iPhone は Team を選び直す）</li>
+      <li>⑧ タップ → Ray → Collider に当たったら <code>PlayOneShot</code></li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>次回：第6回 <strong>Blender入門</strong>（Blender は授業内でインストール）。今日のプロジェクトと .fbx は第10回で使うので消さない。</p>
+    </div>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 14</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>
