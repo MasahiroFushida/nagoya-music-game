@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第6回 Blender入門</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.col-card .ver { display: block; font-size: 1.5rem; font-weight: bold; margin: 0.2rem 0 0.4rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.key-table.compact th, .key-table.compact td { padding: 0.42rem 0.9rem; font-size: 0.92rem; }
+.key-table.both th, .key-table.both td { padding: 0.3rem 0.7rem; font-size: 0.86rem; }
+.key-table.both td.k { white-space: normal; min-width: 11rem; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 画像・図 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.shot-img { width: 100%; height: auto; max-height: 58vh; object-fit: contain; object-position: top; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.layout-wrap { position: relative; display: inline-block; margin-top: 0.2rem; }
+.layout-wrap img { display: block; max-width: 100%; max-height: 64vh; width: auto; height: auto; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.abox { position: absolute; border: 2px solid #8fe0a0; border-radius: 4px; pointer-events: none; }
+.abox.y { border-color: #ffd166; }
+.abox.p { border-color: #b482ff; }
+.albl { position: absolute; background: rgba(13,27,42,0.92); color: #fff; font-size: 0.82rem; font-weight: bold; padding: 0.18rem 0.6rem; border-radius: 12px; border: 1px solid rgba(143,224,160,0.8); white-space: nowrap; line-height: 1.4; }
+.albl.y { border-color: #ffd166; }
+.albl.p { border-color: #b482ff; }
+.video-one { width: 100%; max-width: min(1000px, calc((100vh - 19rem) * 1.7778)); margin-top: 0.3rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.slide p.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.55rem; opacity: 0.9; max-width: 1000px; }
+.soft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem 0.6rem; width: 100%; max-width: 1260px; margin-top: 0.4rem; }
+.soft.wide2 { grid-column: span 2; }
+.soft.wide2 img { aspect-ratio: 32 / 9; }
+.soft-grid.cols3 { grid-template-columns: repeat(3, 1fr); }
+.task { display: flex; gap: 0.8rem; align-items: center; background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.7rem; }
+.task img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+.task p { font-size: 0.95rem; line-height: 1.55; max-width: none; }
+.soft { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.45rem 0.45rem 0.5rem; }
+.soft.now { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.6); }
+.soft img { width: 100%; aspect-ratio: 16 / 9; max-height: 19vh; object-fit: cover; object-position: top; border-radius: 5px; display: block; background: #000; }
+.soft strong { display: block; font-size: 0.95rem; margin: 0.3rem 0 0.05rem; }
+.soft a { color: #8fe0a0; text-decoration: none; }
+.soft.vj img, .soft.vj svg { width: 100%; aspect-ratio: 16 / 9; max-height: 27vh; object-fit: cover; object-position: center; border-radius: 5px; display: block; background: #000; }
+.soft.vj strong { font-size: 1.05rem; }
+.soft.vj span { font-size: 0.86rem; }
+.soft .meta { margin-top: 0.3rem; font-size: 0.78rem; color: #cdb2ff; opacity: 1; }
+.col-card a { color: #8fe0a0; }
+.soft a:hover { text-decoration: underline; }
+.soft span { display: block; font-size: 0.8rem; opacity: 0.8; line-height: 1.35; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; width: 100%; }
+.grid2 figure { margin: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.25rem; }
+.grid2 img { width: 100%; height: auto; max-height: 20vh; object-fit: cover; display: block; border-radius: 4px; }
+.grid2 figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.2rem; opacity: 0.9; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; align-items: start; }
+.pair img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.key-table img.inl { width: 52px; height: 52px; vertical-align: middle; margin-right: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.roadmap.cols5 { grid-template-columns: repeat(5, 1fr); max-width: 1200px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4, .roadmap.cols5 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第6回 Blender入門</h3>
+    <p class="muted" style="margin-top:2rem;">インストール・画面・視点・G／R／S・保存</p>
+  </div>
+
+  <!-- 2. 3DCG とは -->
+  <div class="slide theme-content">
+    <div class="tag blue">3DCG とは</div>
+    <h2>コンピューターの中に、立体の空間を作る</h2>
+    <div class="guide" style="grid-template-columns: 1.1fr 1fr; align-items: start; max-width: 1240px;">
+      <div>
+        <img class="shot-img" src="../img/game2/week06_dogwalk.jpg" alt="Blender Studio の作品「DOGWALK」。雪原で眠る大きな犬、雪だるま、赤い帽子の子ども" style="max-height:40vh; object-fit:cover; border-radius:8px;">
+        <p class="video-cap" style="margin-top:0.35rem;">Blender で作られた作品「DOGWALK」（Blender Studio、CC-BY）。雪も犬も雪だるまも、コンピューターの中の立体</p>
+      </div>
+      <div class="grid2">
+        <figure><img src="../img/game2/week06_stage_wire.jpg" alt="雪だるまのワイヤーフレーム表示。点と線で形ができている" style="max-height:17vh;"><figcaption>① 形を作る（モデリング）</figcaption></figure>
+        <figure><img src="../img/game2/week06_stage_mat.jpg" alt="色をつけた雪だるま。白い体に赤い帽子" style="max-height:17vh;"><figcaption>② 色・質感（マテリアル）</figcaption></figure>
+        <figure><img src="../img/game2/week06_stage_light.jpg" alt="雪だるまのまわりにカメラとライトを置いた 3D ビュー" style="max-height:17vh;"><figcaption>③ 光とカメラを置く</figcaption></figure>
+        <figure><img src="../img/game2/week06_stage_render.jpg" alt="レンダリングした雪だるま。影と光の当たり方がある 1 枚の絵" style="max-height:17vh;"><figcaption>④ 絵にする（レンダリング）</figcaption></figure>
+      </div>
+    </div>
+    <div class="two-col" style="max-width:1240px; margin-top:0.6rem;">
+      <div class="col-card"><p><strong>使われている場所：</strong>映画・アニメ・ゲーム・AR／VR・製品デザイン・建築・MV／ライブ映像</p></div>
+      <div class="col-card"><p><strong>この授業：</strong>Blender で ①② を作り、Unity の AR で現実の空間に置く（光とカメラは現実のまま）</p></div>
+    </div>
+  </div>
+
+  <!-- 3. 3DCG のソフト -->
+  <div class="slide theme-content">
+    <div class="tag blue">3DCG のソフト</div>
+    <h2>いろいろなソフトがある ― この授業は Blender</h2>
+    <div class="soft-grid">
+      <div class="soft"><img src="../img/game2/week06_soft_maya.jpg" alt="Maya の画面。コートを着た女性のキャラクターを編集している"><strong><a href="https://www.autodesk.com/jp/products/maya/overview" target="_blank" rel="noopener">Maya ↗</a></strong><span>映画・アニメ</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_3dsmax.jpg" alt="3ds Max の画面。一眼レフカメラのモデル"><strong><a href="https://www.autodesk.com/jp/products/3ds-max/overview" target="_blank" rel="noopener">3ds Max ↗</a></strong><span>ゲーム・建築ビジュアル</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_fusion.jpg" alt="Fusion 360 の画面。赤白のボールを設計している"><strong><a href="https://www.autodesk.com/jp/products/fusion-360/overview" target="_blank" rel="noopener">Fusion 360 ↗</a></strong><span>製品設計（CAD）</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_autocad.jpg" alt="AutoCAD の画面。建物の 3D 図面"><strong><a href="https://www.autodesk.com/jp/products/autocad/overview" target="_blank" rel="noopener">AutoCAD ↗</a></strong><span>建築・図面</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_zbrush.jpg" alt="ZBrushCoreMini の画面。粘土のように彫った角のある顔"><strong><a href="https://www.maxon.net/ja/zbrush" target="_blank" rel="noopener">ZBrush ↗</a></strong><span>粘土をこねるように造形（スカルプト）</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_houdini.jpg" alt="Houdini の画面。キャラクターとノードのつながり"><strong><a href="https://www.sidefx.com/ja/products/houdini/" target="_blank" rel="noopener">Houdini ↗</a></strong><span>映画の VFX・爆発や水のシミュレーション</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_c4d.jpg" alt="Cinema 4D で作られた、色とりどりのアーチ状の作品"><strong><a href="https://www.maxon.net/ja/cinema-4d" target="_blank" rel="noopener">Cinema 4D ↗</a></strong><span>MV・モーショングラフィックス・広告</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_rhino.jpg" alt="Rhinoceros の画面。4 つの視点で曲線を押し出している"><strong><a href="https://www.rhino3d.com/jp/" target="_blank" rel="noopener">Rhinoceros ↗</a></strong><span>製品・建築・ジュエリー（曲面の設計）</span></div>
+      <div class="soft"><img src="../img/game2/week06_soft_tinkercad.jpg" alt="Tinkercad の画面。ブラウザ上で円柱と球を組み合わせて指輪を作っている"><strong><a href="https://www.tinkercad.com/" target="_blank" rel="noopener">Tinkercad ↗</a></strong><span>ブラウザで動く入門用（無料・小中学生でも）</span></div>
+      <div class="soft now"><img src="../img/game2/week06_snowman_color.jpg" alt="Blender の画面。色をつけた雪だるま"><strong><a href="https://www.blender.org/" target="_blank" rel="noopener">Blender ← この授業 ↗</a></strong><span>モデリングからアニメ・動画編集まで 1 本で。無料</span></div>
+    </div>
+    <p class="small-note" style="margin-top:0.4rem;">画像：Maya・3ds Max・AutoCAD は Autodesk 公式動画より（Autodesk screen shots reprinted courtesy of Autodesk, Inc.）／ Fusion 360・ZBrushCoreMini・Cinema 4D・Tinkercad は Wikimedia Commons（CC BY-SA 4.0）／ Houdini（CC0）・Rhinoceros（CC BY 4.0）も Wikimedia Commons ／ Blender は授業の画面</p>
+  </div>
+
+  <!-- 4. Blender と音楽：VJ・ライブ映像 -->
+  <div class="slide theme-content">
+    <div class="tag purple">Blender と音楽</div>
+    <h2>VJ・ライブ映像でも、Blender で作った素材が使われている</h2>
+    <div class="guide" style="grid-template-columns: 1.05fr 1fr; align-items: start; max-width: 1240px;">
+      <div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/eTGCBiaZwPU" title="Audio Visualizer using Geometry Nodes in Blender" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+        <p class="video-cap">Kaizen「Audio Visualizer using Geometry Nodes in Blender」― 音に反応して動く映像を Blender で作る</p>
+      </div>
+      <div>
+        <div class="col-card" style="margin-bottom:0.6rem;"><h3>しくみ</h3><p>Blender で数秒の<strong>ループ映像</strong>を書き出す → VJ ソフト（Resolume・VDMX・TouchDesigner ＝ 次のページ）で、音に合わせて切り替え・重ねる</p></div>
+        <div class="col-card" style="margin-bottom:0.6rem;"><h3>事例</h3><ul><li><strong>Ducky 3D</strong>（Nathan Duck）：Blender のループ映像でコンサート用ビジュアルを制作</li><li>Blender 製の VJ ループ素材（Resolume 用）が販売・無料配布されている</li><li>Blender Conference 2025：夜は会場がクラブになり VJ／DJ セット</li></ul></div>
+        <div class="col-card"><h3>音に反応させる</h3><p>音の波形をキーフレームに焼き込む（サウンドをベイク）→ 大きさや Geometry Nodes を音で動かす。リアルタイムは TouchDesigner に素材を渡す</p></div>
+      </div>
+    </div>
+    <p class="small-note">検索ワード：Blender VJ loop ／ Blender audio reactive ／ Blender TouchDesigner ／ 日本語なら「Blender Infinite Loop VJ」</p>
+  </div>
+
+  <!-- 5. VJ ソフト -->
+  <div class="slide theme-content">
+    <div class="tag purple">Blender と音楽</div>
+    <h2>VJ ソフト ― Blender の映像を、音に合わせて流す</h2>
+    <div class="soft-grid cols3" style="max-width:1240px; gap:0.8rem 1rem;">
+      <div class="soft vj">
+        <svg viewBox="0 0 480 270" role="img" aria-label="TouchDesigner のしくみの図。音の入力から音の大きさを取り出し、Blender の映像の明るさを変えて合成し、スクリーンへ出す">
+          <rect width="480" height="270" fill="#1d2027"/>
+          <g fill="#2a2f3a"><circle cx="40" cy="30" r="1.5"/><circle cx="440" cy="30" r="1.5"/><circle cx="40" cy="240" r="1.5"/><circle cx="440" cy="240" r="1.5"/></g>
+          <g fill="none" stroke-width="3">
+            <path d="M126 70 C 150 70, 156 70, 178 70" stroke="#6fcf73"/>
+            <path d="M140 172 C 160 172, 160 172, 178 172" stroke="#b39af0"/>
+            <path d="M272 172 C 284 172, 286 172, 298 172" stroke="#b39af0"/>
+            <path d="M378 172 C 388 172, 390 172, 398 172" stroke="#b39af0"/>
+            <path d="M232 92 C 232 120, 228 128, 226 150" stroke="#6fcf73" stroke-dasharray="6 5"/>
+          </g>
+          <g font-family="Hiragino Kaku Gothic ProN, sans-serif" text-anchor="middle">
+            <rect x="18" y="48" width="108" height="44" rx="6" fill="#2e5d34" stroke="#6fcf73" stroke-width="2"/>
+            <text x="72" y="70" fill="#fff" font-size="15" font-weight="bold">音の入力</text><text x="72" y="86" fill="#b9d8bb" font-size="10">Audio Device In</text>
+            <rect x="178" y="48" width="108" height="44" rx="6" fill="#2e5d34" stroke="#6fcf73" stroke-width="2"/>
+            <text x="232" y="70" fill="#fff" font-size="15" font-weight="bold">音の大きさ</text><text x="232" y="86" fill="#b9d8bb" font-size="10">Analyze</text>
+            <rect x="18" y="150" width="122" height="44" rx="6" fill="#463a6e" stroke="#b39af0" stroke-width="2"/>
+            <text x="79" y="172" fill="#fff" font-size="14" font-weight="bold">Blender の映像</text><text x="79" y="188" fill="#d6ccf4" font-size="10">Movie File In</text>
+            <rect x="178" y="150" width="94" height="44" rx="6" fill="#463a6e" stroke="#b39af0" stroke-width="2"/>
+            <text x="225" y="172" fill="#fff" font-size="15" font-weight="bold">明るさ</text><text x="225" y="188" fill="#d6ccf4" font-size="10">Level</text>
+            <rect x="298" y="150" width="80" height="44" rx="6" fill="#463a6e" stroke="#b39af0" stroke-width="2"/>
+            <text x="338" y="172" fill="#fff" font-size="15" font-weight="bold">合成</text><text x="338" y="188" fill="#d6ccf4" font-size="10">Composite</text>
+            <rect x="398" y="150" width="66" height="44" rx="6" fill="#5a4a1e" stroke="#ffd166" stroke-width="2"/>
+            <text x="431" y="176" fill="#fff" font-size="14" font-weight="bold">出力</text>
+            <text x="306" y="124" fill="#9fdca2" font-size="12">音で明るさを動かす</text>
+            <text x="240" y="236" fill="#9aa4b8" font-size="12">ノードをつないで作る（イメージ図）</text>
+          </g>
+        </svg>
+        <strong><a href="https://derivative.ca/" target="_blank" rel="noopener">TouchDesigner ↗</a></strong>
+        <span>ノードをつないで、映像・音・センサーをリアルタイムに処理。インスタレーションやライブ演出に</span>
+        <span class="meta">Mac／Windows ・ 無料版あり（非商用・1280×1280 まで）</span>
+      </div>
+      <div class="soft vj">
+        <img src="../img/game2/week06_vj_vdmx.jpg" alt="ライブ中のノートパソコンに表示された VDMX の画面。いくつものパネルとループ映像のサムネイルが並ぶ">
+        <strong><a href="https://vidvox.net/" target="_blank" rel="noopener">VDMX ↗</a></strong>
+        <span>画面を自由にレイアウトして、ループ映像の切り替えやエフェクトを操作</span>
+        <span class="meta">Mac 専用 ・ 体験版あり（保存以外はすべて使える）</span>
+      </div>
+      <div class="soft vj">
+        <img src="../img/game2/week06_vj_resolume.jpg" alt="ライブ会場で Resolume を表示したモニター。映像クリップのサムネイルが格子状に並ぶ">
+        <strong><a href="https://resolume.com/" target="_blank" rel="noopener">Resolume ↗</a></strong>
+        <span>クリップを並べて、押すだけで切り替え。Avenue＝VJ、Arena＝プロジェクションマッピングも</span>
+        <span class="meta">Mac／Windows ・ 体験版あり（ロゴとロボット音声が入る）</span>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1240px; margin-top:0.8rem;">
+      <p><strong>流れ：</strong>Blender で数秒のループ映像を書き出す → VJ ソフトに読み込む → 音や MIDI コントローラーで切り替える</p>
+    </div>
+    <p class="small-note">写真：Wikimedia Commons（Nonintia、CC BY-SA 3.0）／ TouchDesigner は説明用の図</p>
+  </div>
+
+  <!-- 6. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>Blender で、AR に置く「モノ」を作る</h2>
+    <div class="roadmap cols5">
+      <div class="rm today"><div class="no">第6回</div><strong>Blender入門</strong><span>インストール・視点・G／R／S</span></div>
+      <div class="rm"><div class="no">第7回</div><strong>編集モード</strong><span>削る・伸ばす</span></div>
+      <div class="rm"><div class="no">第8回</div><strong>モディファイア・色</strong><span>左右対称・マテリアル。Blender はここまで</span></div>
+      <div class="rm opt"><div class="no">第9回</div><strong>Unity へ</strong><span>FBX で書き出して取り込む</span></div>
+      <div class="rm opt"><div class="no">第10回</div><strong>AR に置く</strong><span>タップで鳴る</span></div>
+    </div>
+    <div class="flow" style="max-width:1200px; margin-top:1.2rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>立方体を動かして保存</strong></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>プリミティブで動物を 1 体作る</strong><span>スクショを提出</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できた人から</span><strong>色をつける</strong></div>
+    </div>
+    <p class="small-note">今日の画面は Blender 5.2 LTS・日本語表示</p>
+  </div>
+
+  <!-- 7. 動画で見る -->
+  <div class="slide theme-content">
+    <div class="tag green">動画で見る</div>
+    <h2>Blender の使い方・簡単なモデリング</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/KxAMC-PRBOU" title="【これから始める】【blender初心者】Blenderの使い方・簡単なモデリングの解説／blender2.92" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+    <p class="video-cap">M design「【これから始める】【blender初心者】Blenderの使い方・簡単なモデリングの解説」（Blender 2.92 の画面。見た目は少し違うが操作は同じ）</p>
+  </div>
+
+  <!-- 8. ① インストール -->
+  <div class="slide theme-content">
+    <div class="tag blue">① インストール</div>
+    <h2>blender.org から入れる ― パソコンに合う版を選ぶ</h2>
+    <div class="two-col" style="max-width:1200px; grid-template-columns: 1fr 1fr 1fr; margin-top:0; gap:0.8rem;">
+      <div class="col-card">
+        <h3>Mac：Apple シリコン（M1〜）＋ macOS 13 以上</h3>
+        <span class="ver">Blender 5.2 LTS</span>
+        <p><a href="https://www.blender.org/download/" target="_blank" rel="noopener">blender.org/download ↗</a> → 青い <strong>Download</strong> ボタン</p>
+      </div>
+      <div class="col-card">
+        <h3>Mac：Intel、または macOS 12 以前</h3>
+        <span class="ver">Blender 4.5 LTS</span>
+        <p><a href="https://www.blender.org/download/lts/4-5/" target="_blank" rel="noopener">blender.org/download/lts/4-5/ ↗</a> → <strong>macOS Intel</strong></p>
+      </div>
+      <div class="col-card">
+        <h3>Windows 10 ／ 11（64 bit）</h3>
+        <span class="ver">Blender 5.2 LTS</span>
+        <p><a href="https://www.blender.org/download/" target="_blank" rel="noopener">blender.org/download ↗</a> → 青い <strong>Download</strong> ボタン（Installer）</p>
+      </div>
+    </div>
+    <div class="guide even" style="margin-top:0.8rem; align-items:start;">
+      <div class="steps compact" style="max-width:none; margin-top:0;">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>自分のパソコンを確認</strong>Mac：Apple メニュー → この Mac について（チップ・macOS を見る）<br>Windows：10 か 11 なら OK</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>ダウンロード（約 350 MB）→ ファイルを開く</strong>Mac：.dmg → Blender を Applications へドラッグ<br>Windows：.msi → Next → 「I accept」に ✓ → Next → Install → Finish</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Blender を起動</strong>Mac：Launchpad → Blender → 「開く」<br>Windows：スタートメニュー → Blender</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>最初の画面：言語が「日本語」になっていることを確認 → 続ける</strong></div></div>
+      </div>
+      <div>
+        <a href="https://www.blender.org/download/" target="_blank" rel="noopener"><img class="shot-img" src="../img/game2/week06_download.jpg" alt="blender.org のダウンロードページ。Download Blender ボタンの下に macOS・Apple Silicon・330 MB・v5.2.2 LTS と表示されている" style="max-height:26vh;"></a>
+        <p class="video-cap" style="margin-top:0.3rem;">blender.org/download ― 青いボタン（Windows／Mac は自動で判別）</p>
+        <a href="https://www.blender.org/download/lts/4-5/" target="_blank" rel="noopener"><img class="shot-img" src="../img/game2/week06_lts45.jpg" alt="Blender 4.5 LTS のページ。Supported until July 2027 と書かれている" style="max-height:14vh; margin-top:0.5rem;"></a>
+        <p class="video-cap" style="margin-top:0.3rem;">blender.org/download/lts/4-5/ ― Intel Mac・macOS 12 以前はこちら</p>
+        <p class="video-cap" style="margin-top:0.5rem;">※ キー表記は Mac。Windows は Cmd → Ctrl、Option → Alt</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. ① 最初の設定 -->
+  <div class="slide theme-content">
+    <div class="tag blue">① 最初の設定（1回だけ）</div>
+    <h2>プリファレンスで設定を変える</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>編集 → プリファレンス（Cmd + ,）</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>インターフェイス → 言語：日本語 を確認</strong>英語のままなら Interface → Language → 日本語</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>翻訳 → 新規データ のチェックを外す</strong>モノの名前を英語のままにする（Unity 用）</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>入力 → テンキーを模倣 ✓</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>入力 → 3ボタンマウスを再現 ✓</strong>Option ＋ ドラッグで視点を回せる</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>ウィンドウを閉じる（Cmd ＋ W）→ 自動で保存される</strong></div></div>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_prefs_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_prefs_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（35 秒）：編集 → プリファレンス → 言語の確認 → 新規データを外す → 入力 → テンキーを模倣・3ボタンマウスを再現 → 閉じる</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. ② 画面の見方 -->
+  <div class="slide theme-content">
+    <div class="tag green">② 画面の見方</div>
+    <h2>5 つのエリアと、右上のギズモ</h2>
+    <div class="layout-wrap">
+      <img src="../img/game2/week06_layout.jpg" alt="Blender を起動した直後の画面（日本語表示）。左の大きな 3D ビューポートに立方体・カメラ・ライト、右上にアウトライナー、右下にプロパティ、下にタイムライン">
+      <div class="abox y" style="left:0.2%; top:0.2%; width:99.6%; height:2.6%;"></div>
+      <div class="abox" style="left:0.2%; top:2.9%; width:81.8%; height:87.4%;"></div>
+      <div class="abox y" style="left:82.3%; top:2.9%; width:17.5%; height:17.2%;"></div>
+      <div class="abox p" style="left:82.3%; top:20.6%; width:17.5%; height:76.8%;"></div>
+      <div class="abox" style="left:0.2%; top:90.7%; width:81.8%; height:6.7%; border-style:dashed;"></div>
+      <div class="abox" style="left:74.6%; top:3.1%; width:6.6%; height:2.7%;"></div>
+      <div class="abox" style="left:75.5%; top:9.5%; width:6.6%; height:9.6%;"></div>
+      <div class="albl y" style="left:30%; top:0.3%;">① トップバー ― ファイル・編集・設定</div>
+      <div class="albl" style="left:22%; top:28%;">② 3D ビューポート ― ここで作る</div>
+      <div class="albl" style="left:30%; top:91.3%;">③ タイムライン ― 今日は使わない</div>
+      <div class="albl y" style="left:83.3%; top:13.5%;">④ アウトライナー ― モノの一覧</div>
+      <div class="albl p" style="left:83.3%; top:62%;">⑤ プロパティ ― 選んだモノの設定</div>
+      <div class="albl" style="left:2%; top:7.4%;">⑥ ヘッダー ― モード・追加・ビュー</div>
+      <div class="albl" style="left:3.6%; top:52%;">⑦ ツールバー ― 移動・回転・スケール</div>
+      <div class="albl" style="left:60%; top:19.5%;">⑧ ギズモ（ナビゲート）― 視点</div>
+      <div class="albl" style="left:58%; top:6.3%;">⑨ 表示の切り替え</div>
+    </div>
+  </div>
+
+  <!-- 11. ② 視点を動かす -->
+  <div class="slide theme-content">
+    <div class="tag green">② 視点を動かす</div>
+    <h2>回す・ずらす・寄る</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items: start;">
+      <div>
+        <table class="key-table compact">
+          <tr><th></th><th>トラックパッド</th><th>マウス</th></tr>
+          <tr><td class="k">回す</td><td>2本指でドラッグ</td><td>ホイールを押してドラッグ</td></tr>
+          <tr><td class="k">ずらす</td><td>Shift ＋ 2本指</td><td>Shift ＋ ホイールを押してドラッグ</td></tr>
+          <tr><td class="k">寄る・引く</td><td>ピンチ（Cmd ＋ 2本指でも）</td><td>ホイールを回す</td></tr>
+        </table>
+        <table class="key-table compact" style="margin-top:0.9rem;">
+          <tr><td class="k">軸</td><td>左右 X（赤）・前後 Y（緑）・上下 Z（青）</td></tr>
+          <tr><td class="k">ギズモ（右上）</td><td><img class="inl" src="../img/game2/week06_gizmo.jpg" alt="右上のギズモ。赤 X・緑 Y・青 Z の丸">ドラッグで回す。X・Y・Z をクリックで真横・真上から</td></tr>
+          <tr><td class="k">1 ／ 3 ／ 7</td><td>前 ／ 右 ／ 上 から見る（テンキーを模倣）</td></tr>
+          <tr><td class="k">5</td><td>透視投影 ⇄ 平行投影（下の図）。1／3／7 を押すと自動で平行投影になる</td></tr>
+          <tr><td class="k">Home</td><td>全部が見える位置に戻す</td></tr>
+          <tr><td class="k">Option ＋ ドラッグ</td><td>回す（3ボタンマウスを再現）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_view_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_view_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（60 秒）：モンキーを出す → 回す → ずらす → 寄る → ギズモ → 1／3／7 → 5 → Home → Option ＋ ドラッグ</p>
+        <div class="grid2" style="margin-top:0.6rem;">
+          <figure><img src="../img/game2/week06_persp.jpg" alt="透視投影。同じ大きさの雪だるま 3 体が、奥ほど小さく見える" style="max-height:14vh;"><figcaption>透視投影：遠くほど小さい ＝ 目で見た感じ</figcaption></figure>
+          <figure><img src="../img/game2/week06_ortho.jpg" alt="平行投影。同じ大きさの雪だるま 3 体が、奥でも同じ大きさに見える" style="max-height:14vh;"><figcaption>平行投影：遠くも同じ大きさ ＝ 設計図。大きさを合わせる時に</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. ③ 選ぶ・足す・消す -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 選ぶ・足す・消す</div>
+    <h2>クリックで選ぶ、Shift + A で足す、X で消す</h2>
+    <div class="guide" style="grid-template-columns: 1.2fr 1fr; align-items: start;">
+      <table class="key-table wrap compact">
+        <tr><td class="k">選ぶ</td><td>クリック（オレンジの枠がつく）</td></tr>
+        <tr><td class="k">追加で選ぶ</td><td>Shift ＋ クリック</td></tr>
+        <tr><td class="k">全部選ぶ ／ 解除</td><td>A ／ Option ＋ A</td></tr>
+        <tr><td class="k">消す</td><td>X → 削除（Delete キーでも）</td></tr>
+        <tr><td class="k">足す</td><td>Shift ＋ A → メッシュ → 立方体・UV球・円柱・円錐・トーラス</td></tr>
+        <tr><td class="k">足した直後</td><td>左下の「最後の操作を調整」で サイズ・セグメント</td></tr>
+        <tr><td class="k">複製</td><td>Shift ＋ D → 動かしてクリック</td></tr>
+        <tr><td class="k">足される場所</td><td>3D カーソル（赤白の輪）。Shift ＋ C で中央に戻す</td></tr>
+      </table>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_select_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_select_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（50 秒）：クリックで選ぶ → Shift ＋ A で UV球 → 左下で調整 → Shift ＋ D で複製 → 追加選択・全選択・解除 → X で消す → 3D カーソル → Shift ＋ C</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. ③ G / R / S -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 動かす・回す・大きさ</div>
+    <h2>G ・ R ・ S ― 押して、マウスを動かして、クリック</h2>
+    <div class="guide even">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">移動</td><td>G</td></tr>
+          <tr><td class="k">回転</td><td>R</td></tr>
+          <tr><td class="k">拡大縮小</td><td>S</td></tr>
+          <tr><td class="k">マウスで</td><td>ツールバーの 移動・回転・スケール ボタン</td></tr>
+          <tr><td class="k">軸を決める</td><td>G のあと X ／ Y ／ Z（赤 X・緑 Y・青 Z ＝ 上）</td></tr>
+          <tr><td class="k">数値で</td><td>G → Z → 1.5 → ⏎（1 ＝ 1 m）</td></tr>
+          <tr><td class="k">確定 ／ やめる</td><td>クリック・⏎ ／ 右クリック・Esc</td></tr>
+          <tr><td class="k">戻す</td><td>Cmd ＋ Z</td></tr>
+          <tr><td class="k">数値を見る</td><td>N → サイドバー → アイテム</td></tr>
+        </table>
+        <div class="warn-box" style="margin-top:0.8rem;">キーは、マウスが 3D ビューポートの上にあるときだけ効く</div>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_grs_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_grs_mouse.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（40 秒）：G・S・R のあとトラックパッドで指を動かす／G → Z で上下だけ／ツールバーの移動ツールで矢印を押しながら動かす</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. ③ 3D カーソル -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 3D カーソル</div>
+    <h2>3D カーソル ― 赤白の輪は「目印」</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.15fr; align-items: start;">
+      <div>
+        <div class="pair" style="grid-template-columns: 0.42fr 1fr; align-items:center; margin-bottom:0.6rem;">
+          <img src="../img/game2/week06_cursor_zoom.jpg" alt="3D カーソルの拡大。赤と白の点線の輪と、黒い十字">
+          <p style="font-size:1rem; line-height:1.6; max-width:none;"><strong>3D 空間に置く目印。</strong>最初は真ん中（原点）にある</p>
+        </div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">① モノが出る場所</td><td>追加したモノは、3D カーソルの所に出る</td></tr>
+          <tr><td class="k">② 回転の中心</td><td>ピボットポイント → 3D カーソル で、そこを中心に回る・拡大縮小する</td></tr>
+          <tr><td class="k">動かす</td><td>ツールバーの カーソル → 置きたい所をクリック（Shift ＋ 右クリックでも）</td></tr>
+          <tr><td class="k">真ん中に戻す</td><td>Shift ＋ C（メニュー：オブジェクト → スナップ → カーソル → ワールド原点）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_cursor_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_cursor_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（50 秒）：追加すると 3D カーソルの所に出る → カーソルを動かす → Shift ＋ C で戻す → 回転の中心にする</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. ③ やってみよう（最小ライン） -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ やってみよう</div>
+    <h2>「丸いす」を作って、保存する ― ツールバーでも、ショートカットでも</h2>
+    <table class="key-table compact both" style="max-width:1260px;">
+      <tr><th></th><th>ツールバー・メニューで</th><th>ショートカットで</th></tr>
+      <tr><td class="k">1 立方体を消す</td><td>オブジェクト → 削除</td><td>X → 削除</td></tr>
+      <tr><td class="k">2 座面を出す</td><td>追加 → メッシュ → 円柱</td><td>Shift ＋ A → メッシュ → 円柱</td></tr>
+      <tr><td class="k">3 小さく・平たく</td><td>スケール ツール：白い輪をドラッグ → 青い箱をドラッグ</td><td>S → 指 → クリック、S → Z → 指 → クリック</td></tr>
+      <tr><td class="k">4 腰の高さへ</td><td>移動 ツール：青い矢印を上へ</td><td>G → Z → 指 → クリック</td></tr>
+      <tr><td class="k">5 脚を出して細く・長く・置く</td><td>追加 → 円柱 → スケール（白い輪・青い箱）→ 移動（青・赤の矢印）</td><td>Shift ＋ A → 円柱 → S、S → Z → G → Z、G → X</td></tr>
+      <tr><td class="k">6 脚を少し開く</td><td>回転 ツール：緑の輪をドラッグ</td><td>R → Y → 指 → クリック</td></tr>
+      <tr><td class="k">7 回転の中心を 3D カーソル（真ん中）に</td><td>ヘッダーの ピボットポイント → 3D カーソル</td><td>. キー → 3D カーソル</td></tr>
+      <tr><td class="k">8 脚を 3 本に（2 回）</td><td>オブジェクト → オブジェクトを複製 → 右クリック → 回転 の青い輪で 1／3 周</td><td>Shift ＋ D → ⏎ → R → Z → 指 → クリック</td></tr>
+      <tr><td class="k">9 保存</td><td>ファイル → 保存</td><td>Cmd ＋ S</td></tr>
+    </table>
+    <div class="pair" style="grid-template-columns: 0.12fr 0.5fr 0.38fr 1fr; max-width:1260px; align-items:center; margin-top:0.5rem; gap:0.7rem;">
+      <img src="../img/game2/week06_toolbar.jpg" alt="左のツールバー。上から 選択・カーソル・移動・回転・スケール・トランスフォーム" style="max-height:15vh; object-fit:contain; object-position:top;">
+      <img src="../img/game2/week06_stool.jpg" alt="円柱の座面と 3 本の脚の丸いす" style="max-height:15vh; object-fit:contain;">
+      <img src="../img/game2/week06_stool_color.jpg" alt="色をつけた丸いす" style="max-height:15vh; object-fit:contain;">
+      <div class="highlight-box" style="max-width:none; margin:0; padding:0.7rem 1rem;"><p><strong>どちらでも同じ結果。</strong>数値は打たず目で決める。ツールバーは 移動（十字）・回転（輪）・スケール（箱）。やりすぎたら Cmd ＋ Z</p></div>
+    </div>
+  </div>
+
+  <!-- 16. ③ 動画で見る：丸いす -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 動画で見る</div>
+    <h2>丸いすの作り方（ツールバーとギズモで・100 秒）</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week06_stool_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week06_stool_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作、（ ）の中はショートカット。① 削除 → ② 円柱 → ③④ 座面 → ⑤⑥ 脚 → ⑦ ピボットポイント → ⑧⑨ 複製して回す → ⑩ 保存</p>
+  </div>
+
+  <!-- 17. ④ 作ってみよう ＝ 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 作ってみよう</div>
+    <h2>プリミティブだけで作る ― 作り方の例：雪だるま</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>X → 削除（立方体を消す）</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Shift ＋ A → メッシュ → UV球　＝ 体</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Shift ＋ D → Z → 1.5 → ⏎ → S → 0.7 → ⏎　＝ 頭</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>円錐 → S 0.2 ⏎ → R X 90 ⏎ → G で頭の前へ　＝ 鼻</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>円柱 → S 0.5 ⏎ → G Z 2.4 ⏎　＝ 帽子</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>球を選んで 右クリック → スムーズシェード</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>あと 1 つ足す（目・ボタン・つば）→ Cmd ＋ S</strong></div></div>
+        <p class="video-cap" style="margin-top:0.2rem;">ショートカットで書いたが、メニューとツールバーでも同じ（次のページの動画）</p>
+      </div>
+      <div>
+        <div class="grid2">
+          <figure><img src="../img/game2/week06_stage1.jpg" alt="UV球が 1 つ" style="max-height:18vh;"><figcaption>② 体</figcaption></figure>
+          <figure><img src="../img/game2/week06_stage2.jpg" alt="複製して上に置き、小さくした頭" style="max-height:18vh;"><figcaption>③ 頭</figcaption></figure>
+          <figure><img src="../img/game2/week06_stage3.jpg" alt="円錐を横に倒して付けた鼻" style="max-height:18vh;"><figcaption>④ 鼻</figcaption></figure>
+          <figure><img src="../img/game2/week06_stage4.jpg" alt="円柱の帽子とつば" style="max-height:18vh;"><figcaption>⑤ 帽子</figcaption></figure>
+        </div>
+        <div class="task">
+          <img src="../img/game2/week06_penguin.jpg" alt="球・円錐・円柱だけで作ったペンギン。黒い体に白いおなか、オレンジのくちばしと足">
+          <p><strong>今日の課題：動物を 1 体</strong>（例：ペンギン ＝ 球・円錐・円柱だけ）。雪だるまと同じやり方で、プリミティブ 5 個以上・G／R／S を各 1 回以上 → スクショを提出</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18. 雪だるまの作り方（動画） -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 動画で見る</div>
+    <h2>雪だるまの作り方</h2>
+    <div class="video-one">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week06_howto_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week06_snowman_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">青＝マウス・トラックパッド操作、白いキー＝押すキー、（ ）の中はショートカット。① 削除 → ② UV球 → ③ 複製して頭 → ④ 円錐の鼻 → ⑤ 帽子 → ⑥ つば → ⑦ スムーズシェード → ⑧ 目・ボタン → ⑨ 保存</p>
+  </div>
+
+  <!-- 19. 発展（任意）色をつける -->
+  <div class="slide theme-content">
+    <div class="tag purple">発展（任意）</div>
+    <h2>マテリアルで色をつける</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>色をつけたいモノをクリック</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>プロパティ → マテリアルプロパティ（一番下の赤い球）</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>新規</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>ベースカラー をクリック → 色を選ぶ</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>ヘッダー右の ◉ マテリアルプレビュー にすると色が見える</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>ほかのモノも同じように</strong></div></div>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week06_color_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week06_color_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（40 秒）：帽子をクリック → マテリアルプロパティ → 新規 → ベースカラー → マテリアルプレビュー → 鼻も同じように</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 20. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <table class="key-table wrap compact" style="max-width:1050px;">
+      <tr><td class="k">キーが効かない</td><td>マウスを 3D ビューポートの上に ／ 入力を英数に</td></tr>
+      <tr><td class="k">視点が変になった</td><td>Home（全部見える位置へ）／ 5 で透視投影に戻す</td></tr>
+      <tr><td class="k">モノが消えた</td><td>H で隠れた → Option ＋ H で戻す</td></tr>
+      <tr><td class="k">変な場所に足される</td><td>Shift ＋ C（3D カーソルを中央へ）</td></tr>
+      <tr><td class="k">1・3・7 で視点が変わらない</td><td>プリファレンス → 入力 → テンキーを模倣</td></tr>
+      <tr><td class="k">2本指で回らない</td><td>プリファレンス → 入力 → タッチパッド → マルチタッチジェスチャ ✓</td></tr>
+      <tr><td class="k">間違えた</td><td>Cmd ＋ Z（何回でも戻れる）</td></tr>
+      <tr><td class="k">保存できた？</td><td>Cmd ＋ S。ウィンドウの上にファイル名が出れば OK</td></tr>
+    </table>
+  </div>
+
+  <!-- 21. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第6回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:960px;">
+      <li>視点：2本指で回す・ギズモ・1／3／7・Home</li>
+      <li>足す：Shift ＋ A → メッシュ、消す：X</li>
+      <li>動かす：<strong>G・R・S</strong> → 軸 X／Y／Z → 数値 → ⏎。戻すは Cmd ＋ Z</li>
+      <li>保存：Cmd ＋ S（.blend、名前は英数字）</li>
+      <li>Tab で オブジェクトモード ⇄ 編集モード（点・線・面をいじる）→ 次回</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>次回：第7回 <strong>編集モード</strong>（Tab）― 点・線・面を押し出し・ループカットで作り込む。今日の .blend は消さない。</p>
+    </div>
+  </div>
+
+  <!-- 22. 付録：よく使うショートカット一覧 -->
+  <div class="slide theme-content">
+    <div class="tag purple">付録</div>
+    <h2>よく使うショートカット一覧</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1fr 1.1fr; gap: 1.4rem; align-items: start; max-width: none;">
+      <div>
+        <h3 style="margin-bottom:0.3rem;">視点</h3>
+        <table class="key-table both">
+          <tr><td class="k">2本指ドラッグ</td><td>回す（Option ＋ ドラッグでも）</td></tr>
+          <tr><td class="k">Shift ＋ 2本指</td><td>ずらす</td></tr>
+          <tr><td class="k">ピンチ</td><td>寄る・引く</td></tr>
+          <tr><td class="k">1 ／ 3 ／ 7</td><td>前 ／ 右 ／ 上 から見る</td></tr>
+          <tr><td class="k">Cmd ＋ 1 ／ 3 ／ 7</td><td>後ろ ／ 左 ／ 下 から見る</td></tr>
+          <tr><td class="k">5</td><td>透視投影 ⇄ 平行投影</td></tr>
+          <tr><td class="k">Home</td><td>全部が見える位置に戻す</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">選ぶ・足す・消す</h3>
+        <table class="key-table both">
+          <tr><td class="k">クリック ／ Shift ＋ クリック</td><td>選ぶ ／ 追加で選ぶ</td></tr>
+          <tr><td class="k">A ／ Option ＋ A</td><td>全部選ぶ ／ 全部解除</td></tr>
+          <tr><td class="k">Shift ＋ A</td><td>追加メニュー</td></tr>
+          <tr><td class="k">Shift ＋ D</td><td>複製（右クリックでその場に置く）</td></tr>
+          <tr><td class="k">X ／ Delete</td><td>削除（X は確認あり）</td></tr>
+          <tr><td class="k">H ／ Option ＋ H</td><td>隠す ／ 隠したものを全部出す</td></tr>
+          <tr><td class="k">F2</td><td>名前を変える（英数字で）</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">動かす・カーソル・保存</h3>
+        <table class="key-table both">
+          <tr><td class="k">G ／ R ／ S</td><td>移動 ／ 回転 ／ 大きさ → X・Y・Z で軸 → 数字 → ⏎</td></tr>
+          <tr><td class="k">Esc ／ 右クリック</td><td>途中でやめる</td></tr>
+          <tr><td class="k">Option ＋ G ／ R ／ S</td><td>位置 ／ 回転 ／ 大きさ をリセット</td></tr>
+          <tr><td class="k">Shift ＋ 右クリック ／ Shift ＋ C</td><td>3D カーソルを置く ／ 真ん中に戻す</td></tr>
+          <tr><td class="k">N ／ T</td><td>サイドバー（数値）／ ツールバー</td></tr>
+          <tr><td class="k">Cmd ＋ Z ／ Shift ＋ Cmd ＋ Z</td><td>戻す ／ やり直す</td></tr>
+          <tr><td class="k">Cmd ＋ S</td><td>保存（名前は英数字で）</td></tr>
+          <tr><td class="k">Tab</td><td>編集モード ⇄ オブジェクトモード（第7回）</td></tr>
+        </table>
+      </div>
+    </div>
+    <p class="video-cap" style="margin-top:0.8rem;">Windows は Cmd → Ctrl、Option → Alt、2本指 → マウスのホイール。この一覧は授業ページの配布資料に PDF（A4 1枚）がある</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 22</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 5,
+    openWeeks: 6,
     weeks: [
       {
         week: 1,
@@ -289,9 +289,26 @@ const SITE_DATA = {
         week: 6,
         title: "Blender入門",
         description: "3Dモデリングソフト Blender のインストール（blender.org から。授業内で行う）と基本操作。画面構成、視点の動かし方（Macのトラックパッド／マウス）、オブジェクトの追加、移動（G）・回転（R）・拡大縮小（S）、保存。プリミティブ（立方体・球・円柱など）を組み合わせて、簡単な形をつくる。",
-        slides: null,
+        slides: [
+          { label: "第6回 Blender入門 スライド", url: "slides/game2_week06.html" }
+        ],
         project: null,
-        assignment: "【必修】プリミティブで何か1つ作ろう\n\nBlender のプリミティブ（立方体・球・円柱・円錐 など）を組み合わせて、好きなものを1つ作ってください（例：雪だるま、ロボット、ドラムセット、マイクスタンド、椅子）。\n\n■ 条件\n・プリミティブを5個以上使う\n・移動（G）・回転（R）・拡大縮小（S）をそれぞれ1回以上使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n・.blend ファイル\n\n──────────────────────────────\n\n【任意】色をつける\n・マテリアルプロパティで新規マテリアルを作り、Base Color で色をつける",
+        documents: [
+          { label: "Blender ダウンロード（5.2 LTS：Windows、Apple シリコン Mac・macOS 13 以上の人）― blender.org", url: "https://www.blender.org/download/" },
+          { label: "Blender 4.5 LTS（Intel Mac・macOS 12 以前の人）― blender.org", url: "https://www.blender.org/download/lts/4-5/" },
+          { label: "作例：雪だるま（.blend ファイル。開いて中を見てみる用）", url: "files/game2_week06_snowman.blend" },
+          { label: "雪だるまの作り方 動画（mp4・メニューとツールバーで・テロップ付き・約2分）", url: "files/game2_week06_snowman_howto.mp4" },
+          { label: "G・S・R をトラックパッドで動かす 動画（mp4・テロップと操作キー付き・40秒）", url: "files/game2_week06_grs_mouse.mp4" },
+          { label: "マテリアルで色をつける 動画（mp4・テロップ付き・40秒）", url: "files/game2_week06_color_howto.mp4" },
+          { label: "視点を動かす 動画（mp4・テロップ付き・60秒。モンキーを出すところから）", url: "files/game2_week06_view_howto.mp4" },
+          { label: "選ぶ・足す・消す 動画（mp4・テロップ付き・50秒）", url: "files/game2_week06_select_howto.mp4" },
+          { label: "最初の設定（プリファレンス）動画（mp4・テロップ付き・35秒）", url: "files/game2_week06_prefs_howto.mp4" },
+          { label: "3D カーソル 動画（mp4・テロップ付き・50秒）", url: "files/game2_week06_cursor_howto.mp4" },
+          { label: "丸いすの作り方 動画（mp4・テロップ付き・100秒。ツールバーとギズモで）", url: "files/game2_week06_stool_howto.mp4" },
+          { label: "よく使うショートカット一覧（PDF・A4 1枚。Mac 表記、Windows の読みかえ付き）", url: "files/game2_week06_shortcuts.pdf" },
+          { label: "参考：Taisuke Murakami Lab「2026プログラミング準備編１：3DCG制作環境に慣れる」", url: "http://taisukemurakami.net/2026/09/29/2022%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e6%ba%96%e5%82%99%e7%b7%a8%ef%bc%913dcg%e5%88%b6%e4%bd%9c%e7%92%b0%e5%a2%83%e3%81%ab%e6%85%a3%e3%82%8c%e3%82%8b/" }
+        ],
+        assignment: "【必修】プリミティブで動物を1体作ろう\n\nBlender のプリミティブ（立方体・球・円柱・円錐 など）を組み合わせて、好きな動物を1体作ってください（例：ペンギン、ネコ、クマ、ウサギ、魚、鳥）。授業で作った雪だるまと同じやり方です。\n\n■ 条件\n・プリミティブを5個以上使う\n・移動（G）・回転（R）・拡大縮小（S）をそれぞれ1回以上使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n\n──────────────────────────────\n\n【任意】色をつける\n・マテリアルプロパティで新規マテリアルを作り、Base Color で色をつける",
         deadline: "第7回授業開始時"
       },
       {
