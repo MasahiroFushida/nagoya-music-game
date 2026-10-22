@@ -306,7 +306,6 @@ const SITE_DATA = {
           { label: "3D カーソル 動画（mp4・テロップ付き・50秒）", url: "files/game2_week06_cursor_howto.mp4" },
           { label: "丸いすの作り方 動画（mp4・テロップ付き・100秒。ツールバーとギズモで）", url: "files/game2_week06_stool_howto.mp4" },
           { label: "よく使うショートカット一覧（PDF・A4 1枚。Mac 表記、Windows の読みかえ付き）", url: "files/game2_week06_shortcuts.pdf" },
-          { label: "参考：Taisuke Murakami Lab「2026プログラミング準備編１：3DCG制作環境に慣れる」", url: "http://taisukemurakami.net/2026/09/29/2022%e3%83%97%e3%83%ad%e3%82%b0%e3%83%a9%e3%83%9f%e3%83%b3%e3%82%b0%e6%ba%96%e5%82%99%e7%b7%a8%ef%bc%913dcg%e5%88%b6%e4%bd%9c%e7%92%b0%e5%a2%83%e3%81%ab%e6%85%a3%e3%82%8c%e3%82%8b/" }
         ],
         assignment: "【必修】プリミティブで動物を1体作ろう\n\nBlender のプリミティブ（立方体・球・円柱・円錐 など）を組み合わせて、好きな動物を1体作ってください（例：ペンギン、ネコ、クマ、ウサギ、魚、鳥）。授業で作った雪だるまと同じやり方です。\n\n■ 条件\n・プリミティブを5個以上使う\n・移動（G）・回転（R）・拡大縮小（S）をそれぞれ1回以上使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n\n──────────────────────────────\n\n【任意】色をつける\n・マテリアルプロパティで新規マテリアルを作り、Base Color で色をつける",
         deadline: "第7回授業開始時"
