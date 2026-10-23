@@ -412,7 +412,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
           <tr><td class="k">ギズモ（右上）</td><td><img class="inl" src="../img/game2/week06_gizmo.jpg" alt="右上のギズモ。赤 X・緑 Y・青 Z の丸">ドラッグで回す。X・Y・Z をクリックで真横・真上から</td></tr>
           <tr><td class="k">1 ／ 3 ／ 7</td><td>前 ／ 右 ／ 上 から見る（テンキーを模倣）</td></tr>
           <tr><td class="k">5</td><td>透視投影 ⇄ 平行投影（下の図）。1／3／7 を押すと自動で平行投影になる</td></tr>
-          <tr><td class="k">Home</td><td>全部が見える位置に戻す</td></tr>
+          <tr><td class="k">Fn ＋ ←（Home）</td><td>全部が見える位置に戻す（ビュー → すべて表示 でも）</td></tr>
           <tr><td class="k">Option ＋ ドラッグ</td><td>回す（3ボタンマウスを再現）</td></tr>
         </table>
       </div>
@@ -422,7 +422,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
             <source src="../files/game2_week06_view_howto.mp4" type="video/mp4">
           </video>
         </div>
-        <p class="video-cap" style="margin-top:0.4rem;">動画（60 秒）：モンキーを出す → 回す → ずらす → 寄る → ギズモ → 1／3／7 → 5 → Home → Option ＋ ドラッグ</p>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（60 秒）：モンキーを出す → 回す → ずらす → 寄る → ギズモ → 1／3／7 → 5 → Fn ＋ ←（Home）→ Option ＋ ドラッグ</p>
         <div class="grid2" style="margin-top:0.6rem;">
           <figure><img src="../img/game2/week06_persp.jpg" alt="透視投影。同じ大きさの雪だるま 3 体が、奥ほど小さく見える" style="max-height:14vh;"><figcaption>透視投影：遠くほど小さい ＝ 目で見た感じ</figcaption></figure>
           <figure><img src="../img/game2/week06_ortho.jpg" alt="平行投影。同じ大きさの雪だるま 3 体が、奥でも同じ大きさに見える" style="max-height:14vh;"><figcaption>平行投影：遠くも同じ大きさ ＝ 設計図。大きさを合わせる時に</figcaption></figure>
@@ -501,6 +501,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
           <tr><td class="k">① モノが出る場所</td><td>追加したモノは、3D カーソルの所に出る</td></tr>
           <tr><td class="k">② 回転の中心</td><td>ピボットポイント → 3D カーソル で、そこを中心に回る・拡大縮小する</td></tr>
           <tr><td class="k">動かす</td><td>ツールバーの カーソル → 置きたい所をクリック（Shift ＋ 右クリックでも）</td></tr>
+          <tr><td class="k">選んだモノの中心へ</td><td>モノを選んで オブジェクト → スナップ → カーソル → 選択物（Shift ＋ S でも）</td></tr>
           <tr><td class="k">真ん中に戻す</td><td>Shift ＋ C（メニュー：オブジェクト → スナップ → カーソル → ワールド原点）</td></tr>
         </table>
       </div>
@@ -542,7 +543,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
   <!-- 16. ③ 動画で見る：丸いす -->
   <div class="slide theme-content">
     <div class="tag orange">③ 動画で見る</div>
-    <h2>丸いすの作り方（ツールバーとギズモで・100 秒）</h2>
+    <h2>丸いすの作り方</h2>
     <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
       <div class="video-wrap" style="padding-top:62.5%;">
         <video controls preload="metadata" playsinline poster="../img/game2/week06_stool_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
@@ -627,7 +628,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <h2>つまずきやすいポイント</h2>
     <table class="key-table wrap compact" style="max-width:1050px;">
       <tr><td class="k">キーが効かない</td><td>マウスを 3D ビューポートの上に ／ 入力を英数に</td></tr>
-      <tr><td class="k">視点が変になった</td><td>Home（全部見える位置へ）／ 5 で透視投影に戻す</td></tr>
+      <tr><td class="k">視点が変になった</td><td>Fn ＋ ←（Home）か ビュー → すべて表示 で全部見える位置へ ／ 5 で透視投影に戻す</td></tr>
       <tr><td class="k">モノが消えた</td><td>H で隠れた → Option ＋ H で戻す</td></tr>
       <tr><td class="k">変な場所に足される</td><td>Shift ＋ C（3D カーソルを中央へ）</td></tr>
       <tr><td class="k">1・3・7 で視点が変わらない</td><td>プリファレンス → 入力 → テンキーを模倣</td></tr>
@@ -643,7 +644,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
     <h2>第6回のまとめ</h2>
     <div class="divider left"></div>
     <ul style="max-width:960px;">
-      <li>視点：2本指で回す・ギズモ・1／3／7・Home</li>
+      <li>視点：2本指で回す・ギズモ・1／3／7・Fn ＋ ←（Home）</li>
       <li>足す：Shift ＋ A → メッシュ、消す：X</li>
       <li>動かす：<strong>G・R・S</strong> → 軸 X／Y／Z → 数値 → ⏎。戻すは Cmd ＋ Z</li>
       <li>保存：Cmd ＋ S（.blend、名前は英数字）</li>
@@ -669,7 +670,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
           <tr><td class="k">1 ／ 3 ／ 7</td><td>前 ／ 右 ／ 上 から見る</td></tr>
           <tr><td class="k">Cmd（Ctrl）＋ 1 ／ 3 ／ 7</td><td>後ろ ／ 左 ／ 下 から見る</td></tr>
           <tr><td class="k">5</td><td>透視投影 ⇄ 平行投影</td></tr>
-          <tr><td class="k">Home</td><td>全部が見える位置に戻す</td></tr>
+          <tr><td class="k">Fn ＋ ←（Home）</td><td>全部が見える位置に戻す（ビュー → すべて表示 でも）</td></tr>
         </table>
       </div>
       <div>
@@ -690,7 +691,7 @@ body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; bac
           <tr><td class="k">G ／ R ／ S</td><td>移動 ／ 回転 ／ 大きさ → X・Y・Z で軸 → 数字 → ⏎</td></tr>
           <tr><td class="k">Esc ／ 右クリック</td><td>途中でやめる</td></tr>
           <tr><td class="k">Option（Alt）＋ G ／ R ／ S</td><td>位置 ／ 回転 ／ 大きさ をリセット</td></tr>
-          <tr><td class="k">Shift ＋ 右クリック ／ Shift ＋ C</td><td>3D カーソルを置く ／ 真ん中に戻す</td></tr>
+          <tr><td class="k">Shift ＋ 右クリック ／ Shift ＋ S ／ Shift ＋ C</td><td>3D カーソルを置く ／ 選んだモノの中心へ（スナップ）／ 真ん中に戻す</td></tr>
           <tr><td class="k">N ／ T</td><td>サイドバー（数値）／ ツールバー</td></tr>
           <tr><td class="k">Cmd（Ctrl）＋ Z ／ Shift ＋ Cmd（Ctrl）＋ Z</td><td>戻す ／ やり直す</td></tr>
           <tr><td class="k">Cmd（Ctrl）＋ S</td><td>保存（名前は英数字で）</td></tr>
