@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第7回 Blenderモデリング①（編集モード）</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.col-card .ver { display: block; font-size: 1.5rem; font-weight: bold; margin: 0.2rem 0 0.4rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.key-table.compact th, .key-table.compact td { padding: 0.42rem 0.9rem; font-size: 0.92rem; }
+.key-table.both th, .key-table.both td { padding: 0.3rem 0.7rem; font-size: 0.86rem; }
+.key-table.both td.k { white-space: normal; min-width: 11rem; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 画像・図 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.shot-img { width: 100%; height: auto; max-height: 58vh; object-fit: contain; object-position: top; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.layout-wrap { position: relative; display: inline-block; margin-top: 0.2rem; }
+.layout-wrap img { display: block; max-width: 100%; max-height: 64vh; width: auto; height: auto; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.abox { position: absolute; border: 2px solid #8fe0a0; border-radius: 4px; pointer-events: none; }
+.abox.y { border-color: #ffd166; }
+.abox.p { border-color: #b482ff; }
+.albl { position: absolute; background: rgba(13,27,42,0.92); color: #fff; font-size: 0.82rem; font-weight: bold; padding: 0.18rem 0.6rem; border-radius: 12px; border: 1px solid rgba(143,224,160,0.8); white-space: nowrap; line-height: 1.4; }
+.albl.y { border-color: #ffd166; }
+.albl.p { border-color: #b482ff; }
+.video-one { width: 100%; max-width: min(1000px, calc((100vh - 19rem) * 1.7778)); margin-top: 0.3rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.slide p.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.55rem; opacity: 0.9; max-width: 1000px; }
+.soft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem 0.6rem; width: 100%; max-width: 1260px; margin-top: 0.4rem; }
+.soft.wide2 { grid-column: span 2; }
+.soft.wide2 img { aspect-ratio: 32 / 9; }
+.soft-grid.cols3 { grid-template-columns: repeat(3, 1fr); }
+.task { display: flex; gap: 0.8rem; align-items: center; background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.7rem; }
+.task img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+.task p { font-size: 0.95rem; line-height: 1.55; max-width: none; }
+.soft { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.45rem 0.45rem 0.5rem; }
+.soft.now { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.6); }
+.soft img { width: 100%; aspect-ratio: 16 / 9; max-height: 19vh; object-fit: cover; object-position: top; border-radius: 5px; display: block; background: #000; }
+.soft strong { display: block; font-size: 0.95rem; margin: 0.3rem 0 0.05rem; }
+.soft a { color: #8fe0a0; text-decoration: none; }
+.soft.vj img, .soft.vj svg { width: 100%; aspect-ratio: 16 / 9; max-height: 27vh; object-fit: cover; object-position: center; border-radius: 5px; display: block; background: #000; }
+.soft.vj strong { font-size: 1.05rem; }
+.soft.vj span { font-size: 0.86rem; }
+.soft .meta { margin-top: 0.3rem; font-size: 0.78rem; color: #cdb2ff; opacity: 1; }
+.col-card a { color: #8fe0a0; }
+.soft a:hover { text-decoration: underline; }
+.soft span { display: block; font-size: 0.8rem; opacity: 0.8; line-height: 1.35; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; width: 100%; }
+.grid2 figure { margin: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.25rem; }
+.grid2 img { width: 100%; height: auto; max-height: 20vh; object-fit: cover; display: block; border-radius: 4px; }
+.grid2 figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.2rem; opacity: 0.9; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; align-items: start; }
+.pair img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.key-table img.inl { width: 52px; height: 52px; vertical-align: middle; margin-right: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.roadmap.cols5 { grid-template-columns: repeat(5, 1fr); max-width: 1200px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4, .roadmap.cols5 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+
+/* ── 第7回 追加 ── */
+.pair figure.cap { margin: 0; }
+.pair figure.cap figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.3rem; opacity: 0.9; line-height: 1.4; }
+.grid2.cols3 { grid-template-columns: repeat(3, 1fr); }
+.pair.vsmall img { max-height: 17vh; object-fit: cover; }
+.layout-wrap img { max-height: 64vh; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第7回 Blenderモデリング①（編集モード）</h3>
+    <p class="muted" style="margin-top:2rem;">Tab・押し出し・ループカット・面の差し込み・ベベル</p>
+  </div>
+
+  <!-- 2. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>編集モードで、プリミティブを「削る・伸ばす」</h2>
+    <div class="roadmap cols5">
+      <div class="rm done"><div class="no">第6回</div><strong>Blender入門</strong><span>視点・G／R／S・保存</span><span class="ok">済</span></div>
+      <div class="rm today"><div class="no">第7回</div><strong>編集モード</strong><span>Tab・押し出し・ループカット</span></div>
+      <div class="rm"><div class="no">第8回</div><strong>モディファイア・色</strong><span>左右対称・なめらか・マテリアル。Blender はここまで</span></div>
+      <div class="rm opt"><div class="no">第9回</div><strong>Unity へ</strong><span>FBX で書き出して取り込む</span></div>
+      <div class="rm opt"><div class="no">第10回</div><strong>AR に置く</strong><span>タップで鳴る</span></div>
+    </div>
+    <div class="flow" style="max-width:1200px; margin-top:1.2rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>鍵盤を作る</strong><span>ループカット ＋ 押し出し</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>1 つのプリミティブから「音の出るモノ」を 1 つ</strong><span>スクショを提出</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できた人から</span><strong>面の差し込み・ベベルで仕上げる</strong></div>
+    </div>
+    <p class="small-note">今日の画面は Blender 5.2 LTS・日本語表示。キー表記は Mac（Windows は Cmd → Ctrl、Option → Alt）</p>
+  </div>
+
+  <!-- 3. ① 編集モード -->
+  <div class="slide theme-content">
+    <div class="tag blue">① 編集モード</div>
+    <h2>Tab で、オブジェクトモード ⇄ 編集モード</h2>
+    <div class="pair" style="max-width:1240px; gap:1rem;">
+      <figure class="cap"><img src="../img/game2/week07_mode_object.jpg" alt="オブジェクトモード。立方体全体がオレンジの枠で選ばれている"><figcaption><strong>オブジェクトモード</strong>（第6回）― モノ全体を 動かす・回す・大きさ</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week07_mode_edit.jpg" alt="編集モード。立方体の頂点・辺・面が見え、全体がオレンジに選ばれている"><figcaption><strong>編集モード</strong>（今日）― 点・線・面をいじって、形を作り込む</figcaption></figure>
+    </div>
+    <table class="key-table wrap compact" style="max-width:1240px; margin-top:0.8rem;">
+      <tr><td class="k">入る ／ 出る</td><td>モノを選んで <strong>Tab</strong>（ヘッダー左の「オブジェクトモード ▾」→ 編集モード でも）</td></tr>
+      <tr><td class="k">見分け方</td><td>ヘッダー左が「編集モード」／ 点と線が見える ／ ツールバーの道具が増える</td></tr>
+      <tr><td class="k">G／R／S・Cmd ＋ Z</td><td>編集モードでも同じ。選んだ部分だけが動く</td></tr>
+      <tr><td class="k">注意</td><td>編集モードのまま Shift ＋ A すると、同じモノの中に足される → 別のモノは Tab で出てから足す</td></tr>
+    </table>
+  </div>
+
+  <!-- 4. ① 頂点・辺・面を選ぶ -->
+  <div class="slide theme-content">
+    <div class="tag blue">① 頂点・辺・面を選ぶ</div>
+    <h2>ヘッダーの 3 つのボタンで「何を選ぶか」を決める</h2>
+    <div class="layout-wrap" style="width:min(1240px, 100%); margin-bottom:2.2rem;">
+      <img src="../img/game2/week07_header_edit.jpg" alt="編集モードのヘッダー。左から モード切替、頂点・辺・面の選択モード、ビュー・選択・追加・メッシュ・頂点・辺・面・UV のメニュー" style="max-height:none; width:100%;">
+      <div class="abox" style="left:6.8%; top:6%; width:14.4%; height:88%;"></div>
+      <div class="abox y" style="left:21.6%; top:6%; width:9.2%; height:88%;"></div>
+      <div class="abox p" style="left:56.6%; top:6%; width:13%; height:88%;"></div>
+      <div class="albl" style="left:3%; top:112%;">Tab ＝ オブジェクトモード ⇄ 編集モード</div>
+      <div class="albl y" style="left:30%; top:112%;">頂点 ／ 辺 ／ 面 を選ぶモード</div>
+      <div class="albl p" style="left:56%; top:112%;">今日使うメニュー：頂点・辺・面</div>
+    </div>
+    <div class="grid2 cols3" style="max-width:1240px;">
+      <figure><img src="../img/game2/week07_sel_vert.jpg" alt="頂点を 1 つ選んだ立方体" style="max-height:21vh;"><figcaption>頂点（点）― 角を動かす</figcaption></figure>
+      <figure><img src="../img/game2/week07_sel_edge.jpg" alt="辺を 1 本選んだ立方体" style="max-height:21vh;"><figcaption>辺（線）― ベベル・ループ選択</figcaption></figure>
+      <figure><img src="../img/game2/week07_sel_face.jpg" alt="上の面を選んだ立方体" style="max-height:21vh;"><figcaption>面 ― 押し出し・面の差し込み</figcaption></figure>
+    </div>
+    <table class="key-table wrap compact" style="max-width:1240px; margin-top:0.6rem;">
+      <tr><td class="k">切り替え</td><td>ヘッダーの 3 つのアイコン（<strong>1／2／3 は視点になる</strong>：テンキーを模倣が ON のため）</td></tr>
+      <tr><td class="k">選ぶ ／ 追加 ／ 全部 ／ 解除</td><td>クリック ／ Shift ＋ クリック ／ A ／ Option ＋ A（第6回と同じ）</td></tr>
+      <tr><td class="k">ぐるっと一周（ループ選択）</td><td>辺を<strong>ダブルクリック</strong>（選択 → 選択ループ → 辺ループ でも）</td></tr>
+      <tr><td class="k">裏側も選ぶ</td><td>透過表示（Option ＋ Z）にすると、裏の点も見えて選べる</td></tr>
+    </table>
+  </div>
+
+  <!-- 5. ② 押し出し E -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 押し出し</div>
+    <h2>E ― 選んだ面が「生えて」くる</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 面を選ぶ</td><td>面選択モード → 面をクリック</td></tr>
+          <tr><td class="k">2 E → 指を動かす → クリック</td><td>面の向きにまっすぐ伸びる（引っこめると へこむ）</td></tr>
+          <tr><td class="k">数値で</td><td>E → 0.5 → ⏎（1 ＝ 1 m。マイナスで へこむ）</td></tr>
+          <tr><td class="k">ツールバーで</td><td><img class="inl" src="../img/game2/week07_tool_extrude.jpg" alt="押し出し（領域）ツールのアイコン">押し出し（領域）→ 黄色い ＋ をドラッグ</td></tr>
+          <tr><td class="k">メニューで</td><td>面 → 面を押し出し</td></tr>
+          <tr><td class="k">やめる</td><td>右クリック・Esc → <strong>面が同じ場所に重なって残る</strong> → Cmd ＋ Z で戻す</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week07_extrude_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week07_extrude.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（20 秒）：面をクリック → E → 指を上へ → クリックで確定。ツールバーの 押し出し（領域）→ ＋ をドラッグ でも同じ</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week07_extrude_before.jpg" alt="上の面を選んだ立方体"><figcaption>面を選ぶ</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week07_extrude_after.jpg" alt="上の面を上に押し出した立方体。側面が新しくできている"><figcaption>E → 上へ → クリック</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ② ループカット Cmd + R -->
+  <div class="slide theme-content">
+    <div class="tag orange">② ループカット</div>
+    <h2>Cmd ＋ R ― ぐるっと一周、辺を増やす</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 Cmd ＋ R → 辺の上にマウス</td><td>黄色い線が一周出る（マウスを置いた辺を またぐ向き）</td></tr>
+          <tr><td class="k">2 クリック → 位置を決めて クリック</td><td>右クリックで真ん中に</td></tr>
+          <tr><td class="k">本数を変える</td><td>左下の「ループカットとスライド」を開く → <strong>分割数</strong>（クリック前なら 2本指で上下スクロールでも）</td></tr>
+          <tr><td class="k">ツールバーで</td><td><img class="inl" src="../img/game2/week07_tool_loopcut.jpg" alt="ループカットツールのアイコン">ループカット → 辺の上でクリック</td></tr>
+          <tr><td class="k">メニューで</td><td>辺 → ループカットとスライド</td></tr>
+          <tr><td class="k">何のため？</td><td>面を分けて、一部だけ押し出す・ふくらませる ための下ごしらえ</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week07_loopcut_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week07_loopcut.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（23 秒）：Cmd ＋ R → 辺の上 → 黄色い線 → クリック → 右クリック → 左下のパネルで 分割数 7。ツールバーの ループカット → 辺をクリック でも同じ</p>
+        <div class="pair" style="grid-template-columns: 1.1fr 1fr; margin-top:0.5rem; align-items:center;">
+          <img src="../img/game2/week07_hud_collapsed.jpg" alt="ビューポート左下に出る「ループカットとスライド」パネル（閉じた状態）">
+          <img src="../img/game2/week07_hud_popup.jpg" alt="開いたパネル。分割数 7、スムーズ、減衰、係数 などの項目" style="max-height:19vh; width:auto; justify-self:center;">
+        </div>
+        <p class="video-cap" style="margin-top:0.3rem;">左下の「▸ ループカットとスライド」をクリックで開く → 分割数 を変える</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. ② 面の差し込み I -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 面の差し込み</div>
+    <h2>I ― 面の内側に、ひとまわり小さい面を作る</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 面を選ぶ</td><td>面選択モード → 面をクリック</td></tr>
+          <tr><td class="k">2 I → 指を内側へ → クリック</td><td>小さい面と、まわりの「ふち」ができる</td></tr>
+          <tr><td class="k">数値で</td><td>I → 0.2 → ⏎</td></tr>
+          <tr><td class="k">組み合わせ</td><td>I のあと <strong>E で へこませる</strong> ＝ 太鼓の打面・スピーカー・コップ</td></tr>
+          <tr><td class="k">ツールバーで</td><td><img class="inl" src="../img/game2/week07_tool_inset.jpg" alt="面を差し込むツールのアイコン">面を差し込む → 黄色い輪をドラッグ</td></tr>
+          <tr><td class="k">メニューで</td><td>面 → 面を差し込む</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week07_inset_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week07_inset.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（20 秒）：面をクリック → I → 指を内側へ → クリックで確定。ツールバーの 面を差し込む → 輪をドラッグ でも同じ</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week07_inset_before.jpg" alt="上の面を選んだ立方体"><figcaption>面を選ぶ</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week07_inset_after.jpg" alt="上の面の内側に、ひとまわり小さい面ができた立方体"><figcaption>I → 内側へ → クリック</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. ② ベベル Cmd + B -->
+  <div class="slide theme-content">
+    <div class="tag orange">② ベベル</div>
+    <h2>Cmd ＋ B ― 角を落として、丸くする</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 辺を選ぶ</td><td>辺選択モード → 辺をクリック（全部なら A）</td></tr>
+          <tr><td class="k">2 Cmd ＋ B → 指を動かして幅 → クリック</td><td>角が斜めに落ちる</td></tr>
+          <tr><td class="k">丸くする</td><td>左下の「ベベル」→ <strong>セグメント</strong> を 3〜5（クリック前なら 2本指スクロールでも）</td></tr>
+          <tr><td class="k">ツールバーで</td><td><img class="inl" src="../img/game2/week07_tool_bevel.jpg" alt="ベベルツールのアイコン">ベベル → 黄色い輪をドラッグ</td></tr>
+          <tr><td class="k">メニューで</td><td>辺 → 辺をベベル</td></tr>
+          <tr><td class="k">コツ</td><td>幅が大きすぎると形が崩れる → Cmd ＋ Z で戻して小さく</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week07_bevel_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week07_bevel.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（22 秒）：辺をクリック → Cmd ＋ B → 指を動かす → クリックで確定 → 左下の セグメント。ツールバーの ベベル → 輪をドラッグ でも同じ</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week07_bevel_before.jpg" alt="全部の辺を選んだ立方体"><figcaption>A で全部選ぶ</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week07_bevel_after.jpg" alt="全部の角が丸くなった立方体"><figcaption>Cmd ＋ B → セグメント 4</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. ③ やってみよう：鍵盤 -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ やってみよう</div>
+    <h2>「鍵盤」を作って、保存する ― ツールバーでも、ショートカットでも</h2>
+    <table class="key-table compact both" style="max-width:1260px;">
+      <tr><th></th><th>ツールバー・メニューで</th><th>ショートカットで</th></tr>
+      <tr><td class="k">1 編集モードに入る</td><td>ヘッダー「オブジェクトモード ▾」→ 編集モード</td><td>Tab</td></tr>
+      <tr><td class="k">2 横に長く（全部選んだまま）</td><td>スケール ツール：赤い箱を右へドラッグ</td><td>S → X → 2 → ⏎</td></tr>
+      <tr><td class="k">3 鍵盤に分ける</td><td>ループカット ツール → 上の面の横の辺をクリック → 左下の 分割数 を 7</td><td>Cmd ＋ R → 辺の上 → クリック → 右クリック → 左下の 分割数 を 7</td></tr>
+      <tr><td class="k">4 1 つおきに面を選ぶ</td><td colspan="2">ヘッダーの 面 アイコン → 上の面をクリック → Shift ＋ クリック で 1 つおきに 4 枚</td></tr>
+      <tr><td class="k">5 黒鍵を持ち上げる</td><td>押し出し（領域）ツール → 黄色い ＋ を上へドラッグ</td><td>E → Z → 0.3 → ⏎</td></tr>
+      <tr><td class="k">6 編集モードを出る</td><td>「編集モード ▾」→ オブジェクトモード</td><td>Tab</td></tr>
+      <tr><td class="k">7 保存</td><td>ファイル → 保存</td><td>Cmd ＋ S</td></tr>
+    </table>
+    <div class="pair" style="grid-template-columns: repeat(5, 1fr); max-width:1260px; align-items:start; margin-top:0.6rem; gap:0.6rem;">
+      <figure class="cap"><img src="../img/game2/week07_keys_s2.jpg" alt="横に長くした箱（全部選択）"><figcaption>2 横に長く</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week07_keys_s3.jpg" alt="7 本のループカットが入った箱"><figcaption>3 ループカット × 7</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week07_keys_s4.jpg" alt="上の面を 1 つおきに選んだ状態"><figcaption>4 1 つおきに選ぶ</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week07_keys_s5.jpg" alt="選んだ面を上に押し出した鍵盤"><figcaption>5 押し出し</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week07_keys_final_color.jpg" alt="白と黒に色をつけた鍵盤"><figcaption>第8回で色をつけると</figcaption></figure>
+    </div>
+  </div>
+
+  <!-- 9b. ③ 動画で見る：鍵盤 -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 動画で見る</div>
+    <h2>鍵盤の作り方</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week07_keys_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week07_keys_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作、（ ）の中はショートカット。① 編集モード → ② スケール → ③ ループカット → 分割数 7 → ④ 1 つおきに面を選ぶ → ⑤ 押し出し → ⑥ オブジェクトモード → ⑦ 保存</p>
+  </div>
+
+  <!-- 10. ④ 作ってみよう ＝ 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 作ってみよう</div>
+    <h2>1 つのプリミティブから作り込む ― 作り方の例：太鼓</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>X → 削除 → Shift ＋ A → メッシュ → 円柱 → Tab</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>面選択 → 上の面をクリック</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>I → 内側へ → クリック　＝ ふち</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>E → 少し下へ → クリック　＝ 打面のへこみ</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Cmd ＋ R → 横の辺の上 → クリック → 右クリック　＝ 胴に 1 本</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>S → 1.15 → ⏎　＝ 胴をふくらませる</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Tab → Cmd ＋ S</strong>　任意：ふちの辺をダブルクリック → Cmd ＋ B で丸く</div></div>
+        <p class="video-cap" style="margin-top:0.2rem;">ショートカットで書いたが、ツールバーとメニューでも同じ（次のページの動画はツールバーで）</p>
+      </div>
+      <div>
+        <div class="grid2">
+          <figure><img src="../img/game2/week07_drum_s2.jpg" alt="円柱の上の面を差し込んだ状態" style="max-height:18vh;"><figcaption>③ ふち</figcaption></figure>
+          <figure><img src="../img/game2/week07_drum_s3.jpg" alt="差し込んだ面を下に押し出してへこませた状態" style="max-height:18vh;"><figcaption>④ へこみ</figcaption></figure>
+          <figure><img src="../img/game2/week07_drum_s4.jpg" alt="胴にループカットが 1 本入った状態" style="max-height:18vh;"><figcaption>⑤ ループカット</figcaption></figure>
+          <figure><img src="../img/game2/week07_drum_s5.jpg" alt="ループを拡大して胴がふくらんだ太鼓" style="max-height:18vh;"><figcaption>⑥ ふくらみ</figcaption></figure>
+        </div>
+        <div class="task">
+          <img src="../img/game2/week07_spk_final_color.jpg" alt="立方体から作ったスピーカー。2 つのへこみと丸い角">
+          <p><strong>今日の課題：音の出るモノを 1 つ</strong>（例：スピーカー、鍵盤ハーモニカ、マグカップ、ラジカセ）。1 つのプリミティブから、押し出し（E）とループカット（Cmd ＋ R）を両方使う → スクショを提出</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10b. ④ 動画で見る：太鼓 -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 動画で見る</div>
+    <h2>太鼓の作り方</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week07_drum_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week07_drum_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作、（ ）の中はショートカット。① オブジェクト → 削除 → ② 追加 → メッシュ → 円柱 → ③ 編集モード → 面選択 → ④ 面を差し込む ツール → ⑤ 押し出し ツール → ⑥ ループカット ツール → ⑦ スケール ツール（白い輪）→ ⑧ オブジェクトモード → 保存</p>
+  </div>
+
+  <!-- 11. 発展（任意）：スピーカー -->
+  <div class="slide theme-content">
+    <div class="tag purple">発展（任意）</div>
+    <h2>面の差し込み・ベベルで仕上げる ― 例：スピーカー</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>立方体 → Tab → S → Z → 1.6 → ⏎　＝ 縦長の箱</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Cmd ＋ R → 縦の辺の上 → クリック → 右クリック　＝ 前の面を上下に分ける</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>面選択 → 下の前の面 → I → 内側へ → クリック</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>E → 奥へ → クリック　＝ へこみ（ウーファー）</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>上の前の面も I → E　＝ ツイーター</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>A → Cmd ＋ B → 幅を小さく → 左下の セグメント 3　＝ 角を丸く</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Tab → Cmd ＋ S</strong></div></div>
+        <p class="video-cap" style="margin-top:0.2rem;">ショートカットで書いたが、ツールバーとメニューでも同じ（次のページの動画はツールバーで）</p>
+      </div>
+      <div>
+        <div class="grid2">
+          <figure><img src="../img/game2/week07_spk_s2.jpg" alt="縦長の箱にループカットが 1 本入った状態" style="max-height:18vh;"><figcaption>② 上下に分ける</figcaption></figure>
+          <figure><img src="../img/game2/week07_spk_s4.jpg" alt="下の前の面を差し込んだ状態" style="max-height:18vh;"><figcaption>③ 面の差し込み</figcaption></figure>
+          <figure><img src="../img/game2/week07_spk_s5.jpg" alt="差し込んだ面を奥に押し出してへこませた状態" style="max-height:18vh;"><figcaption>④ へこみ</figcaption></figure>
+          <figure><img src="../img/game2/week07_spk_s7.jpg" alt="全部の辺をベベルして角が丸くなったスピーカー" style="max-height:18vh;"><figcaption>⑥ ベベル</figcaption></figure>
+        </div>
+        <div class="highlight-box" style="margin-top:0.7rem;"><p><strong>作る順番はいつも同じ：</strong>ループカットで分ける → 面を選ぶ → 差し込む・押し出す → 最後にベベルで角を丸く。色は第8回</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11b. 発展 動画で見る：スピーカー -->
+  <div class="slide theme-content">
+    <div class="tag purple">発展 動画で見る</div>
+    <h2>スピーカーの作り方 ― 面の差し込み ＋ ベベル</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week07_speaker_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week07_speaker_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作、（ ）の中はショートカット。① 編集モード → スケール ツール（青い箱）→ ② ループカット ツール → ③ 面選択 → 面を差し込む ツール → ④ 押し出し ツール → ⑤ 上の面も → ⑥ 選択 → すべて → ベベル ツール → セグメント 3 → ⑦ オブジェクトモード → 保存</p>
+  </div>
+
+  <!-- 11c. おまけ 動画で見る：色を塗る -->
+  <div class="slide theme-content">
+    <div class="tag purple">おまけ（第8回の予告）</div>
+    <h2>色を塗る ― 鍵盤を白と黒に</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week07_color_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week07_color_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作。① マテリアル タブ → 新規 → ② ベースカラー → 白 → ③ マテリアルプレビュー → ④ Tab → 黒鍵の面を選ぶ（選択 → 選択の拡大縮小 → 拡大）→ ⑤ ＋ → 新規 → ベースカラー → 黒 → 割り当て → ⑥ Tab。くわしくは第8回</p>
+  </div>
+
+  <!-- 12. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <table class="key-table wrap compact" style="max-width:1100px;">
+      <tr><td class="k">何も起きない</td><td>編集モードに入っている？（ヘッダー左が「編集モード」）／ マウスは 3D ビューポートの上 ／ 入力を英数に</td></tr>
+      <tr><td class="k">面が選べない</td><td>ヘッダーの 面 アイコン（面選択モード）にする</td></tr>
+      <tr><td class="k">1／2／3 で視点が変わる</td><td>テンキーを模倣が ON のため。頂点・辺・面はヘッダーのアイコンで</td></tr>
+      <tr><td class="k">押し出しをやめたら面が重なった</td><td>Cmd ＋ Z（Esc・右クリックだけでは、同じ場所に面が残る）</td></tr>
+      <tr><td class="k">Cmd ＋ R で黄色い線が出ない</td><td>辺の真上にマウスを置く（面の上では出ない）</td></tr>
+      <tr><td class="k">裏側の点が選べない</td><td>透過表示（Option ＋ Z）にする</td></tr>
+      <tr><td class="k">足したモノが くっついて 1 つになった</td><td>編集モード中の Shift ＋ A は同じモノに入る → Tab で出てから足す</td></tr>
+      <tr><td class="k">形が崩れた</td><td>Cmd ＋ Z で戻る（何回でも）。うまくいったら Cmd ＋ S</td></tr>
+    </table>
+  </div>
+
+  <!-- 13. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第7回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:1000px;">
+      <li><strong>Tab</strong>：オブジェクトモード ⇄ 編集モード。ヘッダーのアイコンで 頂点・辺・面</li>
+      <li><strong>E</strong> 押し出し ／ <strong>Cmd ＋ R</strong> ループカット ／ <strong>I</strong> 面の差し込み ／ <strong>Cmd ＋ B</strong> ベベル</li>
+      <li>左下の「最後の操作を調整」で 分割数・セグメント。やりすぎたら Cmd ＋ Z</li>
+      <li>作る順番：ループカットで分ける → 面を選ぶ → 押し出す・差し込む</li>
+      <li>課題：1 つのプリミティブから「音の出るモノ」（E と Cmd ＋ R を使う）→ スクショを提出</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>次回：第8回 <strong>モディファイア・色</strong> ― ミラーで左右対称、サブディビジョンサーフェスでなめらか、マテリアルで色。Blender はここまで。今日の .blend は消さない。</p>
+    </div>
+  </div>
+
+  <!-- 14. 付録：編集モードのショートカット一覧 -->
+  <div class="slide theme-content">
+    <div class="tag purple">付録</div>
+    <h2>編集モードのショートカット一覧 <span style="font-size:1rem; font-weight:normal; opacity:0.8;">― Mac（Windows・マウス）</span></h2>
+    <div class="guide" style="grid-template-columns: 1fr 1fr 1.1fr; gap: 1.4rem; align-items: start; max-width: none;">
+      <div>
+        <h3 style="margin-bottom:0.3rem;">モード・選ぶ</h3>
+        <table class="key-table both">
+          <tr><td class="k">Tab</td><td>編集モード ⇄ オブジェクトモード</td></tr>
+          <tr><td class="k">ヘッダーのアイコン</td><td>頂点 ／ 辺 ／ 面（1／2／3 は視点になる）</td></tr>
+          <tr><td class="k">クリック ／ Shift ＋ クリック</td><td>選ぶ ／ 追加で選ぶ</td></tr>
+          <tr><td class="k">A ／ Option（Alt）＋ A</td><td>全部選ぶ ／ 全部解除</td></tr>
+          <tr><td class="k">ダブルクリック</td><td>ループ選択（ぐるっと一周）</td></tr>
+          <tr><td class="k">ドラッグ</td><td>ボックス選択</td></tr>
+          <tr><td class="k">L</td><td>つながっている部分をまとめて選ぶ</td></tr>
+          <tr><td class="k">Option（Alt）＋ Z</td><td>透過表示（裏側も選べる）</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">形を作る</h3>
+        <table class="key-table both">
+          <tr><td class="k">E</td><td>押し出し</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ R</td><td>ループカット</td></tr>
+          <tr><td class="k">I</td><td>面の差し込み</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ B</td><td>ベベル（辺を丸く）</td></tr>
+          <tr><td class="k">F</td><td>選んだ頂点・辺に面を張る</td></tr>
+          <tr><td class="k">X</td><td>削除（頂点 ／ 辺 ／ 面 ／ 面だけ）</td></tr>
+          <tr><td class="k">Shift ＋ D</td><td>選んだ部分を複製</td></tr>
+          <tr><td class="k">G → G</td><td>辺をスライド（面に沿って動かす）</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">調整・その他</h3>
+        <table class="key-table both">
+          <tr><td class="k">G ／ R ／ S</td><td>移動 ／ 回転 ／ 大きさ（選んだ部分だけ）</td></tr>
+          <tr><td class="k">数字 → ⏎</td><td>数値で確定（E → 0.5 → ⏎ など）</td></tr>
+          <tr><td class="k">右クリック ／ Esc</td><td>途中でやめる（押し出しは Cmd（Ctrl）＋ Z も）</td></tr>
+          <tr><td class="k">左下のパネル ／ F9</td><td>最後の操作を調整（分割数・セグメント・幅）</td></tr>
+          <tr><td class="k">O</td><td>プロポーショナル編集（まわりも一緒に動く）</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ Z ／ Shift ＋ Cmd（Ctrl）＋ Z</td><td>戻す ／ やり直す</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ S</td><td>保存（名前は英数字で）</td></tr>
+          <tr><td class="k">右クリック → スムーズシェード</td><td>なめらかに見せる（オブジェクトモードで）</td></tr>
+        </table>
+      </div>
+    </div>
+    <p class="video-cap" style="margin-top:0.8rem;">（ ）の中は Windows・マウスの場合：Cmd → Ctrl、Option → Alt。この一覧は授業ページの配布資料に PDF（A4 1枚）がある</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 18</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 6,
+    openWeeks: 7,
     weeks: [
       {
         week: 1,
@@ -313,10 +313,26 @@ const SITE_DATA = {
       {
         week: 7,
         title: "Blenderモデリング①（編集モード）",
-        description: "編集モードで形を作り込む。頂点・辺・面の選択、押し出し（E）、ループカット（Cmd + R）、面の差し込み（I）、ベベル（Cmd + B）。プリミティブを削ったり伸ばしたりして、楽器や小物など「ARで置きたいもの」の形に近づける。",
-        slides: null,
+        description: "編集モードで形を作り込む。Tab でオブジェクトモードと編集モードを切り替え、頂点・辺・面を選ぶ。押し出し（E）、ループカット（Cmd + R）、面の差し込み（I）、ベベル（Cmd + B）。プリミティブを削ったり伸ばしたりして、鍵盤・太鼓・スピーカーなど「ARで置きたい、音の出るモノ」の形に近づける。",
+        slides: [
+          { label: "第7回 Blenderモデリング①（編集モード） スライド", url: "slides/game2_week07.html" }
+        ],
         project: null,
-        assignment: "【必修】押し出しで形を作ろう\n\n編集モードを使って、1つのプリミティブから形を作り込んでください（例：円柱から太鼓、立方体からスピーカー、立方体から鍵盤ハーモニカ）。\n\n■ 条件\n・押し出し（E）とループカット（Cmd + R）を両方使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚\n・.blend ファイル\n\n──────────────────────────────\n\n【任意】\n・ベベル（Cmd + B）で角を丸める\n・面の差し込み（I）で凹みや枠をつける",
+        documents: [
+          { label: "作例：鍵盤（.blend ファイル。「やってみよう」の完成形）", url: "files/game2_week07_keyboard.blend" },
+          { label: "作例：太鼓（.blend ファイル。「作ってみよう」の完成形）", url: "files/game2_week07_drum.blend" },
+          { label: "作例：スピーカー（.blend ファイル。発展の完成形）", url: "files/game2_week07_speaker.blend" },
+          { label: "鍵盤の作り方 動画（mp4・ツールバーとメニューで・テロップと操作キー付き・65秒）", url: "files/game2_week07_keys_howto.mp4" },
+          { label: "太鼓の作り方 動画（mp4・ツールバーとメニューで、( ) にショートカット・テロップと操作キー付き・72秒）", url: "files/game2_week07_drum_howto.mp4" },
+          { label: "押し出し（E）動画（mp4・ショートカットとツールの両方・テロップ付き・20秒）", url: "files/game2_week07_extrude.mp4" },
+          { label: "ループカット（Cmd + R）動画（mp4・ショートカットとツールの両方・テロップ付き・23秒）", url: "files/game2_week07_loopcut.mp4" },
+          { label: "面の差し込み（I）動画（mp4・ショートカットとツールの両方・テロップ付き・20秒）", url: "files/game2_week07_inset.mp4" },
+          { label: "ベベル（Cmd + B）動画（mp4・ショートカットとツールの両方・テロップ付き・22秒）", url: "files/game2_week07_bevel.mp4" },
+          { label: "スピーカーの作り方 動画（発展：面の差し込み＋ベベル。mp4・ツールバーとメニューで、( ) にショートカット・テロップと操作キー付き・82秒）", url: "files/game2_week07_speaker_howto.mp4" },
+          { label: "おまけ：色を塗る 動画（鍵盤を白と黒に。マテリアル → 新規 → ベースカラー → 2 つ目のマテリアルを割り当て。mp4・テロップ付き・58秒）", url: "files/game2_week07_color_howto.mp4" },
+          { label: "編集モードのショートカット一覧（PDF・A4 1枚。Mac 表記、Windows の読みかえ付き）", url: "files/game2_week07_shortcuts.pdf" },
+        ],
+        assignment: "【必修】押し出しとループカットで形を作ろう\n\n編集モードを使って、1つのプリミティブから「音の出るモノ」を1つ作ってください（例：立方体からスピーカー、立方体から鍵盤ハーモニカ、円柱からマグカップ、立方体からラジカセ）。授業で作った太鼓と同じやり方です。\n\n■ 条件\n・押し出し（E）とループカット（Cmd + R）を両方使う\n\n■ 提出物\n・Blender の画面のスクリーンショット1枚（編集モードのままでも、オブジェクトモードでもOK）\n\n──────────────────────────────\n\n【任意】\n・面の差し込み（I）でへこみや枠をつける\n・ベベル（Cmd + B）で角を丸める",
         deadline: "第8回授業開始時"
       },
       {
