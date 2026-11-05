@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第8回 Blenderモデリング②（モディファイア・マテリアル）</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.col-card .ver { display: block; font-size: 1.5rem; font-weight: bold; margin: 0.2rem 0 0.4rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.key-table.compact th, .key-table.compact td { padding: 0.42rem 0.9rem; font-size: 0.92rem; }
+.key-table.both th, .key-table.both td { padding: 0.3rem 0.7rem; font-size: 0.86rem; }
+.key-table.both td.k { white-space: normal; min-width: 11rem; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 画像・図 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.shot-img { width: 100%; height: auto; max-height: 58vh; object-fit: contain; object-position: top; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.layout-wrap { position: relative; display: inline-block; margin-top: 0.2rem; }
+.layout-wrap img { display: block; max-width: 100%; max-height: 64vh; width: auto; height: auto; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.abox { position: absolute; border: 2px solid #8fe0a0; border-radius: 4px; pointer-events: none; }
+.abox.y { border-color: #ffd166; }
+.abox.p { border-color: #b482ff; }
+.albl { position: absolute; background: rgba(13,27,42,0.92); color: #fff; font-size: 0.82rem; font-weight: bold; padding: 0.18rem 0.6rem; border-radius: 12px; border: 1px solid rgba(143,224,160,0.8); white-space: nowrap; line-height: 1.4; }
+.albl.y { border-color: #ffd166; }
+.albl.p { border-color: #b482ff; }
+.video-one { width: 100%; max-width: min(1000px, calc((100vh - 19rem) * 1.7778)); margin-top: 0.3rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.slide p.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.55rem; opacity: 0.9; max-width: 1000px; }
+.soft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem 0.6rem; width: 100%; max-width: 1260px; margin-top: 0.4rem; }
+.soft.wide2 { grid-column: span 2; }
+.soft.wide2 img { aspect-ratio: 32 / 9; }
+.soft-grid.cols3 { grid-template-columns: repeat(3, 1fr); }
+.task { display: flex; gap: 0.8rem; align-items: center; background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.7rem; }
+.task img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+.task p { font-size: 0.95rem; line-height: 1.55; max-width: none; }
+.soft { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 0.45rem 0.45rem 0.5rem; }
+.soft.now { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.6); }
+.soft img { width: 100%; aspect-ratio: 16 / 9; max-height: 19vh; object-fit: cover; object-position: top; border-radius: 5px; display: block; background: #000; }
+.soft strong { display: block; font-size: 0.95rem; margin: 0.3rem 0 0.05rem; }
+.soft a { color: #8fe0a0; text-decoration: none; }
+.soft.vj img, .soft.vj svg { width: 100%; aspect-ratio: 16 / 9; max-height: 27vh; object-fit: cover; object-position: center; border-radius: 5px; display: block; background: #000; }
+.soft.vj strong { font-size: 1.05rem; }
+.soft.vj span { font-size: 0.86rem; }
+.soft .meta { margin-top: 0.3rem; font-size: 0.78rem; color: #cdb2ff; opacity: 1; }
+.col-card a { color: #8fe0a0; }
+.soft a:hover { text-decoration: underline; }
+.soft span { display: block; font-size: 0.8rem; opacity: 0.8; line-height: 1.35; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; width: 100%; }
+.grid2 figure { margin: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.25rem; }
+.grid2 img { width: 100%; height: auto; max-height: 20vh; object-fit: cover; display: block; border-radius: 4px; }
+.grid2 figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.2rem; opacity: 0.9; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; align-items: start; }
+.pair img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.key-table img.inl { width: 52px; height: 52px; vertical-align: middle; margin-right: 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.roadmap.cols5 { grid-template-columns: repeat(5, 1fr); max-width: 1200px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4, .roadmap.cols5 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+
+/* ── 第7回 追加 ── */
+.pair figure.cap { margin: 0; }
+.pair figure.cap figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.3rem; opacity: 0.9; line-height: 1.4; }
+.grid2.cols3 { grid-template-columns: repeat(3, 1fr); }
+.pair.vsmall img { max-height: 17vh; object-fit: cover; }
+.layout-wrap img { max-height: 64vh; }
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第8回 Blenderモデリング②（モディファイア・マテリアル）</h3>
+    <p class="muted" style="margin-top:2rem;">ミラー・サブディビジョンサーフェス・配列・色と質感</p>
+  </div>
+
+  <!-- 2. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>モディファイアで形を整え、マテリアルで色をつける</h2>
+    <div class="roadmap cols5">
+      <div class="rm done"><div class="no">第6回</div><strong>Blender入門</strong><span>視点・G／R／S・保存</span><span class="ok">済</span></div>
+      <div class="rm done"><div class="no">第7回</div><strong>編集モード</strong><span>押し出し・ループカット</span><span class="ok">済</span></div>
+      <div class="rm today"><div class="no">第8回</div><strong>モディファイア・色</strong><span>左右対称・なめらか・並べる・色と質感。Blender はここまで</span></div>
+      <div class="rm opt"><div class="no">第9回</div><strong>Unity へ</strong><span>FBX で書き出して取り込む</span></div>
+      <div class="rm opt"><div class="no">第10回</div><strong>AR に置く</strong><span>タップで鳴る</span></div>
+    </div>
+    <div class="flow" style="max-width:1200px; margin-top:1.2rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>木琴を作る</strong><span>配列 ＋ ミラー ＋ 2 色</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>第7回のモノに モディファイア 1 つ ＋ 色 2 色</strong><span>マテリアルプレビューのスクショを提出</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できた人から</span><strong>メタリック・粗さで 金属・つや</strong></div>
+    </div>
+    <p class="small-note">今日の画面は Blender 5.2 LTS・日本語表示。キー表記は Mac（Windows は Cmd → Ctrl、Option → Alt）</p>
+  </div>
+
+  <!-- 3. ① モディファイアとは -->
+  <div class="slide theme-content">
+    <div class="tag blue">① モディファイア</div>
+    <h2>元の形はそのまま、効果を「かぶせる」</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">開く</td><td>プロパティの <strong>レンチ</strong>（モディファイアープロパティ）</td></tr>
+          <tr><td class="k">足す</td><td><strong>モディファイアーを追加 → 生成</strong> → ミラー ／ サブディビジョンサーフェス ／ 配列</td></tr>
+          <tr><td class="k">直す</td><td>パネルの数値を変えるだけ（元の形は残っている）</td></tr>
+          <tr><td class="k">消す</td><td>パネル右上の <strong>×</strong></td></tr>
+          <tr><td class="k">順番</td><td>上から順にかかる（∨ → 最初に移動 ／ 最後に移動）</td></tr>
+          <tr><td class="k">確定する</td><td>「適用」。ふつうはしない（Unity へは書き出し時に自動で適用される）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="pair" style="grid-template-columns: 1.1fr 1fr; align-items:start;">
+          <figure class="cap"><img src="../img/game2/week08_mod_menu.jpg" alt="モディファイアーを追加 → 生成 のメニュー"><figcaption>レンチ → モディファイアーを追加 → 生成</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week08_mod_panel.jpg" alt="追加されたミラーモディファイアのパネル"><figcaption>足したあとのパネル（数値はいつでも変えられる）</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ① ミラー -->
+  <div class="slide theme-content">
+    <div class="tag blue">① ミラー</div>
+    <h2>ミラー ― 半分作れば、左右対称</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 半分だけ作る</td><td><strong>原点</strong>（オレンジの点）が反転の中心</td></tr>
+          <tr><td class="k">2 足す</td><td>レンチ → モディファイアーを追加 → 生成 → <strong>ミラー</strong></td></tr>
+          <tr><td class="k">座標軸</td><td>X ／ Y ／ Z ＝ どの向きに反転するか</td></tr>
+          <tr><td class="k">ずらすとき</td><td><strong>Tab</strong> で編集モードにして動かす（オブジェクトモードで動かすと原点も動く）</td></tr>
+          <tr><td class="k">クリッピング</td><td>中心を越えないようにする（くっつけたまま編集）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week08_mirror_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week08_mirror.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（28 秒）：Tab → 右へずらす → Tab → レンチ → モディファイアーを追加 → 生成 → ミラー → 左にも出る</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week08_mirror_before.jpg" alt="編集モードで右にずらした立方体"><figcaption>Tab で右にずらす（原点は中央）</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week08_mirror_after.jpg" alt="ミラーで左右に 2 つになった立方体"><figcaption>ミラー X → 左にも出る</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ① サブディビジョンサーフェス -->
+  <div class="slide theme-content">
+    <div class="tag blue">① サブディビジョンサーフェス</div>
+    <h2>サブディビジョンサーフェス ― なめらかに丸く</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 足す</td><td>レンチ → モディファイアーを追加 → 生成 → <strong>サブディビジョンサーフェス</strong></td></tr>
+          <tr><td class="k">ビューポートのレベル数</td><td>1〜2 で十分（上げすぎると重い）</td></tr>
+          <tr><td class="k">影もなめらかに</td><td>右クリック → <strong>スムーズシェード</strong>（1 番上。「自動スムーズシェード」ではない）</td></tr>
+          <tr><td class="k">角を残したい</td><td>角の近くに Cmd ＋ R でループカットを足す</td></tr>
+          <tr><td class="k">注意</td><td>Cmd ＋ 1〜5 は「テンキーを模倣」が ON だと使えない → パネルで</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week08_subsurf_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week08_subsurf.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（26 秒）：生成 → サブディビジョンサーフェス → ビューポートのレベル数 2 → 右クリック → スムーズシェード</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week08_subsurf_before.jpg" alt="立方体"><figcaption>立方体</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week08_subsurf_after.jpg" alt="サブディビジョンで丸くなった立方体"><figcaption>レベル 2 ＋ スムーズシェード</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. ① 配列 -->
+  <div class="slide theme-content">
+    <div class="tag blue">① 配列</div>
+    <h2>配列 ― 同じ形を、ずらりと並べる</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 足す</td><td>レンチ → モディファイアーを追加 → 生成 → <strong>配列</strong></td></tr>
+          <tr><td class="k">数</td><td>いくつ並べるか</td></tr>
+          <tr><td class="k">オフセット X</td><td>間隔（1 ＝ ぴったり、1.3 ＝ すき間あり）。Y・Z にすると向きが変わる</td></tr>
+          <tr><td class="k">4.5 の人</td><td>「係数 X」（同じ意味）</td></tr>
+          <tr><td class="k">5.2 の「配列（旧）」</td><td>昔からの配列。どちらでも同じように並ぶ</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week08_array_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week08_array.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（38 秒）：生成 → 配列 → 数 5 → オフセット X 1.3 → Y に変えると向きが変わる</p>
+        <div class="pair vsmall" style="margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week08_array_before.jpg" alt="立方体 1 つ"><figcaption>立方体 1 つ</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week08_array_after.jpg" alt="配列で 5 つ並んだ立方体"><figcaption>数 5・オフセット X 1.3</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. ② マテリアル（色） -->
+  <div class="slide theme-content">
+    <div class="tag orange">② マテリアル</div>
+    <h2>マテリアル ― 色をつける（第6回の復習 ＋ 2 色に分ける）</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">1 つける</td><td>マテリアルタブ（赤い玉）→ <strong>新規</strong> → <strong>ベースカラー</strong> をクリック → 色相環で選ぶ</td></tr>
+          <tr><td class="k">2 見る</td><td>3D ビューポート右上の <strong>マテリアルプレビュー</strong>（4 つの玉の 3 つ目）</td></tr>
+          <tr><td class="k">別のモノに別の色</td><td>そのモノを選んで → 新規</td></tr>
+          <tr><td class="k">同じモノの一部だけ</td><td>Tab → 面を選ぶ → スロットの <strong>＋</strong> → 新規 → 色 → <strong>割り当て</strong></td></tr>
+          <tr><td class="k">名前</td><td>名前欄をクリックして英数字で（Wood、Black など）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week07_color_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week07_color_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（58 秒・第7回のおまけ）：鍵盤を白と黒に。マテリアルタブ → 新規 → ベースカラー → マテリアルプレビュー → Tab → 黒鍵の面を選ぶ → ＋ → 新規 → 黒 → 割り当て</p>
+        <div class="pair vsmall" style="margin-top:0.5rem; grid-template-columns: 1fr 1.3fr;">
+          <figure class="cap"><img src="../img/game2/week08_mat_panel.jpg" alt="マテリアルプロパティ。ベースカラー・メタリック・粗さ"><figcaption>マテリアルタブ（ベースカラー・メタリック・粗さ）</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week08_mat_assign.jpg" alt="編集モードのマテリアルタブ。割り当てボタン"><figcaption>Tab 中は ＋ → 新規 → 割り当て</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. ② 質感 -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 質感</div>
+    <h2>メタリック・粗さ ― 金属か、つやか</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">ベースカラー</td><td>色</td></tr>
+          <tr><td class="k">メタリック</td><td><strong>0 ＝ 金属でない</strong> ⇄ <strong>1 ＝ 金属</strong>（数値をクリックして入力 ／ 左右にドラッグ）</td></tr>
+          <tr><td class="k">粗さ</td><td><strong>0 ＝ つやつや（鏡）</strong> ⇄ <strong>1 ＝ マット</strong></td></tr>
+          <tr><td class="k">金属</td><td>メタリック 1・粗さ 0.2〜0.4（シンバル・金具）</td></tr>
+          <tr><td class="k">プラスチック</td><td>メタリック 0・粗さ 0.5（最初の値）</td></tr>
+          <tr><td class="k">ピカピカ</td><td>メタリック 0・粗さ 0.05（ピアノの塗装）</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week08_material_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week08_material.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（41 秒）：新規 → ベースカラー → メタリック 1 → 粗さ 0.2 → 粗さを 1 に → マテリアルプレビューで見比べる</p>
+        <figure class="cap" style="margin:0.5rem 0 0;"><img src="../img/game2/week08_spheres.jpg" alt="プラスチック・金属・ピカピカの 3 つの球" style="width:100%; border-radius:6px; border:1px solid rgba(255,255,255,0.15); max-height:17vh; object-fit:cover;"><figcaption>左：プラスチック（粗さ 0.5）／ 中：金属（メタリック 1・粗さ 0.25）／ 右：ピカピカ（粗さ 0.05）</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. ③ やってみよう：木琴 -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ やってみよう</div>
+    <h2>「木琴」を作って、保存する ― ツールバーでも、ショートカットでも</h2>
+    <table class="key-table compact both" style="max-width:1260px;">
+      <tr><th></th><th>ツールバー・メニューで</th><th>ショートカットで</th></tr>
+      <tr><td class="k">1 板を作る</td><td>立方体を選ぶ → スケール ツール：赤い箱を内へ、緑を外へ、青を内へ（細く・長く・薄く）</td><td>S → X → 0.15 → ⏎、S → Y → 0.8 → ⏎、S → Z → 0.05 → ⏎</td></tr>
+      <tr><td class="k">2 並べる</td><td colspan="2">レンチ → モディファイアーを追加 → 生成 → <strong>配列</strong> → 数 <strong>8</strong>、オフセット X <strong>1.3</strong></td></tr>
+      <tr><td class="k">3 土台を作る</td><td>追加 → メッシュ → 立方体 → スケール ツールで 長い棒に → 移動 ツールで 板の下・真ん中へ</td><td>Shift ＋ A → メッシュ → 立方体 → S → X → 1.6、S → Y → 0.06、S → Z → 0.06 → G → X → 1.4、G → Z → -0.1</td></tr>
+      <tr><td class="k">4 手前にずらす</td><td><strong>Tab</strong> → 移動 ツール：緑の矢印を手前へ → <strong>Tab</strong></td><td><strong>Tab</strong> → G → Y → -0.6 → ⏎ → <strong>Tab</strong></td></tr>
+      <tr><td class="k">5 反転</td><td colspan="2">レンチ → モディファイアーを追加 → 生成 → <strong>ミラー</strong> → 座標軸 <strong>Y</strong>（原点が中央に残っているので、奥にも出る）</td></tr>
+      <tr><td class="k">6 色</td><td colspan="2">板を選ぶ → マテリアル → 新規 → ベースカラー（木の色）／ 土台を選ぶ（アウトライナーで Cube.001）→ 新規 → 黒 → 右上の マテリアルプレビュー</td></tr>
+      <tr><td class="k">7 保存</td><td>ファイル → 保存</td><td>Cmd ＋ S</td></tr>
+    </table>
+    <div class="pair" style="grid-template-columns: repeat(5, 1fr); max-width:1260px; align-items:start; margin-top:0.6rem; gap:0.6rem;">
+      <figure class="cap"><img src="../img/game2/week08_xylo_s1.jpg" alt="細長い板"><figcaption>1 板</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week08_xylo_s2.jpg" alt="配列で 8 本に"><figcaption>2 配列 × 8</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week08_xylo_s3.jpg" alt="土台の棒を手前に"><figcaption>3・4 土台を手前に</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week08_xylo_s5.jpg" alt="ミラーで奥にも土台"><figcaption>5 ミラー Y</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week08_xylo_final.jpg" alt="色をつけた木琴"><figcaption>6 色をつけると</figcaption></figure>
+    </div>
+  </div>
+
+  <!-- 10. ③ 動画で見る：木琴 -->
+  <div class="slide theme-content">
+    <div class="tag orange">③ 動画で見る</div>
+    <h2>木琴の作り方</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week08_xylo_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week08_xylo_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作。① S → X・Y・Z で板（細く・長く・薄く）→ ② 配列 → 数 8・オフセット X 1.3 → ③ Shift ＋ A で立方体を足して 土台 → ④ Tab → G → Y で手前へ → Tab → ⑤ ミラー Y → ⑥ 板は 3D ビューで、土台はアウトライナーで選んで 色 2 つ → マテリアルプレビュー → ⑦ 保存</p>
+  </div>
+
+  <!-- 11. ④ 作ってみよう ＝ 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 作ってみよう</div>
+    <h2>0 から作って、仕上げる ― 作り方の例：スピーカー（第7回 ＋ 第8回）</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>立方体 → Tab → S → Z → 1.6 → ⏎　＝ 縦長の箱</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Cmd ＋ R → 縦の辺の上 → クリック → 右クリック　＝ 前の面を上下に分ける</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>面選択 → 下の前の面 → I → 0.2 → E → -0.25（ウーファー）／ 上の前の面 → I → 0.3 → E → -0.15（ツイーター）</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>A → Cmd ＋ B → スクロールで セグメント 3 → 0.05 → ⏎（角を丸く）→ G → X → 1.5 → ⏎ → Tab</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>レンチ → モディファイアーを追加 → 生成 → ミラー　＝ 2 台（ステレオ）</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>マテリアルプレビュー → 新規 → 黒 ＝ 箱 ／ Tab → 底を 2 つ Shift ＋ クリック → ＋ → 新規 → 白 → 割り当て → Tab ＝ コーン</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Cmd ＋ S</strong></div></div>
+      </div>
+      <div>
+        <div class="grid2">
+          <figure><img src="../img/game2/week08_spk_s3.jpg" alt="ウーファーとツイーターをへこませた箱" style="max-height:18vh;"><figcaption>③ ウーファー・ツイーター</figcaption></figure>
+          <figure><img src="../img/game2/week08_spk_s4.jpg" alt="ベベルで角を丸くして右へずらした箱" style="max-height:18vh;"><figcaption>④ ベベル → 右へ</figcaption></figure>
+          <figure><img src="../img/game2/week08_spk_s5.jpg" alt="ミラーで 2 台になったスピーカー" style="max-height:18vh;"><figcaption>⑤ ミラーで 2 台</figcaption></figure>
+          <figure><img src="../img/game2/week08_spk_s6.jpg" alt="箱を黒、コーンを白にしたスピーカー 2 台" style="max-height:18vh;"><figcaption>⑥ 2 色</figcaption></figure>
+        </div>
+        <div class="task">
+          <img src="../img/game2/week08_spk_s6.jpg" alt="仕上げたスピーカー 2 台">
+          <p><strong>今日の課題：第7回のモノ（または新しいモノ）を仕上げる</strong>。ミラー・サブディビジョンサーフェス・配列のどれか 1 つ以上 ＋ マテリアル 2 色以上 → マテリアルプレビューのスクショを提出</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. ④ 動画で見る：スピーカー -->
+  <div class="slide theme-content">
+    <div class="tag green">④ 動画で見る</div>
+    <h2>スピーカーを 0 から作って、仕上げる</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week08_spk_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week08_speaker_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作。① Tab → S → Z で縦長 → ② Cmd ＋ R でループカット → ③ 面選択 → I → E ×2 → ④ A → Cmd ＋ B → G → X で右へ → Tab → ⑤ ミラー → ⑥ マテリアルプレビュー → 新規 → 黒 → Tab → 底を 2 つ選ぶ → ＋ → 新規 → 白 → 割り当て → Tab → ⑦ 保存</p>
+  </div>
+
+  <!-- 13. 発展（任意）：ヘッドホン -->
+  <div class="slide theme-content">
+    <div class="tag purple">発展（任意）</div>
+    <h2>ミラー ＋ サブディビジョン ＋ 複製 ＋ 金属 ― 例：ヘッドホン</h2>
+    <div class="guide even">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>立方体 → S → X → 0.3、S → 0.8（平たいカップ）→ Tab → G → X → 1.1 → ⏎ → Tab</strong>　原点は中央のまま</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>生成 → サブディビジョンサーフェス → レベル 2 → 右クリック → スムーズシェード　＝ 丸いカップ</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>生成 → ミラー（X）　＝ 左にもカップ</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Shift ＋ D → ⏎ → S → 0.8 → ⏎　＝ クッション（モディファイアごと複製される）</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Shift ＋ A → トーラス → S → 1.2、S → Z → 0.4、R → X → 90 → 1（前から見る）→ Tab → Option ＋ A → Option ＋ Z → B → 下半分をドラッグで囲む → X → 頂点 → Tab　＝ バンド</strong></div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>色：アウトライナーで Cube → 黒 ／ Cube.001 → × で外して 新規 → 濃いグレー ／ Torus → メタリック 1・粗さ 0.3（銀）</strong></div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>マテリアルプレビュー → Cmd ＋ S</strong></div></div>
+      </div>
+      <div>
+        <div class="grid2">
+          <figure><img src="../img/game2/week08_hp_s3.jpg" alt="ミラーで 2 つになった丸いカップ" style="max-height:18vh;"><figcaption>②③ サブディビジョン ＋ ミラー</figcaption></figure>
+          <figure><img src="../img/game2/week08_hp_s4.jpg" alt="複製して縮めたクッション" style="max-height:18vh;"><figcaption>④ 複製してクッション</figcaption></figure>
+          <figure><img src="../img/game2/week08_hp_s5.jpg" alt="トーラスの下半分を消したアーチのバンド" style="max-height:18vh;"><figcaption>⑤ トーラスの下半分を消してバンド</figcaption></figure>
+          <figure><img src="../img/game2/week08_hp_s6.jpg" alt="黒・濃いグレー・銀で仕上げたヘッドホン" style="max-height:18vh;"><figcaption>⑥ 3 色で完成</figcaption></figure>
+        </div>
+        <div class="highlight-box" style="margin-top:0.7rem;"><p><strong>半分作る → ミラー → サブディビジョンで丸く → 複製で部品を増やす</strong>　ヘッドホン・ギター・ラジカセ…左右対称のモノは、ぜんぶこの順番</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. 発展 動画で見る：ヘッドホン -->
+  <div class="slide theme-content">
+    <div class="tag purple">発展 動画で見る</div>
+    <h2>ヘッドホンの作り方 ― ミラー ＋ サブディビジョン ＋ 複製 ＋ 金属</h2>
+    <div class="video-one" style="max-width: min(1000px, calc((100vh - 19rem) * 1.6));">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week08_hp_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week08_headphone_howto.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <p class="video-cap">白いキー＝押すキー、青＝マウス・トラックパッド操作。① S で平たくして Tab → G → X で右へ → Tab → ② サブディビジョン → スムーズシェード → ③ ミラー X → ④ Shift ＋ D → S 0.8 でクッション → ⑤ トーラス → 1 で前から見て Option ＋ A → B で下半分を囲んで X → 頂点 ＝ バンド → ⑥ アウトライナーで選んで 黒・濃いグレー（× で外して新規）・銀 → ⑦ 保存</p>
+  </div>
+
+  <!-- 15. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <table class="key-table wrap compact" style="max-width:1100px;">
+      <tr><td class="k">ミラーで何も変わらない</td><td>原点が真ん中にない → オブジェクトモードで動かした分を Cmd ＋ Z で戻し、Tab（編集モード）で動かす</td></tr>
+      <tr><td class="k">サブディビジョンで団子になった</td><td>角の近くに Cmd ＋ R でループカット ／ レベルを 1 に</td></tr>
+      <tr><td class="k">配列が重なって見える</td><td>オフセット X を 1.3 など 1 より大きく</td></tr>
+      <tr><td class="k">色が出ない</td><td>右上の マテリアルプレビュー（4 つの玉の 3 つ目）になっている？</td></tr>
+      <tr><td class="k">一部だけ色を変えたい</td><td>Tab → 面を選ぶ → ＋ → 新規 → 割り当て（面を選んでから）</td></tr>
+      <tr><td class="k">「角度でスムーズ」が勝手に付いた</td><td>「自動スムーズシェード」を選んだ → × で消して「スムーズシェード」（1 番上）</td></tr>
+      <tr><td class="k">重い・遅い</td><td>サブディビジョンのレベルを 1 に、配列の数を減らす</td></tr>
+      <tr><td class="k">形が崩れた</td><td>Cmd ＋ Z で戻る。モディファイアは × で消せる（元の形は残っている）</td></tr>
+    </table>
+  </div>
+
+  <!-- 16. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第8回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:1000px;">
+      <li><strong>モディファイア</strong>：元の形に効果を「かぶせる」。レンチ → モディファイアーを追加 → 生成</li>
+      <li><strong>ミラー</strong> 左右対称（原点が中心）／ <strong>サブディビジョンサーフェス</strong> なめらか（＋ スムーズシェード）／ <strong>配列</strong> 並べる（数・オフセット）</li>
+      <li><strong>マテリアル</strong>：ベースカラー・メタリック・粗さ。右上の マテリアルプレビュー で見る</li>
+      <li>一部だけ色を変える：Tab → 面を選ぶ → ＋ → 新規 → 割り当て</li>
+      <li>課題：第7回のモノに モディファイア 1 つ以上 ＋ 色 2 色以上 → マテリアルプレビューのスクショを提出</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>次回：第9回 <strong>Unity へ</strong> ― FBX で書き出して取り込む。Blender は今日まで。<strong>今日の .blend は消さない</strong>／ 名前は英数字 ／ 大きさは実物に近く（1 ＝ 1 m）／ モディファイアは適用しなくてよい</p>
+    </div>
+  </div>
+
+  <!-- 17. 付録：早見表 -->
+  <div class="slide theme-content">
+    <div class="tag purple">付録</div>
+    <h2>モディファイア・マテリアルの早見表 <span style="font-size:1rem; font-weight:normal; opacity:0.8;">― Mac（Windows・マウス）</span></h2>
+    <div class="guide" style="grid-template-columns: 1fr 1fr 1.1fr; gap: 1.4rem; align-items: start; max-width: none;">
+      <div>
+        <h3 style="margin-bottom:0.3rem;">モディファイア（レンチ）</h3>
+        <table class="key-table both">
+          <tr><td class="k">足す</td><td>モディファイアーを追加 → 生成</td></tr>
+          <tr><td class="k">消す</td><td>右上の ×（Cmd（Ctrl）＋ X でも）</td></tr>
+          <tr><td class="k">順番</td><td>∨ → 最初に移動 ／ 最後に移動</td></tr>
+          <tr><td class="k">確定</td><td>∨ → 適用（Cmd（Ctrl）＋ A）。ふつうは不要</td></tr>
+          <tr><td class="k">ミラー</td><td>座標軸 X／Y／Z・クリッピング</td></tr>
+          <tr><td class="k">サブディビジョン</td><td>ビューポートのレベル数 1〜2</td></tr>
+          <tr><td class="k">配列</td><td>数・オフセット X（4.5 は 係数 X）</td></tr>
+          <tr><td class="k">右クリック → スムーズシェード</td><td>影をなめらかに</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">マテリアル（赤い玉）</h3>
+        <table class="key-table both">
+          <tr><td class="k">新規</td><td>マテリアルを作る</td></tr>
+          <tr><td class="k">ベースカラー</td><td>色（色相環 ／ 16 進数）</td></tr>
+          <tr><td class="k">メタリック</td><td>0 金属でない ⇄ 1 金属</td></tr>
+          <tr><td class="k">粗さ</td><td>0 つやつや ⇄ 1 マット</td></tr>
+          <tr><td class="k">＋ ／ －</td><td>スロットを足す ／ 消す</td></tr>
+          <tr><td class="k">割り当て</td><td>Tab 中、選んだ面にそのスロットの色</td></tr>
+          <tr><td class="k">玉のアイコン ▾</td><td>作った色を使い回す</td></tr>
+          <tr><td class="k">名前欄</td><td>クリックして英数字で</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">表示・その他</h3>
+        <table class="key-table both">
+          <tr><td class="k">右上の 4 つの玉</td><td>ワイヤー ／ ソリッド ／ マテリアルプレビュー ／ レンダー</td></tr>
+          <tr><td class="k">Z</td><td>表示の円メニュー</td></tr>
+          <tr><td class="k">Shift ＋ Z ／ Option（Alt）＋ Z</td><td>ワイヤーフレーム ／ 透過表示</td></tr>
+          <tr><td class="k">Tab ／ 面アイコン</td><td>編集モード ／ 面選択</td></tr>
+          <tr><td class="k">B → ドラッグ</td><td>ボックス選択（囲んだ点を選ぶ。透過表示なら裏も）</td></tr>
+          <tr><td class="k">アウトライナーでダブルクリック</td><td>名前を変える（F2 でも）</td></tr>
+          <tr><td class="k">H ／ Option（Alt）＋ H</td><td>隠す ／ 全部表示</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ Z ／ Shift ＋ Cmd（Ctrl）＋ Z</td><td>戻す ／ やり直す</td></tr>
+          <tr><td class="k">Cmd（Ctrl）＋ S</td><td>保存（名前は英数字で）</td></tr>
+        </table>
+      </div>
+    </div>
+    <p class="video-cap" style="margin-top:0.8rem;">（ ）の中は Windows・マウスの場合：Cmd → Ctrl、Option → Alt。この一覧は授業ページの配布資料に PDF（A4 1枚）がある</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 17</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>
