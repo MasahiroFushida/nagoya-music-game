@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第9回 BlenderからUnityへ（FBX書き出し）</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.key-table.compact th, .key-table.compact td { padding: 0.42rem 0.9rem; font-size: 0.92rem; }
+.key-table.both th, .key-table.both td { padding: 0.3rem 0.7rem; font-size: 0.86rem; }
+.key-table.both td.k { white-space: normal; min-width: 11rem; }
+.key-table td.ok { color: #8fe0a0; font-weight: bold; white-space: nowrap; }
+.key-table td.ng { color: #ffb380; font-weight: bold; white-space: nowrap; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 画像・図 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.shot-img { width: 100%; height: auto; max-height: 58vh; object-fit: contain; object-position: top; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.layout-wrap { position: relative; display: inline-block; margin-top: 0.2rem; }
+.layout-wrap img { display: block; max-width: 100%; max-height: 64vh; width: auto; height: auto; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.abox { position: absolute; border: 2px solid #8fe0a0; border-radius: 4px; pointer-events: none; }
+.abox.y { border-color: #ffd166; }
+.abox.p { border-color: #b482ff; }
+.albl { position: absolute; background: rgba(13,27,42,0.92); color: #fff; font-size: 0.82rem; font-weight: bold; padding: 0.18rem 0.6rem; border-radius: 12px; border: 1px solid rgba(143,224,160,0.8); white-space: nowrap; line-height: 1.4; }
+.albl.y { border-color: #ffd166; }
+.albl.p { border-color: #b482ff; }
+.video-one { width: 100%; max-width: min(1000px, calc((100vh - 19rem) * 1.7778)); margin-top: 0.3rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.slide p.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.55rem; opacity: 0.9; max-width: 1000px; }
+.task { display: flex; gap: 0.8rem; align-items: center; background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 0.7rem 0.9rem; margin-top: 0.7rem; }
+.task img { width: 112px; height: 112px; object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15); }
+.task p { font-size: 0.95rem; line-height: 1.55; max-width: none; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; width: 100%; }
+.grid2 figure { margin: 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; padding: 0.25rem; }
+.grid2 img { width: 100%; height: auto; max-height: 20vh; object-fit: cover; display: block; border-radius: 4px; }
+.grid2 figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.2rem; opacity: 0.9; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; align-items: start; }
+.pair img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); }
+.pair figure.cap { margin: 0; }
+.pair figure.cap figcaption { font-size: 0.85rem; text-align: center; margin-top: 0.3rem; opacity: 0.9; line-height: 1.4; }
+.pair.vsmall img { max-height: 17vh; object-fit: cover; }
+.pair.vtop img { object-fit: cover; object-position: top; }
+.pair .layout-wrap { display: block; margin: 0; }
+.pair .layout-wrap img { max-height: none; width: 100%; }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.roadmap.cols5 { grid-template-columns: repeat(5, 1fr); max-width: 1200px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+/* 第9回：受け渡しの図 */
+.pipe { display: flex; align-items: stretch; justify-content: center; gap: 0.6rem; width: 100%; max-width: 1200px; margin-top: 0.3rem; }
+.pipe .pb { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 0.7rem 0.8rem; text-align: center; }
+.pipe .pb.b { border-color: rgba(255,160,80,0.6); background: rgba(230,81,0,0.14); }
+.pipe .pb.f { border-color: rgba(143,224,160,0.6); background: rgba(46,125,50,0.2); }
+.pipe .pb.u { border-color: rgba(100,180,255,0.6); background: rgba(26,107,191,0.2); }
+.pipe .pb strong { display: block; font-size: 1.05rem; margin-bottom: 0.15rem; }
+.pipe .pb span { display: block; font-size: 0.82rem; opacity: 0.8; line-height: 1.45; }
+.pipe .pa { align-self: center; font-size: 1.5rem; opacity: 0.5; }
+/* 第9回：動画サイズ */
+.video-one.w1610 { max-width: min(1100px, calc((100vh - 18rem) * 1.6)); }
+.guide > div, .guide > figure, .pair > figure, .pair > div { min-width: 0; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4, .roadmap.cols5 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第9回 BlenderからUnityへ（FBX書き出し）</h3>
+    <p class="muted" style="margin-top:2rem;">宿題で作ったモデルを Unity に持っていき、AR で出力する</p>
+  </div>
+
+  <!-- 2. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>宿題で作ったモデルを、Unity に持っていく</h2>
+    <div class="roadmap cols5">
+      <div class="rm done"><div class="no">第7回</div><strong>編集モード</strong><span>押し出し・ループカット</span><span class="ok">済</span></div>
+      <div class="rm done"><div class="no">第8回</div><strong>モディファイア・色</strong><span>ミラー・配列・マテリアル</span><span class="ok">済</span></div>
+      <div class="rm today"><div class="no">第9回</div><strong>Unity へ</strong><span>FBX で書き出して取り込む。大きさ・色・Prefab・AR</span></div>
+      <div class="rm opt"><div class="no">第10回</div><strong>AR に置く</strong><span>タップで鳴る。総合制作の最小ライン</span></div>
+      <div class="rm opt"><div class="no">第11回</div><strong>企画</strong><span>「現実の空間に、音を置く」</span></div>
+    </div>
+    <div class="flow" style="max-width:1200px; margin-top:1.2rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>宿題のモデルを<br>FBX で書き出す</strong><span>.blend → .fbx（メッシュだけ ＋ トランスフォームを適用）</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>Blender で作成したモデルを<br>AR で出力する</strong><span>Models フォルダ → 大きさ → 色 → 置く → Prefab → AR<br>スマホを使わない人は ▶ Play で OK<br>宿題のモデルが無い人は 作例で OK<br>AR の画面のスクショ ＋ .fbx を提出</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できた人から</span><strong>音を付ける（立体音響）<br>指で動かす・大きさを変える</strong><span>ほかのモデルも入れる・金属にする</span></div>
+    </div>
+    <p class="small-note">スライドの画面は、例のスピーカー（speaker）。自分のモデルの名前に読みかえる。キー表記は Mac（Windows は Cmd → Ctrl）。Unity は時間がかかるので、先に起動しておく</p>
+  </div>
+
+  <!-- 3. 今日の終わりにこうなる -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の終わりにこうなる</div>
+    <h2>自分のモデルが、AR で出る</h2>
+    <div class="video-one w1610">
+      <div class="video-wrap" style="padding-top:62.5%;">
+        <video controls preload="metadata" playsinline poster="../img/game2/week09_goal_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+          <source src="../files/game2_week09_goal_room.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="video-cap" style="margin-top:0.4rem;">動画（25 秒）：例のスピーカーを AR で出したところ。Mac では仮想の部屋（XR Simulation）、スマホでは現実の部屋に出る。横にあるのは配布の作例</p>
+    </div>
+  </div>
+
+  <!-- 4. リファレンス ①：KAGAMI+ -->
+  <div class="slide theme-content">
+    <div class="tag purple">リファレンス</div>
+    <h2>坂本龍一 &amp; Tin Drum《KAGAMI+》（2026）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/5Ld2vKp7fxo" title="坂本龍一 Ryuichi Sakamoto &amp; Tin Drum | KAGAMI+ Official Movie" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>坂本龍一のピアノ演奏を 3D で記録し、現実の空間によみがえらせる MR（複合現実）作品</strong>。透過型のヘッドセットで見る。2026 年 6〜10 月に大阪で日本初上演（世界初演は 2023 年・ニューヨーク）<br>現実の空間に、3D のモデルと音を置く ＝ 今日やることと同じしくみ</p>
+    </div>
+  </div>
+
+  <!-- 5. リファレンス ②：Sounds in Space -->
+  <div class="slide theme-content">
+    <div class="tag purple">リファレンス</div>
+    <h2>Google Creative Lab「Sounds in Space」（2020）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/A9M45uRPaJ0" title="AR Experiment: Sounds in Space" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>場所に音を置いて、歩くと聞こえ方が変わる AR の実験</strong>。スマホで音を置く場所を決める。Unity ＋ ARCore で作られている<br>音に「場所」を付ける ＝ 今日の立体音響と同じしくみ</p>
+    </div>
+  </div>
+
+  <!-- 6. リファレンス ③：Gorillaz Skinny Ape -->
+  <div class="slide theme-content">
+    <div class="tag purple">リファレンス</div>
+    <h2>Gorillaz「Skinny Ape」AR ライブ（2022）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/iFaKhtlBU7A" title="Gorillaz presents… Skinny Ape (Immersive Live Performance in Times Square)" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>3DCG のバンドメンバーが巨大な姿で街に現れて、新曲を演奏する AR ライブ</strong>。ニューヨークとロンドンの広場で、スマホのアプリ越しに見る<br>3DCG ＋ 音 ＋ AR ＝ この授業で作るものと同じ組み合わせ</p>
+    </div>
+  </div>
+
+  <!-- 7. ① しくみ：何が持っていける？ -->
+  <div class="slide theme-content">
+    <div class="tag blue">① しくみ</div>
+    <h2>Blender から FBX で書き出して、Unity に入れる</h2>
+    <p class="lead" style="margin-bottom:0.6rem;"><strong>FBX（.fbx）</strong>＝ 3D モデルを、ほかのソフトに渡すためのファイル。形や色は持っていけるが、持っていけないものもある</p>
+    <div class="pipe">
+      <div class="pb b"><strong>Blender（宿題の .blend）</strong><span>形・モディファイア・色</span></div>
+      <div class="pa">→</div>
+      <div class="pb f"><strong>.fbx（例：speaker.fbx）</strong><span>ファイル → エクスポート → FBX<br>.blend と同じフォルダにできる</span></div>
+      <div class="pa">→</div>
+      <div class="pb u"><strong>Unity（Assets/Models）</strong><span>Models フォルダにドラッグ<br>大きさ・色を整えて Prefab に</span></div>
+    </div>
+    <table class="key-table wrap" style="max-width:1000px; margin-top:1rem;">
+      <tr><th>Blender で作ったもの</th><th></th><th>Unity に入れると</th></tr>
+      <tr><td class="k">形・大きさ</td><td class="ok">○</td><td>1 ＝ 1 m のまま</td></tr>
+      <tr><td class="k">ミラー・配列・サブディビジョン</td><td class="ok">○</td><td>自動で適用される</td></tr>
+      <tr><td class="k">色・つや</td><td class="ok">○</td><td>そのまま入る</td></tr>
+      <tr><td class="k">メタリック</td><td class="ng">×</td><td>Unity で Metallic を 1 に</td></tr>
+      <tr><td class="k">カメラ・ライト</td><td class="ng">入れない</td><td>書き出すときに「メッシュ」だけにする</td></tr>
+    </table>
+  </div>
+
+  <!-- 8. ① FBX 書き出し -->
+  <div class="slide theme-content">
+    <div class="tag blue">① FBX 書き出し</div>
+    <h2>ファイル → エクスポート → FBX (.fbx)</h2>
+    <div class="guide" style="grid-template-columns: 1.1fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact">
+          <tr><td class="k">0 準備</td><td><strong>宿題の .blend を開く</strong> → 名前を英数字に（オブジェクトもファイルも）→ <strong>Cmd ＋ S</strong></td></tr>
+          <tr><td class="k">1 開く</td><td><strong>ファイル → エクスポート → FBX (.fbx)</strong>（別ウィンドウが出る。4.5 も同じ画面）</td></tr>
+          <tr><td class="k">2 メッシュだけ</td><td>右の設定：オブジェクトタイプ → <strong>メッシュ</strong> だけをクリック（カメラ・ランプが外れる）</td></tr>
+          <tr><td class="k">3 向きと大きさ</td><td>下にスクロール → <strong>トランスフォームを適用</strong>（⚠ のついた欄）にチェック → Unity で 回転 0・スケール 1</td></tr>
+          <tr><td class="k">4 名前</td><td>下の名前欄 → 英数字で <strong>自分の名前_モノ.fbx</strong>（例：fushida_speaker.fbx）</td></tr>
+          <tr><td class="k">5 書き出す</td><td><strong>FBXをエクスポート</strong> → .blend と同じフォルダに .fbx ができる</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap" style="padding-top:62.5%;">
+          <video controls preload="metadata" playsinline poster="../img/game2/week09_fbx_poster.jpg" style="position:absolute; inset:0; width:100%; height:100%; background:#000;">
+            <source src="../files/game2_week09_fbx_howto.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;">動画（30 秒）：ファイル → エクスポート → FBX → メッシュ → スクロール → トランスフォームを適用 → 名前 → FBXをエクスポート</p>
+      </div>
+    </div>
+    <div class="pair" style="grid-template-columns: 1.15fr 0.8fr 0.8fr; max-width:1200px; margin-top:0.5rem; gap:0.8rem;">
+      <figure class="cap"><img src="../img/game2/week09_fbx_menu.jpg" alt="ファイル → エクスポート → FBX (.fbx) のメニュー" style="max-height:24vh; object-fit:contain; object-position:left top;"><figcaption>1 ファイル → エクスポート → FBX (.fbx)</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week09_fbx_options.jpg" alt="オブジェクトタイプで メッシュ だけが選ばれている" style="max-height:24vh; object-fit:contain;"><figcaption>2 オブジェクトタイプ → メッシュ だけ</figcaption></figure>
+      <figure class="cap"><img src="../img/game2/week09_fbx_apply.jpg" alt="トランスフォームを適用にチェック" style="max-height:24vh; object-fit:contain;"><figcaption>3 下にスクロール → トランスフォームを適用</figcaption></figure>
+    </div>
+  </div>
+
+  <!-- 9. ② Unity：Models に入れる -->
+  <div class="slide theme-content">
+    <div class="tag orange">② Unity に入れる</div>
+    <h2>Models フォルダに入れる</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.15fr; align-items:start;">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>第5回のプロジェクトを開く</strong>自分の名前_AR_Project か game2_c → Scenes → Stage6（第5回のシーン）</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Project の Assets を右クリック → Create → Folder →「Models」</strong>第4回で作った人はそのまま</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Finder の .fbx（自分のモデル）を Models にドラッグ</strong>読み込みに少し時間がかかる</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>入れた .fbx をクリック → Inspector に「Import Settings」</strong>Model ／ Rig ／ Animation ／ Materials の 4 つのタブ</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>▶ を開くと中身が見える</strong>Blender のオブジェクトごとに分かれて入っている（Camera・Light が無いことを確認）</div></div>
+      </div>
+      <div class="pair vtop" style="grid-template-columns: 0.42fr 1fr;">
+        <figure class="cap"><img src="../img/game2/week09_u_models.jpg" alt="Project ウィンドウ。Assets の Models フォルダに speaker が入っている" style="max-height:58vh; object-fit:contain; object-position:top;"><figcaption>例：Assets → Models → speaker</figcaption></figure>
+        <figure class="cap"><div class="layout-wrap"><img src="../img/game2/week09_u_modeltab.jpg" alt="Inspector の Speaker Import Settings。Model タブ"><div class="abox" style="left:27.6%; top:18.6%; width:43.6%; height:5.2%;"></div><div class="albl" style="left:28%; top:25%;">4 つのタブ</div></div><figcaption>.fbx をクリック → Inspector</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. ② 確認：設定を忘れると -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 確認：設定を忘れると</div>
+    <h2>設定を忘れて書き出すと、こうなる</h2>
+    <div class="guide" style="grid-template-columns: 0.46fr 1.54fr; align-items:start;">
+      <figure class="cap" style="margin:0;"><img src="../img/game2/week09_fail_blender.jpg" alt="FBX 書き出しの設定。オブジェクトタイプが全部選ばれたまま" style="max-height:62vh; width:auto; display:block; margin:0 auto; border-radius:6px; border:1px solid rgba(255,255,255,0.15);"><figcaption style="font-size:0.85rem; text-align:center; margin-top:0.3rem; opacity:0.9;">右の設定をさわらずに書き出した場合</figcaption></figure>
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>▶ を開くと Camera と Light が入っている</strong>「メッシュ だけ」を忘れている</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Transform が Rotation −89.98・Scale 100</strong>「トランスフォームを適用」を忘れている</div></div>
+        </div>
+        <div class="pair" style="grid-template-columns: 0.6fr 1fr; margin-top:0.5rem;">
+          <figure class="cap"><img src="../img/game2/week09_fail_hierarchy.jpg" alt="Hierarchy。speaker の中に Camera、Cube、Light"><figcaption>Hierarchy：Camera と Light が入っている</figcaption></figure>
+          <figure class="cap"><img src="../img/game2/week09_fail_transform.jpg" alt="Transform。Rotation X −89.98、Scale 100"><figcaption>Transform：Rotation −89.98・Scale 100</figcaption></figure>
+        </div>
+        <div class="highlight-box wide" style="margin-top:0.6rem;"><p><strong>こうなっていたら</strong>：Blender に戻って <strong>メッシュ</strong> だけ ＋ <strong>トランスフォームを適用</strong> にして、同じ名前で書き出し直す</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. ② 本物の大きさに合わせる -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 大きさ</div>
+    <h2>モデルを、本物の大きさに合わせる</h2>
+    <p class="lead" style="margin-bottom:0.6rem;">単位は同じ（Blender の 1 m ＝ Unity の 1）。大きく作ったモデルは大きいまま入る（例のスピーカーは幅 5 m）→ 本物の大きさ（50 cm）にする</p>
+    <div class="guide" style="grid-template-columns: 1.2fr 1fr; align-items:start;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Blender：N → アイテム → 寸法 で、今の大きさを見る</strong>例：幅 5 m</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>本物の大きさ ÷ 今の大きさ を計算する</strong>例：0.5 m ÷ 5 m ＝ 0.1</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Unity：.fbx をクリック → Model タブ → Scale Factor に入れる → Apply</strong>例：0.1</div></div>
+        </div>
+        <div class="highlight-box wide" style="margin-top:0.7rem;"><p>本物の大きさは、自分で決めてよい（調べる・実物を測る）。AR は<strong>現実の部屋に出る</strong>ので、大きさが合うと本物らしく見える</p></div>
+      </div>
+      <div class="pair vtop" style="grid-template-columns: 0.72fr 1fr;">
+        <figure class="cap"><img src="../img/game2/week09_dimensions.jpg" alt="N キーで開くサイドバーの寸法。X 5 m、Y 2 m、Z 3.2 m" style="max-height:52vh; object-fit:contain; object-position:top;"><figcaption>例：Blender の寸法（幅 5 m）</figcaption></figure>
+        <figure class="cap"><div class="layout-wrap"><img src="../img/game2/week09_u_scale.jpg" alt="Inspector の Model タブ。Scale Factor 0.1"><div class="abox y" style="left:3.1%; top:28.9%; width:93.1%; height:5.0%;"></div><div class="albl y" style="left:4%; top:35%;">Scale Factor 0.1 → 下の Apply</div></div><figcaption>例：Unity の Model タブ → Scale Factor 0.1</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. ② 色と質感 -->
+  <div class="slide theme-content">
+    <div class="tag orange">② 色と質感</div>
+    <h2>Extract Materials ― 色を取り出して、Unity で直す</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.25fr; align-items:start;">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Materials タブ → Extract Materials… → そのまま Choose</strong>Models フォルダにマテリアルが出る（例：Material・Material.001）</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>色は Blender のまま入っている</strong>取り出すまでは中に埋まっていて直せない</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>マテリアルをクリック → Base Map の色 ／ Metallic Map ／ Smoothness</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>金属にしたい → Metallic 1</strong>Blender のメタリックは入らないので、ここで付け直す</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>つや → Smoothness</strong>Blender の 粗さ 0.3 → 0.7 になって入ってくる（1 ＝ ピカピカ）</div></div>
+      </div>
+      <div class="pair vtop">
+        <figure class="cap"><div class="layout-wrap"><img src="../img/game2/week09_u_materials.jpg" alt="Inspector の Materials タブ。Extract Materials ボタン"><div class="abox" style="left:40.3%; top:39.3%; width:59.1%; height:4.5%;"></div><div class="albl" style="left:41%; top:45%;">Extract Materials…</div></div><figcaption>Materials タブ → Extract Materials…</figcaption></figure>
+        <figure class="cap"><div class="layout-wrap"><img src="../img/game2/week09_u_material.jpg" alt="取り出したマテリアルの Inspector。Base Map、Metallic Map、Smoothness"><div class="abox y" style="left:7.5%; top:48.4%; width:91.9%; height:13.3%;"></div><div class="albl y" style="left:8%; top:63%;">色・Metallic・Smoothness</div></div><figcaption>Material をクリック → 色・質感を直す</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. ③ シーンに置く -->
+  <div class="slide theme-content">
+    <div class="tag green">③ シーンに置く</div>
+    <h2>Hierarchy にドラッグ → 1 m 前に置く</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.3fr; align-items:start;">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Models の自分のモデルを Hierarchy にドラッグ</strong></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Inspector → Position (0, 0, 1)</strong>第4回と同じ、起動した位置の 1 m 前。Cube と重なるなら Cube の X を −0.5 に</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Rotation 0・Scale 1 になっている？</strong>トランスフォームを適用の効果。−89.98 や 100 なら書き出し直す</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Scene ビューで Cube（15 cm）と大きさを比べる</strong>大きすぎ・小さすぎは Scale Factor に戻る</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Cmd ＋ S でシーンを保存</strong></div></div>
+      </div>
+      <div>
+        <figure class="cap" style="margin:0;"><img src="../img/game2/week09_u_scene.jpg" alt="Scene ビュー。Cube の横に 2 台のスピーカーが置かれている" style="width:100%; border-radius:6px; border:1px solid rgba(255,255,255,0.15); max-height:34vh; object-fit:cover; object-position:center;"><figcaption style="font-size:0.85rem; text-align:center; margin-top:0.3rem; opacity:0.9;">Scene ビュー：Cube（15 cm）の横に、例のスピーカー（Scale Factor 0.1 ＝ 50 cm）</figcaption></figure>
+        <div class="layout-wrap" style="margin-top:0.5rem; display:block;"><img src="../img/game2/week09_u_transform.jpg" alt="Inspector の Transform。Position 0 0 1、Rotation 0、Scale 1" style="width:100%; max-height:none;"><div class="abox" style="left:1.9%; top:70.0%; width:97.5%; height:27.3%;"></div><div class="albl" style="left:3%; top:60%;">Position 0, 0, 1 ／ Rotation 0 ／ Scale 1</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. ③ Prefab → Play -->
+  <div class="slide theme-content">
+    <div class="tag green">③ Prefab にして、Play</div>
+    <h2>Prefabs フォルダにドラッグ → Original Prefab → ▶ Play</h2>
+    <p class="lead" style="margin-bottom:0.6rem;"><strong>なぜ Prefab にする？</strong> 付けた部品や設定ごと保存した「ひな形」になる → 同じモノを何個でも、ほかのシーンにも出せる。第10回はこの Prefab を AR に置いて、タップで鳴らす</p>
+    <div class="guide even">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Project の Assets を右クリック → Create → Folder →「Prefabs」</strong></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Hierarchy の自分のモデルを Prefabs フォルダにドラッグ</strong>きかれたら「Original Prefab」</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Hierarchy の名前が青くなれば OK → Cmd ＋ S</strong>青い名前 ＝ Prefab とつながっている印</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>▶ Play → 仮想の部屋（XR Simulation）で、自分のモデルを見る</strong>第5回と同じ。W／A／S／D と右ドラッグで歩く</div></div>
+        </div>
+      </div>
+      <div class="pair vtop">
+        <figure class="cap"><div class="layout-wrap"><img src="../img/game2/week09_u_prefab_done.jpg" alt="Hierarchy の speaker が青くなり、Project の Prefabs フォルダに speaker がある"><div class="abox" style="left:70.7%; top:63.0%; width:23.1%; height:7.4%;"></div><div class="abox y" style="left:12.9%; top:43.7%; width:23.1%; height:7.4%;"></div><div class="albl" style="left:56%; top:71.5%;">Prefabs に speaker</div><div class="albl y" style="left:13%; top:52%;">青くなる</div></div><figcaption>例：Hierarchy の speaker が青、Prefabs に speaker</figcaption></figure>
+        <figure class="cap"><img src="../img/game2/week09_u_play.jpg" alt="Play 中の Game ビュー。XR Simulation の部屋にスピーカーが置いてある" style="max-height:52vh; object-fit:cover;"><figcaption>▶ Play：仮想の部屋に、例のスピーカー（50 cm）</figcaption></figure>
+      </div>
+    </div>
+  </div>
+
+  <!-- 15. ④ AR で出力 ＝ 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag purple">④ AR で出力</div>
+    <h2>自分のモデルを、AR で出力する</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.1fr; align-items:start;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Cmd ＋ S → File → Build Settings</strong>第5回と同じ手順で、スマホに書き出し直す</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>iPhone：Build → 前に書き出した App フォルダ → Replace</strong>Xcode → Signing &amp; Capabilities → Team を選び直す → ▶</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Android：USB でつなぐ → Build And Run</strong></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>アプリを起動 → 1 m 前に、自分のモデルが出る</strong>高さはスマホと同じ（空中に浮いて見える）</div></div>
+        </div>
+        <div class="task">
+          <img src="../img/game2/week09_u_play.jpg" alt="▶ Play 中の Game ビュー。XR Simulation の部屋に置いたスピーカー">
+          <p><strong>今日の課題：AR の画面のスクショ ＋ .fbx を提出</strong>。スマホを使わない人は ▶ Play（XR Simulation）の Game ビューで OK</p>
+        </div>
+        <div class="highlight-box wide" style="margin-top:0.6rem;"><p><strong>できた人から</strong>：音を付ける（立体音響）・指で動かす（次のページから）／ほかのモデルも入れる・金属にする</p></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 640 400" role="img" aria-label="横から見た図。左にアプリを起動したときのスマホ。そこから 1 m 前、スマホと同じ高さに、本物の大きさの自分のモデルが出る" style="max-height:46vh;">
+          <defs><marker id="w9dim" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8fe0a0"/></marker></defs>
+          <line x1="30" y1="352" x2="610" y2="352" stroke="#4a5877" stroke-width="2"/>
+          <text x="608" y="374" text-anchor="end" fill="#8a9bbb" font-size="14">床</text>
+          <line x1="50" y1="215" x2="610" y2="215" stroke="#ffd166" stroke-width="2" stroke-dasharray="7 6" opacity="0.8"/>
+          <text x="608" y="203" text-anchor="end" fill="#ffd166" font-size="15" font-weight="bold">スマホと同じ高さ</text>
+          <rect x="362" y="65" width="96" height="150" rx="4" fill="#23262e" stroke="#8fe0a0" stroke-width="2"/>
+          <rect x="377" y="80" width="66" height="52" rx="2" fill="#9fb3d1" opacity="0.85"/>
+          <rect x="377" y="146" width="66" height="52" rx="2" fill="#9fb3d1" opacity="0.85"/>
+          <text x="410" y="48" text-anchor="middle" fill="#8fe0a0" font-size="15" font-weight="bold">自分のモデル（本物の大きさ）</text>
+          <rect x="96" y="189" width="28" height="52" rx="5" fill="#8ec5ff"/>
+          <text x="110" y="264" text-anchor="middle" fill="#8ec5ff" font-size="14" font-weight="bold">起動したときのスマホ</text>
+          <line x1="110" y1="274" x2="110" y2="312" stroke="#8fe0a0" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <line x1="410" y1="215" x2="410" y2="312" stroke="#8fe0a0" stroke-width="1" stroke-dasharray="3 4" opacity="0.7"/>
+          <line x1="116" y1="302" x2="404" y2="302" stroke="#8fe0a0" stroke-width="2" marker-start="url(#w9dim)" marker-end="url(#w9dim)"/>
+          <text x="260" y="292" text-anchor="middle" fill="#8fe0a0" font-size="17" font-weight="bold">1 m</text>
+        </svg>
+        <p class="video-cap" style="margin-top:0.4rem;">横から見た図：アプリを起動した場所の 1 m 前、スマホと同じ高さに出る</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. できた人から：音を付けて、立体音響にする -->
+  <div class="slide theme-content">
+    <div class="tag purple">できた人から：音を付ける</div>
+    <h2>モデルに音を付けて、立体音響にする</h2>
+    <p class="lead" style="margin-bottom:0.6rem;"><strong>立体音響</strong> ＝ 音に「場所」ができる。モデルに近づくと大きく、離れると消える。右にあれば右から聞こえる</p>
+    <div class="guide" style="grid-template-columns: 1fr 1.15fr; align-items:start;">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>音のファイルを用意する（.wav・.mp3）</strong>第5回の Audio フォルダ。game2_c は Assets/sound</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>自分のモデルを選ぶ → Add Component → Audio Source</strong></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>AudioClip に音をドラッグ</strong></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Play On Awake ✓ ／ Loop ✓</strong></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Spatial Blend → 右端（3D）</strong>これで立体音響になる</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Linear Rolloff ／ Min Distance 1 ／ Max Distance 2</strong>1 m まではそのまま、2 m より遠くは聞こえない</div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Cmd ＋ S → ▶ Play → 近づく・離れる</strong>イヤホンで聞く。スマホは、もう一度書き出す</div></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 900 470" role="img" style="max-height:46vh;" aria-label="Audio Source コンポーネントの簡略図。AudioClip に音ファイル、Play On Awake と Loop にチェック、Spatial Blend のつまみが右端の 3D、3D Sound Settings の Volume Rolloff が Linear Rolloff、Min Distance 1、Max Distance 2">
+        <rect x="6" y="6" width="888" height="458" rx="12" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+        <path d="M6 18 a12 12 0 0 1 12 -12 h864 a12 12 0 0 1 12 12 v34 h-888 z" fill="#212a3f"/>
+        <text x="26" y="40" fill="#fff" font-size="18" font-weight="bold">▼ 🔊 Audio Source</text>
+        <g font-size="15" fill="#c8d6ea">
+        <text x="30" y="84">AudioClip</text><rect x="300" y="64" width="330" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="314" y="83" fill="#e6eefc">♪ shs_eerie_tape_65_…_loop</text>
+        <text x="30" y="122">Output</text><rect x="300" y="102" width="330" height="28" rx="5" fill="#2b3552" stroke="#4a5877"/><text x="314" y="121" fill="#8a9bbb">None (Audio Mixer Group)</text>
+        <text x="30" y="160">Mute</text><rect x="300" y="146" width="18" height="18" rx="3" fill="#2b3552" stroke="#aebbd3"/>
+        <text x="30" y="198">Play On Awake</text><rect x="300" y="184" width="18" height="18" rx="3" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="304" y="199" fill="#8fe0a0" font-size="14">✓</text>
+        <text x="30" y="236">Loop</text><rect x="300" y="222" width="18" height="18" rx="3" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="304" y="237" fill="#8fe0a0" font-size="14">✓</text>
+        <text x="30" y="274">Volume</text><line x1="300" y1="270" x2="560" y2="270" stroke="#4a5877" stroke-width="4"/><circle cx="560" cy="270" r="7" fill="#c8d6ea"/><text x="580" y="279" fill="#e6eefc">1</text>
+        <text x="30" y="312">Spatial Blend</text><line x1="300" y1="308" x2="560" y2="308" stroke="#4a5877" stroke-width="4"/><line x1="300" y1="308" x2="560" y2="308" stroke="#8fe0a0" stroke-width="4"/><circle cx="560" cy="308" r="8" fill="#8fe0a0" stroke="#fff" stroke-width="2"/><text x="300" y="330" fill="#8a9bbb" font-size="12">2D</text><text x="548" y="330" fill="#8fe0a0" font-size="12" font-weight="bold">3D</text><text x="580" y="317" fill="#e6eefc">1</text>
+        <text x="30" y="366" fill="#fff" font-weight="bold">▼ 3D Sound Settings</text>
+        <text x="50" y="398">Volume Rolloff</text><rect x="300" y="378" width="200" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="314" y="397" fill="#e6eefc">Linear Rolloff ▾</text>
+        <text x="50" y="436">Min Distance</text><rect x="300" y="416" width="80" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="340" y="435" text-anchor="middle" fill="#e6eefc">1</text>
+        <text x="420" y="436">Max Distance</text><rect x="560" y="416" width="80" height="28" rx="5" fill="#2b3552" stroke="#8fe0a0" stroke-width="2"/><text x="600" y="435" text-anchor="middle" fill="#e6eefc">2</text>
+        </g>
+        <g font-size="17" font-weight="bold" text-anchor="middle" fill="#fff">
+        <circle cx="660" cy="78" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="660" y="84">3</text>
+        <circle cx="350" cy="193" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="350" y="199">4</text>
+        <circle cx="620" cy="308" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="620" y="314">5</text>
+        <circle cx="680" cy="430" r="16" fill="#2e7d32" stroke="#fff" stroke-width="1.5"/><text x="680" y="436">6</text>
+        </g>
+        </svg>
+        <p class="video-cap" style="margin-top:0.4rem;">Audio Source の設定（数字は左の手順）。第5回と同じ値</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17. できた人から：指で動かす・大きさを変える -->
+  <div class="slide theme-content">
+    <div class="tag purple">できた人から：指で動かす</div>
+    <h2>指で動かす・大きさを変える</h2>
+    <div class="guide" style="grid-template-columns: 1.1fr 1fr; align-items:start;">
+      <div class="steps compact">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Project の .fbx → Model タブ → Generate Colliders ✓ → Apply</strong>指が当たる範囲（当たり判定）がモデルに付く</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Hierarchy の自分のモデル → Add Component → XR Grab Interactable</strong>付いたら、Throw On Detach の ✓ を外す</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><strong>一緒に付いた Rigidbody：Use Gravity の ✓ を外す・Is Kinematic に ✓</strong>落ちないようにする</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Add Component → AR Transformer</strong>床や机の上を動かす・大きさを変える部品</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Cmd ＋ S → ▶ Play で試す</strong>少し歩き回ってから、モデルをドラッグする。スマホは、もう一度書き出す</div></div>
+      </div>
+      <div>
+        <table class="key-table wrap">
+          <tr><th></th><th>スマホ</th><th>Mac（▶ Play）</th></tr>
+          <tr><td class="k" style="min-width:5rem;">動かす</td><td>1 本指でドラッグ</td><td>クリックしたままドラッグ</td></tr>
+          <tr><td class="k" style="min-width:5rem;">大きさ</td><td>タップしてから、2 本指でピンチ</td><td>クリックしてから、X（大きく）／Z（小さく）</td></tr>
+          <tr><td class="k" style="min-width:5rem;">回す</td><td>タップしてから、2 本指でひねる</td><td>クリックしてから、R</td></tr>
+        </table>
+        <div class="highlight-box wide" style="margin-top:0.7rem;"><p>動くのは<strong>床や机の上</strong>。先にスマホをゆっくり動かして、床を写しておく。大きさは 0.25〜2 倍まで</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18. うまくいかないとき -->
+  <div class="slide theme-content">
+    <div class="tag orange">うまくいかないとき</div>
+    <h2>つまずきやすいポイント</h2>
+    <table class="key-table wrap" style="max-width:1000px;">
+      <tr><td class="k">右の設定が出ない</td><td>右上の ⚙（歯車）をクリック</td></tr>
+      <tr><td class="k">.fbx が見つからない</td><td>.blend と同じフォルダにある</td></tr>
+      <tr><td class="k">真っ白・色がない</td><td>Blender で色をつけて、書き出し直す</td></tr>
+      <tr><td class="k">大きすぎる・小さすぎる</td><td>Model タブ → Scale Factor → Apply</td></tr>
+      <tr><td class="k">Rotation −89.98・Scale 100</td><td>「トランスフォームを適用」にチェックして、書き出し直す</td></tr>
+      <tr><td class="k">Camera・Light が入った</td><td>メッシュ だけにして、書き出し直す</td></tr>
+      <tr><td class="k">金属にならない</td><td>Material の Metallic を 1 に</td></tr>
+    </table>
+  </div>
+
+  <!-- 19. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第9回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:960px;">
+      <li>① 宿題のモデルを FBX で書き出す：<strong>メッシュ だけ</strong> ＋ <strong>トランスフォームを適用</strong></li>
+      <li>② 大きさは <strong>Scale Factor</strong>（本物の大きさ ÷ 今の大きさ）、色は <strong>Extract Materials…</strong></li>
+      <li>③ Hierarchy に置く → <strong>Prefab</strong>（ひな形として保存）</li>
+      <li>④ 自分のモデルを <strong>AR で出力</strong>する</li>
+      <li>できた人から：音を付ける（<strong>Audio Source</strong>）／指で動かす（<strong>XR Grab Interactable</strong> ＋ <strong>AR Transformer</strong>）</li>
+      <li>課題：AR の画面のスクショ ＋ .fbx を提出</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:1rem;">
+      <p>次回：第10回 <strong>自作モデルを AR に置いて、タップで鳴らす</strong>。今日のプロジェクト・.fbx・.blend は消さない。</p>
+    </div>
+  </div>
+
+  <!-- 20. 付録：早見表 -->
+  <div class="slide theme-content">
+    <div class="tag purple">付録</div>
+    <h2>Blender → Unity 早見表</h2>
+    <div class="two-col" style="max-width:1150px; gap:1.6rem; align-items:start; margin-top:0.2rem;">
+      <div>
+        <h3 style="margin-bottom:0.3rem;">Blender：FBX で書き出す</h3>
+        <div class="steps" style="max-width:none;">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>ファイル → エクスポート → FBX (.fbx)</strong></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>オブジェクトタイプ → メッシュ だけ</strong></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>トランスフォームを適用 にチェック</strong></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>名前は英数字 → FBXをエクスポート</strong></div></div>
+        </div>
+        <h3 style="margin:0.9rem 0 0.3rem;">できた人から</h3>
+        <div class="steps" style="max-width:none;">
+          <div class="step"><div class="step-num">＋</div><div class="step-body"><strong>音を付ける：Audio Source → Spatial Blend 3D</strong></div></div>
+          <div class="step"><div class="step-num">＋</div><div class="step-body"><strong>指で動かす：XR Grab Interactable ＋ AR Transformer</strong></div></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.3rem;">Unity：取り込む</h3>
+        <div class="steps" style="max-width:none;">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Models フォルダに .fbx をドラッグ</strong></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Model タブ → Scale Factor → Apply</strong>Scale Factor ＝ 本物の大きさ ÷ 今の大きさ</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Materials タブ → Extract Materials…</strong></div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Hierarchy にドラッグ → Position (0, 0, 1)</strong></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Prefabs フォルダにドラッグ → Original Prefab</strong></div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-body"><strong>AR で出力：スマホに書き出す（使わない人は ▶ Play）</strong></div></div>
+        </div>
+      </div>
+    </div>
+    <p class="video-cap" style="margin-top:0.8rem;">くわしい早見表（PDF・A4 1 枚）と作例の .fbx は、授業ページの配布資料から</p>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 20</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>

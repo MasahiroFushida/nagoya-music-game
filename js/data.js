@@ -210,7 +210,7 @@ const SITE_DATA = {
     title: "ゲーム2",
     semester: "秋学期",
     description: "ゲーム1で習得した基礎をもとに、Blenderでの3Dモデリングと、UnityのAR（拡張現実）で現実の空間に作品を置く制作に取り組みます。",
-    openWeeks: 8,
+    openWeeks: 9,
     weeks: [
       {
         week: 1,
@@ -364,10 +364,23 @@ const SITE_DATA = {
       {
         week: 9,
         title: "BlenderからUnityへ（FBX書き出し）",
-        description: "Blenderで作ったモデルをUnityに持っていく。FBXでの書き出し（スケール・軸の設定）、Unityへのインポート、マテリアルの取り出し（Extract Materials）と色の再設定、Prefab化。Unityの 1 = 1m を意識して、現実に置いたときの大きさを整える。",
-        slides: null,
-        project: null,
-        assignment: "【必修】自作モデルを Unity に読み込もう\n\n■ 手順\n1. Blender で第8回のモデルを選び、File > Export > FBX で書き出す（設定はスライド参照）\n2. Unity のプロジェクト（第5回のARプロジェクトでOK）の Assets に「Models」フォルダを作り、FBX を入れる\n3. FBX を選んで Inspector の Materials タブで Extract Materials を押し、色をつけ直す\n4. シーンに置いて大きさを確認し（Unity の 1 = 1m）、Prefabs フォルダにドラッグして Prefab にする\n\n■ 提出物\n・Unity の Scene ビューのスクリーンショット1枚（自作モデルが置かれているもの）\n・書き出した .fbx ファイル",
+        description: "第8回の宿題で作ったBlenderのモデルをUnityに持っていく。FBXでの書き出し（スケール・軸の設定）、Unityへのインポート、マテリアルの取り出し（Extract Materials）と色の再設定、Prefab化。Unityの 1 = 1m を意識して、現実に置いたときの大きさを整える。最後に、スマホ（または XR Simulation）で AR に出力する。",
+        slides: [
+          { label: "第9回 BlenderからUnityへ（FBX書き出し） スライド", url: "slides/game2_week09.html" }
+        ],
+        project: [
+          { label: "Unityプロジェクト（game2_c：第5回の完成形。第9回はこの Stage6 に自作モデルを入れる）", url: "https://github.com/MasahiroFushida/game2_c/archive/refs/heads/main.zip" }
+        ],
+        documents: [
+          { label: "作例：スピーカー（.fbx。授業で Unity に入れたもの。Blender のモデルが無い人はこれで OK）", url: "files/game2_week09_speaker.fbx" },
+          { label: "作例：木琴（.fbx。第8回の木琴を書き出したもの）", url: "files/game2_week09_xylophone.fbx" },
+          { label: "作例：ヘッドホン（.fbx。第8回のヘッドホン。バンドは Unity で Metallic 1 に）", url: "files/game2_week09_headphone.fbx" },
+          { label: "作例：カホン（.fbx。第8回のカホン）", url: "files/game2_week09_cajon.fbx" },
+          { label: "FBX 書き出し 動画（ファイル → エクスポート → FBX → メッシュだけ → トランスフォームを適用 → 名前 → エクスポート。mp4・テロップと操作付き・30秒）", url: "files/game2_week09_fbx_howto.mp4" },
+          { label: "完成形 動画（Play → XR Simulation の部屋に 50 cm のスピーカーと木琴・ヘッドホン・カホンが置いてある。mp4・25秒）", url: "files/game2_week09_goal_room.mp4" },
+          { label: "Blender → Unity 早見表（PDF・A4 1枚。書き出し・取り込み・持っていけるもの）", url: "files/game2_week09_fbx_unity.pdf" },
+        ],
+        assignment: "【必修】Blender で作成したモデルを AR で出力しよう\n\n第8回の宿題で作ったモデル（.blend）を FBX で書き出して Unity に入れ、AR で出力してください。授業で例にしたスピーカーと同じ手順です。\n\n■ 手順\n1. Blender：ファイル → エクスポート → FBX (.fbx)。オブジェクトタイプは「メッシュ」だけ、「トランスフォームを適用」にチェック。名前は英数字で「自分の名前_モノ.fbx」（例：fushida_speaker.fbx）\n2. Unity：第5回のプロジェクト（自分の名前_AR_Project か game2_c）の Assets に「Models」フォルダを作り、.fbx を入れる\n3. 本物の大きさに合わせる：Blender の寸法（N → アイテム → 寸法）を見て、Scale Factor ＝ 本物の大きさ ÷ Blender の寸法（例：0.5 m ÷ 5 m ＝ 0.1）。.fbx を選んで Inspector の Model タブ → Scale Factor → Apply\n4. Materials タブ → Extract Materials… で色を取り出す（金属にしたいパーツは Metallic を 1 に）\n5. Hierarchy にドラッグして Position (0, 0, 1) に置き、Scene ビューで Cube（15 cm）と大きさを比べる\n6. Hierarchy のモデルを「Prefabs」フォルダにドラッグ → Original Prefab\n7. AR で出力する：第5回と同じ手順でスマホに書き出す（iPhone：Build → 前に書き出した App フォルダ → Replace → Xcode で Team を選び直す → ▶／Android：USB でつなぐ → Build And Run）。スマホを使わない人は ▶ Play（XR Simulation）で OK\n\n■ 提出物\n・AR で出力した画面のスクリーンショット 1 枚（スマホの画面、または ▶ Play 中の Game ビュー。自作モデルが写っているもの）\n・書き出した .fbx ファイル\n\n※ Blender のモデルが間に合わない人は、配布の作例（speaker.fbx）で OK。スマホを使わない人も、評価は変わりません。\n\n──────────────────────────────\n\n【任意】\n・モデルに音を付けて、立体音響にする（Audio Source：Spatial Blend を 3D、Linear Rolloff、Min Distance 1・Max Distance 2。第5回と同じ）\n・指で動かす・大きさを変える（XR Grab Interactable ＋ AR Transformer。スライド 17 ページ）\n・木琴・ヘッドホン・カホン（配布の作例）も入れて、机の上を作ってみる\n・Unity のマテリアルで Metallic・Smoothness を変えて、金属やつやを作る\n・Blender で色や形を直して同じ名前で書き出し直す → Unity が自動で読み直すのを確かめる",
         deadline: "第10回授業開始時"
       },
       {
