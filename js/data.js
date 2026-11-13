@@ -380,7 +380,7 @@ const SITE_DATA = {
           { label: "完成形 動画（Play → XR Simulation の部屋に 50 cm のスピーカーと木琴・ヘッドホン・カホンが置いてある。mp4・25秒）", url: "files/game2_week09_goal_room.mp4" },
           { label: "Blender → Unity 早見表（PDF・A4 1枚。書き出し・取り込み・持っていけるもの）", url: "files/game2_week09_fbx_unity.pdf" },
         ],
-        assignment: "【必修】Blender で作成したモデルを AR で出力しよう\n\n■ 手順\n1. Blender：ファイル → エクスポート → FBX（「メッシュ」だけ・「トランスフォームを適用」にチェック）\n2. Unity：Models フォルダに .fbx を入れる\n3. 本物の大きさに合わせる（Model タブ → Scale Factor → Apply）\n4. 色を取り出す（Materials タブ → Extract Materials…）\n5. Hierarchy に置いて、Prefab にする\n6. AR で出力する（スマホに書き出す。使わない人は ▶ Play で OK）\n\n■ 提出物\n・AR で出力した画面のスクリーンショット 1 枚\n・書き出した .fbx ファイル\n\n※ モデルが間に合わない人は、配布の作例（speaker.fbx）で OK\n\n──────────────────────────────\n\n【任意】\n・音を付けて、立体音響にする（スライド 16 ページ）\n・指で動かす・大きさを変える（スライド 17 ページ）\n・ほかのモデルも入れる・金属にする",
+        assignment: "【必修】Blender で作成したモデルを AR で出力しよう\n\n■ 手順\n1. Blender：ファイル → エクスポート → FBX（「メッシュ」だけ・「トランスフォームを適用」にチェック）\n2. Unity：Models フォルダに .fbx を入れる\n3. 本物の大きさに合わせる（Model タブ → Scale Factor → Apply）\n4. 色を取り出す（Materials タブ → Extract Materials…）\n5. Hierarchy に置いて、Prefab にする\n6. AR で出力する（スマホに書き出す。使わない人は ▶ Play で OK）\n\n■ 提出物\n・AR で出力した画面のスクリーンショット 1 枚\n\n※ モデルが間に合わない人は、配布の作例（speaker.fbx）で OK\n\n──────────────────────────────\n\n【任意】\n・音を付けて、立体音響にする（スライド 16 ページ）\n・指で動かす・大きさを変える（スライド 17 ページ）\n・ほかのモデルも入れる・金属にする",
         deadline: "第10回授業開始時"
       },
       {
