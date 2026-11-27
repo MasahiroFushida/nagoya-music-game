@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第10回 作品の構想</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; background: #111; color: #fff; height: 100vh; overflow: hidden; user-select: none; }
+#slideshow { width: 100vw; height: 100vh; position: relative; }
+.slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 4rem 6rem; opacity: 0; pointer-events: none; transition: opacity 0.35s ease; text-align: center; }
+.slide.active { opacity: 1; pointer-events: auto; }
+.slide h1 { font-size: 2.8rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.6rem; }
+.slide h2 { font-size: 2rem; font-weight: bold; margin-bottom: 1.2rem; line-height: 1.3; }
+.slide h3 { font-size: 1.3rem; font-weight: bold; margin-bottom: 0.8rem; opacity: 0.8; }
+.slide p { font-size: 1.1rem; line-height: 1.8; max-width: 760px; }
+.slide ul { list-style: none; text-align: left; max-width: 760px; width: 100%; }
+.slide ul li { font-size: 1.05rem; line-height: 1.7; padding: 0.35rem 0 0.35rem 1.6rem; position: relative; }
+.slide ul li::before { content: "▶"; position: absolute; left: 0; font-size: 0.7rem; top: 0.6rem; opacity: 0.6; }
+.slide a { color: #8fe0a0; }
+.theme-title { background: linear-gradient(135deg, #0f2027, #1b3a2a, #1e4d38); }
+.theme-title::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 30%, rgba(100,220,140,0.15) 0%, transparent 60%); pointer-events: none; }
+.theme-section { background: linear-gradient(135deg, #1b4d2e, #2e7d32); }
+.theme-content { background: linear-gradient(160deg, #1a1a2e, #16213e); text-align: left; align-items: flex-start; }
+.theme-final { background: linear-gradient(135deg, #0f2a1a, #1b5e20, #0f2a1a); }
+.tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 0.25rem 0.9rem; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.05em; }
+.tag.blue { background: rgba(26,107,191,0.4); border-color: rgba(100,180,255,0.5); }
+.tag.orange { background: rgba(230,81,0,0.4); border-color: rgba(255,160,80,0.5); }
+.tag.green { background: rgba(46,125,50,0.4); border-color: rgba(100,200,100,0.5); }
+.tag.purple { background: rgba(100,50,150,0.4); border-color: rgba(180,130,255,0.5); }
+.divider { width: 60px; height: 3px; background: rgba(100,200,120,0.7); border-radius: 2px; margin: 1rem 0 1.5rem; }
+.divider.left { margin-left: 0; }
+.highlight-box { background: rgba(46,125,50,0.18); border: 1px solid rgba(100,200,120,0.4); border-radius: 10px; padding: 1.2rem 1.8rem; max-width: 760px; width: 100%; margin-top: 0.8rem; }
+.highlight-box p { font-size: 1rem; opacity: 0.9; max-width: none; }
+.highlight-box.wide { max-width: 900px; }
+.warn-box { background: rgba(230,81,0,0.15); border: 1px solid rgba(255,160,80,0.4); border-radius: 10px; padding: 1rem 1.5rem; max-width: 900px; width: 100%; margin-top: 0.8rem; font-size: 0.95rem; line-height: 1.6; }
+.steps { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.5rem; }
+.steps.wide { max-width: 900px; }
+.steps.compact { gap: 0.5rem; }
+.step { display: flex; align-items: flex-start; gap: 1rem; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 0.8rem 1.2rem; }
+.steps.compact .step { padding: 0.55rem 0.9rem; gap: 0.8rem; }
+.step-num { min-width: 1.8rem; height: 1.8rem; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+.step-body { font-size: 0.95rem; line-height: 1.6; }
+.steps.compact .step-body { font-size: 0.88rem; line-height: 1.5; }
+.step-body > strong:first-child { display: block; font-size: 1rem; margin-bottom: 0.1rem; }
+.steps.compact .step-body > strong:first-child { font-size: 0.95rem; }
+.step-body > strong:only-child { margin-bottom: 0; }
+.step-body code, .slide li code, .key-table code, .highlight-box code, .warn-box code, .slide p code, .col-card code, .rm code { background: rgba(255,255,255,0.1); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.9em; font-family: "SF Mono", "Menlo", "Consolas", monospace; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; max-width: 900px; width: 100%; margin-top: 0.8rem; }
+.col-card { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 1rem 1.2rem; }
+.col-card h3 { font-size: 1rem; margin-bottom: 0.5rem; color: #8fe0a0; opacity: 1; }
+.col-card p, .col-card li { font-size: 0.92rem; }
+.col-card p { line-height: 1.6; max-width: none; }
+.col-card ul li { padding: 0.2rem 0 0.2rem 1.3rem; line-height: 1.55; }
+.col-card ul li::before { top: 0.45rem; }
+.key-table { width: 100%; max-width: 900px; border-collapse: collapse; margin-top: 0.5rem; }
+.key-table th, .key-table td { padding: 0.55rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-size: 0.95rem; vertical-align: top; }
+.key-table th { font-size: 0.8rem; opacity: 0.6; font-weight: normal; }
+.key-table td.k { font-weight: bold; color: #8fe0a0; white-space: nowrap; }
+.key-table.wrap td.k { white-space: normal; min-width: 11rem; }
+.key-table.compact th, .key-table.compact td { padding: 0.42rem 0.9rem; font-size: 0.92rem; }
+.key-table.tight th, .key-table.tight td { padding: 0.3rem 0.8rem; font-size: 0.88rem; }
+.flow { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 100%; max-width: 900px; margin-top: 1rem; }
+.flow-box { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 1.1rem 1rem; text-align: center; }
+.flow-box.now { background: rgba(46,125,50,0.3); border-color: rgba(143,224,160,0.7); }
+.flow-box.opt { background: rgba(100,50,150,0.18); border-color: rgba(180,130,255,0.5); }
+.flow-box strong { display: block; font-size: 1.15rem; margin-bottom: 0.2rem; }
+.flow-box span { font-size: 0.9rem; opacity: 0.75; }
+.flow-box .lvl { display: block; font-size: 0.75rem; letter-spacing: 0.08em; opacity: 0.9; margin-bottom: 0.4rem; color: #8fe0a0; }
+.flow-box.opt .lvl { color: #cdb2ff; }
+.flow-arrow { font-size: 1.6rem; opacity: 0.5; }
+.muted { opacity: 0.6; }
+.slide .small-note { font-size: 0.9rem; line-height: 1.6; opacity: 0.7; margin-top: 0.6rem; max-width: 1000px; }
+.slide p.lead { font-size: 1.1rem; line-height: 1.7; max-width: 1000px; }
+/* ── 図・動画 ───────────────────────── */
+.fig { width: 100%; max-width: 1060px; max-height: 50vh; margin-top: 0.5rem; display: block; }
+.guide { display: grid; grid-template-columns: 0.95fr 1.3fr; gap: 1.2rem; align-items: center; width: 100%; max-width: 1200px; margin-top: 0.2rem; }
+.guide.even { grid-template-columns: 1.1fr 1fr; }
+.guide .steps { max-width: none; margin-top: 0; }
+.guide .fig { max-height: 60vh; margin-top: 0; }
+.guide > div, .guide > figure { min-width: 0; }
+.video-one { width: 100%; max-width: min(1000px, calc((100vh - 19rem) * 1.7778)); margin-top: 0.3rem; }
+.video-wrap { position: relative; width: 100%; padding-top: 56.25%; border-radius: 8px; overflow: hidden; background: #000; }
+.video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.slide p.video-cap { font-size: 0.85rem; line-height: 1.5; margin-top: 0.55rem; opacity: 0.9; max-width: 1000px; }
+/* 全体の流れ */
+.roadmap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; width: 100%; max-width: 1000px; margin-top: 0.4rem; }
+.roadmap.cols4 { grid-template-columns: repeat(4, 1fr); max-width: 1140px; }
+.roadmap.cols5 { grid-template-columns: repeat(5, 1fr); max-width: 1200px; }
+.rm { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-left: 4px solid #8fe0a0; border-radius: 10px; padding: 0.75rem 0.9rem; position: relative; }
+.rm.opt { border-left-color: #b482ff; }
+.rm.done { opacity: 0.55; border-left-color: #5b6b8c; }
+.rm.today { background: rgba(46,125,50,0.2); border-color: rgba(143,224,160,0.45); border-left-color: #8fe0a0; }
+.rm .no { font-size: 1.4rem; font-weight: bold; line-height: 1; }
+.rm strong { display: block; font-size: 1rem; margin: 0.35rem 0 0.15rem; }
+.rm span { font-size: 0.85rem; opacity: 0.75; line-height: 1.4; display: block; }
+.rm .ok, .rm .later { position: absolute; top: 0.6rem; right: 0.7rem; font-size: 0.7rem; border-radius: 10px; padding: 0.05rem 0.5rem; opacity: 1; display: inline; }
+.rm .ok { background: rgba(46,125,50,0.45); border: 1px solid rgba(143,224,160,0.6); }
+.rm .later { background: rgba(100,50,150,0.45); border: 1px solid rgba(180,130,255,0.6); }
+/* 第10回：チームの色（MV ＝ オレンジ、インタラクティブ ＝ 青） */
+.col-card.mv { background: rgba(230,81,0,0.14); border-color: rgba(255,160,80,0.6); }
+.col-card.mv h3 { color: #ffb380; }
+.col-card.ia { background: rgba(26,107,191,0.2); border-color: rgba(100,180,255,0.6); }
+.col-card.ia h3 { color: #8ec5ff; }
+.col-card .kind { display: block; font-size: 1.3rem; font-weight: bold; line-height: 1.3; margin-bottom: 0.35rem; }
+.key-table th.mv, .key-table td.mv { color: #ffb380; opacity: 1; }
+.key-table th.ia, .key-table td.ia { color: #8ec5ff; opacity: 1; }
+.key-table th.mv, .key-table th.ia { font-size: 0.88rem; font-weight: bold; }
+.fill { display: inline-block; border-bottom: 1px dashed rgba(255,255,255,0.55); padding: 0 0.3rem; color: #ffd166; }
+/* 埋め込みで再生できない動画は、YouTube へのリンクにする */
+.slide a.yt-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; min-height: 12rem; padding: 1.2rem; text-align: center; text-decoration: none; color: #fff; background: #000; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; transition: background 0.2s; }
+.slide a.yt-link:hover { background: #1c1c1c; }
+.yt-link .play { width: 4.2rem; height: 3rem; border-radius: 0.8rem; background: #ff0033; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.4rem; }
+.yt-link strong { font-size: 1.2rem; }
+.yt-link span { font-size: 0.88rem; }
+/* 縦長の動画（9:16） */
+.video-tall { width: min(100%, calc(50vh * 0.5625)); margin: 0 auto; }
+.video-tall .video-wrap { padding-top: 177.78%; }
+#nav { position: fixed; bottom: 1.5rem; right: 2rem; display: flex; align-items: center; gap: 0.8rem; z-index: 100; pointer-events: auto; touch-action: manipulation; }
+#nav button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; transition: background 0.2s; backdrop-filter: blur(4px); pointer-events: auto; touch-action: manipulation; }
+#nav button:hover { background: rgba(255,255,255,0.25); }
+#nav button:disabled { opacity: 0.25; cursor: default; }
+#slide-counter { font-size: 0.8rem; opacity: 0.5; min-width: 4rem; text-align: center; }
+#progress { position: fixed; bottom: 0; left: 0; height: 3px; background: #2e7d32; transition: width 0.35s ease; z-index: 100; }
+@media (max-width: 900px) {
+  .two-col, .guide { grid-template-columns: 1fr; }
+  .roadmap, .roadmap.cols4, .roadmap.cols5 { grid-template-columns: repeat(2, 1fr); }
+  .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+}
+</style>
+</head>
+<body>
+<div id="slideshow">
+
+  <!-- 1. タイトル -->
+  <div class="slide theme-title active">
+    <div class="tag">名古屋音楽大学 ／ 2026年度 秋学期</div>
+    <h1>ゲーム2</h1>
+    <div class="divider"></div>
+    <h3>第10回 作品の構想</h3>
+    <p class="muted" style="margin-top:2rem;">制作課題「現実に重ねることで生まれる、新しい音楽体験の提案」</p>
+  </div>
+
+  <!-- 2. 今日の流れ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日の流れ</div>
+    <h2>ここからは、チームで最終作品を作る</h2>
+    <div class="roadmap cols5">
+      <div class="rm done"><div class="no">第1〜9回</div><strong>AR と Blender</strong><span>置く・音・タップ・モデルを作る</span><span class="ok">済</span></div>
+      <div class="rm today"><div class="no">第10回</div><strong>構想</strong><span>何を作るかを決める</span></div>
+      <div class="rm"><div class="no">第11回</div><strong>構想発表</strong><span>発表して、コメントをもらう</span></div>
+      <div class="rm"><div class="no">第12〜14回</div><strong>制作</strong><span>小さく作って、足していく</span></div>
+      <div class="rm"><div class="no">第15回</div><strong>発表</strong><span>見せる・体験してもらう</span></div>
+    </div>
+    <div class="flow" style="max-width:1200px; margin-top:1.2rem;">
+      <div class="flow-box"><span class="lvl">最小ライン</span><strong>場所と、作品のひとことを<br>決める</strong><span>どの場所に、何を重ねるか</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box now"><span class="lvl">今日のゴール ＝ 課題</span><strong>構想を<br>まとめる</strong><span>MV は絵コンテ、インタラクティブは体験の流れまで<br>パワーポイントにして、次回（第11回）に発表する</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box opt"><span class="lvl">できたチームから</span><strong>発表と試作の<br>準備を始める</strong><span>曲・音・モデル・スキャン</span></div>
+    </div>
+    <p class="small-note">今日は、話して・書いて・決める日。Unity と Blender は、確かめたいときだけ開く</p>
+  </div>
+
+  <!-- 3. 制作課題のテーマ -->
+  <div class="slide theme-content">
+    <div class="tag purple">制作課題のテーマ</div>
+    <h2>「現実に重ねることで生まれる、新しい音楽体験の提案」</h2>
+    <p class="lead" style="margin-bottom:0.3rem;"><strong>画面の中の音楽から、その場所にある音楽へ</strong>。春学期は、画面の中で「操作 → 音」を作った。秋学期は、音楽を<strong>現実の場所</strong>に重ねる。スマホをかざすと、いつもの場所が音楽で書きかわる。キーワードは<strong>「場所 × 音」</strong></p>
+    <div class="two-col" style="max-width:1100px;">
+      <div class="col-card">
+        <h3>場所（どこに重ねる？）</h3>
+        <ul>
+          <li>教室・練習室・廊下・階段</li>
+          <li>机の上・自分の部屋</li>
+          <li>校舎の外・いつも通る道</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>音（何を重ねる？）</h3>
+        <ul>
+          <li>自分たちの曲・フレーズ</li>
+          <li>楽器の音・声</li>
+          <li>その場所で録った音（場所とのつながりが強くなる）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1100px;">
+      <p><strong>構想で必ず示すこと</strong>：① なぜ、その場所か　② 見た人・体験した人に、その場所がどう変わって見えるか・聞こえるか</p>
+    </div>
+  </div>
+
+  <!-- 4. 2 つのチーム -->
+  <div class="slide theme-content">
+    <div class="tag green">最終作品</div>
+    <h2>2 つのチームで、2 つの作品を作る</h2>
+    <p class="lead" style="margin-bottom:0.4rem;">同じテーマ「場所 × 音」を、2 つの形で作品にする</p>
+    <div class="two-col" style="max-width:1100px;">
+      <div class="col-card mv">
+        <h3>MV チーム</h3>
+        <span class="kind">AR ミュージックビデオ</span>
+        <ul>
+          <li><strong>見る作品</strong>：曲に合わせて、現実の場所に 3D のモノを出して撮る</li>
+          <li><strong>完成形 ＝ 動画</strong>。始まりと終わりがある</li>
+          <li><strong>考えること ＝ 絵コンテ</strong>（どの場面で、何が出るか）</li>
+        </ul>
+      </div>
+      <div class="col-card ia">
+        <h3>インタラクティブ チーム</h3>
+        <span class="kind">AR インタラクティブ作品</span>
+        <ul>
+          <li><strong>体験する AR 作品</strong>：スマホをかざして、触れる・近づく・動かすと、音や見た目が変わる</li>
+          <li><strong>完成形 ＝ アプリ</strong>。体験する人によって毎回ちがう</li>
+          <li><strong>考えること ＝ 体験の流れ</strong>（◯◯すると → △△が起きる）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1100px;">
+      <p><strong>どちらも共通</strong>：① 場所を決めて、AR でそこに出す　② Blender で作ったモデルを 1 つ以上使う　③ 音・音楽を中心にする</p>
+    </div>
+  </div>
+
+  <!-- 5. リファレンス MV ①：Max Cooper「The Shape Of Memory」（埋め込みでは再生できない動画なので、YouTube へのリンク） -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ①</div>
+    <h2>Max Cooper「The Shape Of Memory」（2026）</h2>
+    <div class="guide even" style="max-width:1100px; align-items:stretch;">
+      <div class="col-card mv">
+        <h3>どんな作品？</h3>
+        <ul>
+          <li>電子音楽家 Max Cooper の MV。映像は Factory Fifteen</li>
+          <li>ファンから集めた<strong>思い出の写真</strong>を、<strong>3D の空間</strong>に変えて作っている</li>
+          <li>写真を AI で少し動く映像にしてから、<strong>ガウシアン・スプラット</strong>で 3D にする ＝ 第4回の Scaniverse で見た「Splat」と同じ種類</li>
+          <li>くずれかけた 3D の景色の中を、カメラがゆっくり進んでいく</li>
+        </ul>
+      </div>
+      <a class="yt-link" href="https://www.youtube.com/watch?v=oJzmamTmr8o" target="_blank" rel="noopener">
+        <span class="play">▶</span>
+        <strong>YouTube で見る</strong>
+        <span>Max Cooper - The Shape Of Memory（4 分 46 秒）</span>
+        <span class="muted">埋め込みでは再生できない動画なので、新しいタブで開く</span>
+      </a>
+    </div>
+    <div class="highlight-box wide" style="max-width:1100px;">
+      <p><strong>写真やスキャンから作った 3D は、どこからでも撮れる</strong> ＝ MV チームは「カメラ（スマホ）をどう動かすか」が見せどころ</p>
+    </div>
+  </div>
+
+  <!-- 6. リファレンス MV ②：LOST CORNER AR LIVE -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ②</div>
+    <h2>米津玄師「LOST CORNER AR LIVE in HARAKADO」（2024）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/1kfO39Qrltg" title="LOST CORNER AR LIVE in HARAKADO" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>原宿の交差点を舞台に、巨大な米津玄師が AR で歌う</strong>。2024 年 8 月、東急プラザ原宿「ハラカド」の屋上で開催。会場の iPad を向かいのビルに向けて見る。動きは本人のモーションキャプチャー<br>AR の画面を、そのまま 1 本の映像にしている ＝ MV チームの作り方と同じ</p>
+    </div>
+  </div>
+
+  <!-- 7. リファレンス MV ③：Aphex Twin の AR アプリ -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ③</div>
+    <h2>Aphex Twin の AR アプリ「YXBoZXh0d2lu」（2023）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/HLtO9usl5Mk" title="Aphex Twin - YXBoZXh0d2lu" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>レコードのジャケットにスマホをかざすと、曲に合わせた AR の映像が部屋に現れる</strong>。EP『Blackbox Life Recorder 21f / In a Room7 F760』のアプリ。東京のスタジオ KALKUL と映像作家 Weirdcore が制作。点滅する映像に注意<br>MV を「画面で見る」のではなく「自分の部屋に出す」 ＝ AR で作る MV の、もう 1 つの形</p>
+    </div>
+  </div>
+
+  <!-- 8. リファレンス MV ④：Terminal Slam -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ④</div>
+    <h2>Squarepusher「Terminal Slam」（2020）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/GlhV-OKHecI" title="Squarepusher - Terminal Slam (Official Video)" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>渋谷の街の広告が、MR グラスごしに消えて、音に合わせた映像に書きかわる MV</strong>。監督は真鍋大度（Rhizomatiks）。点滅の強い映像なので注意<br>現実の街の「どこに・何を重ねるか」を決めている ＝ 絵コンテで決めること</p>
+    </div>
+  </div>
+
+  <!-- 9. リファレンス MV ⑤：Take On Me AR（埋め込みでは再生できない動画なので、YouTube へのリンク） -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ⑤</div>
+    <h2>Trixi Studios「Take On Me」を AR で（2017）</h2>
+    <div class="guide even" style="max-width:1100px; align-items:stretch;">
+      <div class="col-card mv">
+        <h3>どんな作品？</h3>
+        <ul>
+          <li>a-ha「Take On Me」（1985）の MV は、鉛筆で描いた世界と現実を行き来する映像</li>
+          <li>その世界を、<strong>スマホの AR で自分の部屋に出した</strong>実験</li>
+          <li><strong>Unity とスマホの AR（ARKit）</strong>で、数日で作られた</li>
+        </ul>
+      </div>
+      <a class="yt-link" href="https://www.youtube.com/watch?v=ZBdRAdSosv4" target="_blank" rel="noopener">
+        <span class="play">▶</span>
+        <strong>YouTube で見る</strong>
+        <span>Augmented Reality's A-ha Moment（1 分 55 秒）</span>
+        <span class="muted">埋め込みでは再生できない動画なので、新しいタブで開く</span>
+      </a>
+    </div>
+    <div class="highlight-box wide" style="max-width:1100px;">
+      <p><strong>スマホ 1 台・部屋 1 つ・1 カット</strong> ＝ MV チームの最小ラインに近い。道具も同じ（Unity ＋ スマホの AR）</p>
+    </div>
+  </div>
+
+  <!-- 10. リファレンス MV ⑥：Nosaj Thing「Cold Stares」 -->
+  <div class="slide theme-content">
+    <div class="tag orange">リファレンス：MV ⑥</div>
+    <h2>Nosaj Thing「Cold Stares」（2015）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/W_5Cty8M5Kk" title="Nosaj Thing - Cold Stares" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>現実のダンサーと部屋が、3D スキャンした CG と入れかわり続ける MV</strong>。コンセプトは「幽体離脱」。ドローンとダンサーが一緒に踊る。制作は真鍋大度（Rhizomatiks）と TAKCOM。アルス・エレクトロニカ 2016 で受賞<br>現実と 3D を、同じカメラの動きでつなぐ ＝ 現実と 3D を行き来する MV の代表例</p>
+    </div>
+  </div>
+
+  <!-- 11. リファレンス インタラクティブ ①：Christian Marclay「Playing Pompidou」 -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ①</div>
+    <h2>Christian Marclay「Playing Pompidou」（2022）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/jDTCoxuWRHk" title="Playing Pompidou: an audio AR Experience by Christian Marclay x Snapchat" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>スマホをかざすと、美術館の建物が楽器になる AR</strong>。パリのポンピドゥー・センターの外壁を、館内で録音した音で演奏できる。自分だけのループを作って、友だちに送れる。Snapchat の AR で制作。動画は英語<br>スマホの AR ＋ 自分で鳴らす ＝ インタラクティブ チームが作るものと同じ形</p>
+    </div>
+  </div>
+
+  <!-- 12. リファレンス インタラクティブ ②：Artiphon「Scan Band」 -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ②</div>
+    <h2>Artiphon「Scan Band」（2021）</h2>
+    <div class="guide" style="grid-template-columns: 1.5fr 1fr; align-items:center;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>身の回りのモノに、スマホを向ける</strong>植物・ペット・食べもの など</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>モノが、カラフルな「音のステッカー」になる</strong>AR で、その場所に置ける</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>タップする・指をのばす・カメラの前で踊る</strong>ステッカーから音が鳴る</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>鳴らしている様子を、そのまま動画にして送る</strong></div></div>
+        </div>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p><strong>身の回りのモノが、そのまま楽器になる</strong> ＝ 「置く → 触れる → 音」を AR で作った例</p></div>
+      </div>
+      <div>
+        <div class="video-tall">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube-nocookie.com/embed/N9pq7p04A6c" title="Introducing Scan Band: Artiphon's AR Music-making lens for Snapchat" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem; text-align:center;">楽器メーカー Artiphon が作った、Snapchat の AR。公式の紹介動画（25 秒・縦）</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. リファレンス インタラクティブ ③：Google Arts & Culture「AR Synth」 -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ③</div>
+    <h2>Google Arts &amp; Culture「AR Synth」（2021）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/Qi6PZTBHWAA" title="AR Synth. Music, Makers &amp; Machines on Google Arts &amp; Culture" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>歴史的なシンセサイザーやドラムマシンを、AR で自分の部屋に置いて鳴らせる</strong>。スイスの電子楽器の博物館（SMEM）にある実物を 3D スキャンしたもの。楽器ごとに 16 ステップのパターンを打ちこんで、合奏にできる。ブラウザで動く（AR は Android）<br>スキャンした実物を AR で置いて、触って鳴らす ＝ 第4・5・9回でやったことの組み合わせ</p>
+    </div>
+  </div>
+
+  <!-- 14. リファレンス インタラクティブ ④：Bloom: Open Space -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ④</div>
+    <h2>Brian Eno ＆ Peter Chilvers「Bloom: Open Space」（2018）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/-vQ_DYWh734" title="Behind the Scenes of Bloom: Open Space" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>ゴーグル（HoloLens）をかけて空中をつまむと、そこに光の輪と音が生まれる MR 作品</strong>。音楽アプリ「Bloom」（2008）をもとに、2018 年 2 月にアムステルダムで展示。動画はメイキング（英語）<br>何もない空間が楽器になる ＝ 自分の動きが、そのまま音楽になる</p>
+    </div>
+  </div>
+
+  <!-- 15. リファレンス インタラクティブ ⑤（AR 以外）：Feel the Sound 展 -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ⑤（AR 以外）</div>
+    <h2>「Feel the Sound」展（2026、東京・MoN Takanawa）</h2>
+    <div class="guide" style="grid-template-columns: 1.25fr 1fr; align-items:start;">
+      <div>
+        <table class="key-table wrap compact" style="margin-top:0;">
+          <tr><th>作品</th><th class="ia">◯◯すると</th><th class="ia">△△が起きる</th></tr>
+          <tr><td class="k">RESONANCE CONTINUUM<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">Elsewhere in India（2025）</span></td><td>画面の前でポーズをとる</td><td>ポーズごとの音楽が流れる</td></tr>
+          <tr><td class="k">UN/BOUND<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">鮎川ぱて ほか（2025）</span></td><td>マイクに声を出す</td><td>合唱の声に変わり、曲の一部になる</td></tr>
+          <tr><td class="k">ELECTRIC FAN HARP<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">和田永（2016–）</span></td><td>回る扇風機の羽に光を当てる</td><td>音が鳴る。メロディも弾ける</td></tr>
+          <tr><td class="k">THE AMBIENT MACHINE<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">スズキユウリ（2022）</span></td><td>スイッチを入れる・切る</td><td>音量やテンポが変わる</td></tr>
+        </table>
+      </div>
+      <div>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube-nocookie.com/embed/Wc0N63lJdws" title="Feel the Sound" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem;"><strong>耳だけでなく、体全体で音を感じる展覧会</strong>。英国 Barbican Centre と共同制作。2026 年 11 月 20 日〜2027 年 3 月 22 日。動画はロンドンでの開催（2025）の予告（31 秒）</p>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1200px;">
+      <p><strong>今、東京で体験できる</strong>。行けたら「何をすると → 何が起きるか」をメモしてくる</p>
+    </div>
+  </div>
+
+  <!-- 16. リファレンス インタラクティブ ⑥（AR 以外）：YOASOBI HEART BEAT: Resonance -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ⑥（AR 以外）</div>
+    <h2>YOASOBI《HEART BEAT: Resonance》（2025）</h2>
+    <div class="guide" style="grid-template-columns: 1.5fr 1fr; align-items:center;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>ブースで、自分の心拍を測る</strong></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>自分だけの「心音オブジェクト」ができる</strong></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>床と四方がモニターの部屋に入る</strong>曲「HEART BEAT」が流れている</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>心音オブジェクトが、共鳴しながら動き出す</strong>自分・ほかの来場者・Ayase と ikura の分が一緒に。床も振動する</div></div>
+        </div>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p><strong>自分の体のデータ（心拍）が、作品の材料になる</strong> ＝ タップ以外の「◯◯すると」の例</p></div>
+      </div>
+      <div>
+        <div class="video-tall">
+          <div class="video-wrap">
+            <iframe src="https://www.youtube-nocookie.com/embed/b1nuAf7zIaE" title="Sony Park展 2025 プログラム紹介 ②" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+        <p class="video-cap" style="margin-top:0.4rem; text-align:center;">Ginza Sony Park「Sony Park展 2025」（2025 年 1〜3 月）。ソニー公式の紹介動画（22 秒・縦）</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17. リファレンス インタラクティブ ⑦（AR 以外）：チームラボ -->
+  <div class="slide theme-content">
+    <div class="tag blue">リファレンス：インタラクティブ ⑦（AR 以外）</div>
+    <h2>チームラボ《意思を持ち変容する空間、広がる立体的存在》（2018）</h2>
+    <div class="video-one">
+      <div class="video-wrap">
+        <iframe src="https://www.youtube-nocookie.com/embed/je04z4596Xc" title="Expanding Three-Dimensional Existence in Transforming Space" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <p class="video-cap" style="margin-top:0.5rem;"><strong>光の球体を叩くと、色が変わって音色が響き、まわりの球体に広がっていく</strong>。チームラボプラネッツ（東京・豊洲）の作品。音は高橋英明<br>触れる → 音と色が返ってくる → まわりに広がる ＝「◯◯すると → △△が起きる」の例</p>
+    </div>
+  </div>
+
+  <!-- 18. 使える材料 -->
+  <div class="slide theme-content">
+    <div class="tag green">使える材料</div>
+    <h2>これまでにできるようになったこと ＝ 作品の材料</h2>
+    <table class="key-table wrap tight" style="max-width:1100px;">
+      <tr><th>できること</th><th>習った回</th><th>使いみちの例</th></tr>
+      <tr><td class="k">現実の場所に 3D のモノを出す（AR）</td><td>第3・9回</td><td>どちらのチームも、ここが土台</td></tr>
+      <tr><td class="k">現実のモノをスキャンして取り込む（Scaniverse）</td><td>第4回</td><td>自分の楽器・教室のモノを作品に出す</td></tr>
+      <tr><td class="k">音を付ける・立体音響にする</td><td>第4・5回</td><td>曲を流す／近づくと聞こえる</td></tr>
+      <tr><td class="k">モノを動かす（OrbitSound・SwingSound）</td><td>第4・5回</td><td>曲に合わせて回す・ゆらす</td></tr>
+      <tr><td class="k">タップで鳴らす（TapSound）</td><td>第5回</td><td>触れると鳴る楽器にする</td></tr>
+      <tr><td class="k">Blender でモデルを作る・色を付ける</td><td>第6〜8回</td><td>この作品にしか無いモノを出す</td></tr>
+      <tr><td class="k">Blender → Unity（FBX・大きさ・Prefab）</td><td>第9回</td><td>本物の大きさ／わざと巨大に・小さく</td></tr>
+      <tr><td class="k">指で動かす・大きさを変える</td><td>第9回</td><td>置き場所を、体験する人が決める</td></tr>
+      <tr><td class="k">スマホの画面収録</td><td>第5回</td><td>MV の撮影／体験の記録</td></tr>
+    </table>
+    <p class="small-note">やり方を忘れたら、授業ページのスライドと配布プロジェクト（game2_c）を見直す</p>
+  </div>
+
+  <!-- 19. 進め方の例（参考） -->
+  <div class="slide theme-content">
+    <div class="tag green">進め方の例（参考）</div>
+    <h2>構想の進め方の例 ― この通りでなくてよい</h2>
+    <table class="key-table wrap compact" style="max-width:1150px;">
+      <tr><th>ステップ</th><th>時間の目安</th><th>やること</th><th>方法</th></tr>
+      <tr><td class="k" style="min-width:7.5rem;">① 広げる</td><td style="white-space:nowrap;">20 分</td><td>1 人ずつ、アイデアを絵にかく → 並べて、投票する</td><td>アイデアスケッチ</td></tr>
+      <tr><td class="k" style="min-width:7.5rem;">② しぼる</td><td style="white-space:nowrap;">15 分</td><td>場所・ひとこと・ねらい・ルール・トーンを決める</td><td>作り方を作る</td></tr>
+      <tr><td class="k" style="min-width:7.5rem;">③ 組み立てる</td><td style="white-space:nowrap;">20 分</td><td>MV チーム ＝ 絵コンテ ／ インタラクティブ チーム ＝ 体験の流れ</td><td>絵コンテ・体験の流れ</td></tr>
+      <tr><td class="k" style="min-width:7.5rem;">④ 計画する</td><td style="white-space:nowrap;">10 分</td><td>最初の試作（プロトタイプ）と役割を決める</td><td>プロトタイピング</td></tr>
+    </table>
+    <div class="highlight-box wide" style="max-width:1150px;">
+      <p><strong>ここからのページは、進め方の参考</strong>。チームのやりやすい方法・順番で進めてよい。今日決めたいのは「場所・ひとこと・ねらい」と、絵コンテ または 体験の流れ。発表は次回（第11回）</p>
+    </div>
+  </div>
+
+  <!-- 20. ① 広げる：アイデアスケッチ -->
+  <div class="slide theme-content">
+    <div class="tag green">進め方の例 ①：広げる</div>
+    <h2>アイデアスケッチ ― 絵にかいて考える</h2>
+    <div class="guide" style="grid-template-columns: 1.15fr 1fr; align-items:start;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>1 枚に 1 アイデアをかく（10 分）</strong>お題は「どの場所に、何を重ねるか」。1 人で、だまって、3 枚以上</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>机に並べて、1 枚 30 秒で説明する</strong>質問は OK。否定はしない</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>シールで投票する</strong>1 人 3 票。「見てみたい・体験してみたい」案に</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>選ぶ・組み合わせる</strong>票が集まった案をもとに、チームの案を 1 つ決める</div></div>
+        </div>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p><strong>絵はへたでよい</strong>。太い線でふちどる・見せたいところに 1 色ぬる、だけで伝わる。「だれの案か」ではなく「案そのもの」を見る</p></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 520 372" role="img" style="max-height:48vh;" aria-label="アイデアスケッチの例。1 枚の紙に、名前「机の上の太鼓」、机の上に 3 つの太鼓とスマホの絵、説明「机に太鼓が 3 つ出る。タップすると、ちがう音が鳴る」。右下に投票のシールが 3 つ">
+          <rect x="6" y="6" width="508" height="360" rx="6" fill="#f3f0e6" stroke="#c9c3b0" stroke-width="2"/>
+          <text x="26" y="40" fill="#777" font-size="13">名前</text>
+          <text x="74" y="42" fill="#1a1a1a" font-size="20" font-weight="bold">机の上の太鼓</text>
+          <line x1="22" y1="54" x2="498" y2="54" stroke="#c9c3b0" stroke-width="1.5"/>
+          <!-- 机 -->
+          <line x1="60" y1="238" x2="460" y2="238" stroke="#1a1a1a" stroke-width="4"/>
+          <line x1="96" y1="238" x2="96" y2="268" stroke="#1a1a1a" stroke-width="4"/><line x1="424" y1="238" x2="424" y2="268" stroke="#1a1a1a" stroke-width="4"/>
+          <!-- 影 -->
+          <ellipse cx="150" cy="240" rx="44" ry="6" fill="#bdb8a8"/><ellipse cx="260" cy="240" rx="44" ry="6" fill="#bdb8a8"/><ellipse cx="370" cy="240" rx="44" ry="6" fill="#bdb8a8"/>
+          <!-- 太鼓 3 つ（まん中だけ色） -->
+          <g stroke="#1a1a1a" stroke-width="4" stroke-linejoin="round">
+            <path d="M112 178 L112 226 A38 10 0 0 0 188 226 L188 178" fill="#fff"/><ellipse cx="150" cy="178" rx="38" ry="10" fill="#fff"/>
+            <path d="M222 168 L222 226 A38 10 0 0 0 298 226 L298 168" fill="#f28c38"/><ellipse cx="260" cy="168" rx="38" ry="10" fill="#ffd9b0"/>
+            <path d="M332 186 L332 226 A38 10 0 0 0 408 226 L408 186" fill="#fff"/><ellipse cx="370" cy="186" rx="38" ry="10" fill="#fff"/>
+          </g>
+          <!-- 指と音 -->
+          <path d="M260 96 L260 140" stroke="#1a1a1a" stroke-width="3" fill="none"/><path d="M252 130 L260 144 L268 130" stroke="#1a1a1a" stroke-width="3" fill="none" stroke-linejoin="round"/>
+          <text x="260" y="88" text-anchor="middle" fill="#1a1a1a" font-size="15" font-weight="bold">タップ</text>
+          <text x="314" y="140" fill="#f28c38" font-size="26" font-weight="bold">♪</text><text x="340" y="118" fill="#f28c38" font-size="20" font-weight="bold">♪</text>
+          <line x1="22" y1="286" x2="498" y2="286" stroke="#c9c3b0" stroke-width="1.5"/>
+          <text x="26" y="312" fill="#777" font-size="13">説明</text>
+          <text x="74" y="313" fill="#1a1a1a" font-size="16">机に太鼓が 3 つ出る。</text>
+          <text x="74" y="338" fill="#1a1a1a" font-size="16">タップすると、ちがう音が鳴る</text>
+          <g fill="#e53935"><circle cx="418" cy="322" r="11"/><circle cx="446" cy="330" r="11"/><circle cx="474" cy="318" r="11"/></g>
+          <text x="446" y="358" text-anchor="middle" fill="#777" font-size="12">投票のシール</text>
+        </svg>
+        <p class="video-cap" style="margin-top:0.4rem;">アイデアスケッチの例。紙は白い紙で OK</p>
+      </div>
+    </div>
+    <p class="small-note">参考：書籍『アイデアスケッチ』（2017 年）。絵で考えるブレインストーミングの方法。用紙のテンプレートは、授業ページの配布資料のリンクから</p>
+  </div>
+
+  <!-- 21. ② しぼる：場所・ひとこと・ねらい・ルール・トーン -->
+  <div class="slide theme-content">
+    <div class="tag green">進め方の例 ②：しぼる</div>
+    <h2>5 つのことばで、作品を決める</h2>
+    <table class="key-table wrap compact" style="max-width:1150px;">
+      <tr><th></th><th class="mv">MV チーム（例）</th><th class="ia">インタラクティブ チーム（例）</th></tr>
+      <tr><td class="k">場所<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">どこ？ なぜそこ？</span></td><td>毎日使う教室。いちばん「ふつう」の場所だから</td><td>教室の机。みんなで囲める高さだから</td></tr>
+      <tr><td class="k">ひとこと<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">何の作品？</span></td><td>教室のスピーカーが、曲に合わせて巨大になっていく MV</td><td>机の上の太鼓をタップすると、リズムが重なっていく作品</td></tr>
+      <tr><td class="k">ねらい<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">その場所が、どう変わる？</span></td><td>いつもの教室が、ライブ会場のように感じられる</td><td>ふつうの机が、みんなで鳴らせる楽器になる</td></tr>
+      <tr><td class="k">ルール<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">この作品だけの決まり</span></td><td>音が大きくなると、スピーカーも大きくなる</td><td>近づいた太鼓だけ、音が大きくなる</td></tr>
+      <tr><td class="k">トーン<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">見た目と音の雰囲気</span></td><td>夕方の教室・黒と銀・ゆっくり動くカメラ</td><td>3 色だけ・丸い形・やわらかい音</td></tr>
+    </table>
+    <div class="highlight-box wide" style="max-width:1150px; padding:0.9rem 1.5rem;">
+      <p><strong>「作り方が新しければ、自ずとできたものは新しい」</strong> ― いきなり作らず、まず「どう作るか」を決める。音から先に決めてもよい</p>
+    </div>
+    <p class="small-note">参考：佐藤雅彦の「作り方を作る」と、CM 制作で使った「ルール」「トーン」の考え方</p>
+  </div>
+
+  <!-- 22. ③ 組み立てる：MV チーム 絵コンテ -->
+  <div class="slide theme-content">
+    <div class="tag orange">進め方の例 ③：組み立てる（MV チーム）</div>
+    <h2>絵コンテ ― 曲を場面に分けて、何が出るかを決める</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.15fr; align-items:start;">
+      <div>
+        <div class="steps compact">
+          <div class="step"><div class="step-num">1</div><div class="step-body"><strong>曲を決める</strong>自分たちの曲か、使ってよい曲。まずは 30 秒〜1 分</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-body"><strong>曲を 3〜5 つの場面（カット）に分ける</strong>イントロ・A メロ・サビ など</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-body"><strong>カットごとに 3 つ決める</strong>場所 ／ 出てくるモノ ／ スマホ（カメラ）の動き</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-body"><strong>撮り方を決める</strong>スマホの画面収録で 1 カットずつ撮って、あとでつなぐ</div></div>
+        </div>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p><strong>できたら「ビデオコンテ」</strong>：絵コンテを写真に撮って、曲に合わせて並べる。撮る前に、長さと流れが分かる</p></div>
+      </div>
+      <div>
+        <svg class="fig" viewBox="0 0 640 404" role="img" style="max-height:52vh;" aria-label="絵コンテの例。4 つのカット。カット 1 は 0 秒から 8 秒のイントロ、机の上に小さなスピーカーが出る、カメラは止めたまま。カット 2 は 8 秒から 20 秒の A メロ、スピーカーに近づくとビートに合わせてふるえる、カメラはゆっくり前へ。カット 3 は 20 秒から 35 秒のサビ、スピーカーが天井まで大きくなる、カメラは見上げる。カット 4 は 35 秒から 45 秒の終わり、元の大きさに戻る、カメラはうしろへ下がる">
+          <defs><marker id="w10arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ffd166"/></marker></defs>
+          <g font-size="13">
+            <!-- カット 1：机の上に、小さなスピーカー -->
+            <rect x="4" y="4" width="308" height="194" rx="8" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+            <text x="16" y="26" fill="#ffb380" font-size="14" font-weight="bold">カット 1</text><text x="300" y="26" text-anchor="end" fill="#8a9bbb">0:00〜0:08 イントロ</text>
+            <rect x="16" y="36" width="284" height="108" rx="4" fill="#0d1320"/>
+            <line x1="56" y1="118" x2="260" y2="118" stroke="#6b7a99" stroke-width="3"/>
+            <line x1="78" y1="118" x2="78" y2="140" stroke="#6b7a99" stroke-width="3"/><line x1="238" y1="118" x2="238" y2="140" stroke="#6b7a99" stroke-width="3"/>
+            <rect x="144" y="82" width="26" height="36" rx="3" fill="#23262e" stroke="#8fe0a0" stroke-width="2"/>
+            <circle cx="157" cy="92" r="4" fill="#9fb3d1"/><circle cx="157" cy="106" r="7" fill="#9fb3d1"/>
+            <text x="184" y="80" fill="#ffd166" font-size="14">✦</text><text x="126" y="74" fill="#ffd166" font-size="11">✦</text>
+            <text x="16" y="165" fill="#fff" font-weight="bold">机の上に、小さなスピーカーが出る</text>
+            <text x="16" y="185" fill="#c8d6ea">カメラ：止めたまま</text>
+            <!-- カット 2：近づくと、ふるえる -->
+            <rect x="328" y="4" width="308" height="194" rx="8" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+            <text x="340" y="26" fill="#ffb380" font-size="14" font-weight="bold">カット 2</text><text x="624" y="26" text-anchor="end" fill="#8a9bbb">0:08〜0:20 A メロ</text>
+            <rect x="340" y="36" width="284" height="108" rx="4" fill="#0d1320"/>
+            <line x1="350" y1="134" x2="614" y2="134" stroke="#6b7a99" stroke-width="3"/>
+            <rect x="452" y="48" width="62" height="86" rx="5" fill="#23262e" stroke="#8fe0a0" stroke-width="2"/>
+            <circle cx="483" cy="68" r="9" fill="#9fb3d1"/><circle cx="483" cy="104" r="19" fill="#9fb3d1"/>
+            <g fill="none" stroke="#ffd166" stroke-width="2.5" stroke-linecap="round">
+              <path d="M526 88 Q536 104 526 120"/><path d="M538 80 Q554 104 538 128"/>
+              <path d="M440 88 Q430 104 440 120"/><path d="M428 80 Q412 104 428 128"/>
+            </g>
+            <line x1="356" y1="60" x2="398" y2="60" stroke="#ffd166" stroke-width="2.5" marker-end="url(#w10arr)"/>
+            <text x="340" y="165" fill="#fff" font-weight="bold">近づくと、ビートに合わせてふるえる</text>
+            <text x="340" y="185" fill="#c8d6ea">カメラ：ゆっくり前へ</text>
+            <!-- カット 3：サビで、天井まで大きくなる -->
+            <rect x="4" y="206" width="308" height="194" rx="8" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+            <text x="16" y="228" fill="#ffb380" font-size="14" font-weight="bold">カット 3</text><text x="300" y="228" text-anchor="end" fill="#8a9bbb">0:20〜0:35 サビ</text>
+            <rect x="16" y="238" width="284" height="108" rx="4" fill="#0d1320"/>
+            <line x1="26" y1="340" x2="290" y2="340" stroke="#6b7a99" stroke-width="3"/>
+            <line x1="40" y1="322" x2="96" y2="322" stroke="#6b7a99" stroke-width="2.5"/><line x1="48" y1="322" x2="48" y2="340" stroke="#6b7a99" stroke-width="2.5"/><line x1="88" y1="322" x2="88" y2="340" stroke="#6b7a99" stroke-width="2.5"/>
+            <rect x="128" y="242" width="72" height="98" rx="6" fill="#23262e" stroke="#8fe0a0" stroke-width="2.5"/>
+            <circle cx="164" cy="264" r="10" fill="#9fb3d1"/><circle cx="164" cy="306" r="23" fill="#9fb3d1"/>
+            <line x1="246" y1="330" x2="246" y2="262" stroke="#ffd166" stroke-width="2.5" marker-end="url(#w10arr)"/>
+            <text x="68" y="314" text-anchor="middle" fill="#8a9bbb" font-size="11">机</text>
+            <text x="16" y="367" fill="#fff" font-weight="bold">サビで、天井まで大きくなる</text>
+            <text x="16" y="387" fill="#c8d6ea">カメラ：見上げる</text>
+            <!-- カット 4：元の大きさに戻る -->
+            <rect x="328" y="206" width="308" height="194" rx="8" fill="#161c2b" stroke="#4a5877" stroke-width="2"/>
+            <text x="340" y="228" fill="#ffb380" font-size="14" font-weight="bold">カット 4</text><text x="624" y="228" text-anchor="end" fill="#8a9bbb">0:35〜0:45 終わり</text>
+            <rect x="340" y="238" width="284" height="108" rx="4" fill="#0d1320"/>
+            <path d="M 370 250 L 594 250 L 594 318 L 370 318 Z M 340 238 L 370 250 M 624 238 L 594 250 M 340 346 L 370 318 M 624 346 L 594 318" fill="none" stroke="#6b7a99" stroke-width="2"/>
+            <line x1="452" y1="308" x2="512" y2="308" stroke="#6b7a99" stroke-width="2.5"/><line x1="460" y1="308" x2="460" y2="318" stroke="#6b7a99" stroke-width="2.5"/><line x1="504" y1="308" x2="504" y2="318" stroke="#6b7a99" stroke-width="2.5"/>
+            <rect x="475" y="290" width="13" height="18" rx="2" fill="#23262e" stroke="#8fe0a0" stroke-width="1.5"/>
+            <circle cx="481.5" cy="295" r="2" fill="#9fb3d1"/><circle cx="481.5" cy="302" r="3.5" fill="#9fb3d1"/>
+            <line x1="430" y1="270" x2="386" y2="270" stroke="#ffd166" stroke-width="2.5" marker-end="url(#w10arr)"/>
+            <text x="340" y="367" fill="#fff" font-weight="bold">元の大きさに戻って、終わる</text>
+            <text x="340" y="387" fill="#c8d6ea">カメラ：うしろへ下がる</text>
+          </g>
+        </svg>
+        <p class="video-cap" style="margin-top:0.4rem;">絵コンテの例（45 秒・4 カット）：音が大きくなると、スピーカーも大きくなる MV。絵は丸と四角で OK</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 23. ③ 組み立てる：インタラクティブ チーム 体験の流れ -->
+  <div class="slide theme-content">
+    <div class="tag blue">進め方の例 ③：組み立てる（インタラクティブ チーム）</div>
+    <h2>体験の流れ ―「◯◯すると → △△が起きる」を並べる</h2>
+    <div class="guide" style="grid-template-columns: 1fr 1.2fr; align-items:start;">
+      <div>
+        <div class="col-card ia" style="margin-bottom:0.6rem;">
+          <h3>◯◯する（体験する人がすること）</h3>
+          <ul>
+            <li>タップする（第5回 TapSound）</li>
+            <li>近づく・離れる（第5回 立体音響）</li>
+            <li>指で動かす・大きさを変える（第9回）</li>
+            <li>歩き回る・スマホの向きを変える</li>
+          </ul>
+        </div>
+        <div class="col-card">
+          <h3>△△が起きる（返ってくること）</h3>
+          <ul>
+            <li>音が鳴る・重なる</li>
+            <li>音が変わる（大きさ・左右・高さ）</li>
+            <li>見た目が変わる（動く・回る・増える）</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <table class="key-table wrap compact" style="margin-top:0;">
+          <tr><th></th><th class="ia">体験する人が</th><th class="ia">起きること</th></tr>
+          <tr><td class="k" style="min-width:2rem;">1</td><td>机にスマホを向ける</td><td>机の上に、太鼓が 3 つ出る</td></tr>
+          <tr><td class="k" style="min-width:2rem;">2</td><td>太鼓をタップする</td><td>太鼓ごとに、ちがう音が鳴る</td></tr>
+          <tr><td class="k" style="min-width:2rem;">3</td><td>太鼓に近づく</td><td>その太鼓のリズムが大きく聞こえる</td></tr>
+          <tr><td class="k" style="min-width:2rem;">4</td><td>太鼓を指で動かす</td><td>並べかえて、自分のリズムを作る</td></tr>
+        </table>
+        <p class="video-cap" style="margin-top:0.4rem;">体験の流れの例。はじめて体験する人が、説明なしでも分かる順番にする</p>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p><strong>できたら「紙で試す」</strong>：1 人が作品の役、1 人が体験する人になって、流れを声に出してやってみる</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 24. ④ 計画する：最初の試作 -->
+  <div class="slide theme-content">
+    <div class="tag green">進め方の例 ④：計画する</div>
+    <h2>最初の試作を決める ― 作って、試して、直す</h2>
+    <div class="guide" style="grid-template-columns: 0.62fr 1.38fr; align-items:center;">
+      <div>
+        <svg class="fig" viewBox="0 0 360 300" role="img" style="max-height:38vh;" aria-label="作る、試す、直す の 3 つが矢印で輪になっている図。1 回の授業で 1 周する">
+          <defs><marker id="w10loop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8fe0a0"/></marker></defs>
+          <g fill="none" stroke="#8fe0a0" stroke-width="3">
+            <path d="M232 62 Q300 96 292 176" marker-end="url(#w10loop)"/>
+            <path d="M236 246 Q180 276 124 246" marker-end="url(#w10loop)"/>
+            <path d="M68 176 Q60 96 128 62" marker-end="url(#w10loop)"/>
+          </g>
+          <g font-size="19" font-weight="bold" text-anchor="middle" fill="#fff">
+            <rect x="126" y="22" width="108" height="50" rx="12" fill="rgba(46,125,50,0.45)" stroke="#8fe0a0" stroke-width="2"/><text x="180" y="54">作る</text>
+            <rect x="232" y="186" width="118" height="62" rx="12" fill="rgba(255,255,255,0.08)" stroke="#aebbd3" stroke-width="2"/><text x="291" y="224">試す</text>
+            <rect x="10" y="186" width="118" height="62" rx="12" fill="rgba(255,255,255,0.08)" stroke="#aebbd3" stroke-width="2"/><text x="69" y="224">直す</text>
+          </g>
+          <text x="291" y="270" text-anchor="middle" fill="#c8d6ea" font-size="13">見せる・体験してもらう</text>
+          <text x="180" y="150" text-anchor="middle" fill="#ffd166" font-size="15" font-weight="bold">1 回の授業で 1 周</text>
+        </svg>
+      </div>
+      <div>
+        <table class="key-table wrap compact" style="margin-top:0;">
+          <tr><th></th><th class="mv">MV チーム（例）</th><th class="ia">インタラクティブ チーム（例）</th></tr>
+          <tr><td class="k">① 最初の試作<br><span class="muted" style="font-weight:normal; color:#fff; font-size:0.8rem;">＝ 最小ライン。第12回までに動かす</span></td><td>1 カット・30 秒を撮る</td><td>1 つ置いて、タップで鳴る</td></tr>
+          <tr><td class="k">② 次に足す</td><td>カットを増やす・モデルを動かす</td><td>モノと音を増やす・近づくと変わる</td></tr>
+          <tr><td class="k">③ 余裕があれば</td><td>場所を変える・編集で曲にそろえる</td><td>指で動かす・組み合わせで音が変わる</td></tr>
+        </table>
+        <div class="highlight-box" style="max-width:none; margin-top:0.7rem; padding:0.8rem 1.2rem;"><p><strong>頭の中で完成させてから作らない</strong>。小さく作って、見せて、確かめる。うまくいかなかったことも、次の材料になる</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 25. ④ 計画する：役割（4 つの力） -->
+  <div class="slide theme-content">
+    <div class="tag green">進め方の例 ④：計画する</div>
+    <h2>役割を決める ― 4 つの力を持ち寄る</h2>
+    <div class="roadmap cols4">
+      <div class="rm"><div class="no" style="font-size:1.15rem;">表現する力</div><strong>サウンド ／ モデル</strong><span>曲・効果音を作る・録る。Blender で作る・スキャンする</span></div>
+      <div class="rm"><div class="no" style="font-size:1.15rem;">組み立てる力</div><strong>体験のデザイン</strong><span>絵コンテ・体験の流れ。MV は撮影と編集、インタラクティブはテストと案内</span></div>
+      <div class="rm"><div class="no" style="font-size:1.15rem;">実装する力</div><strong>Unity</strong><span>AR に置く・動かす・鳴らす。スマホに書き出す</span></div>
+      <div class="rm"><div class="no" style="font-size:1.15rem;">企画する力</div><strong>企画・発表</strong><span>構想を形にする。パワーポイント・進行・発表</span></div>
+    </div>
+    <div class="warn-box" style="max-width:1140px;">
+      全員が 1 つ以上を担当する（兼任 OK）。Unity が苦手な人は、音・形・組み立てで作品を支える。<strong>4 つがそろって、1 つの作品になる</strong>
+    </div>
+  </div>
+
+  <!-- 26. 第15回までの予定 -->
+  <div class="slide theme-content">
+    <div class="tag green">予定</div>
+    <h2>第15回までの予定</h2>
+    <div class="roadmap" style="max-width:1100px;">
+      <div class="rm today"><div class="no">第10回</div><strong>構想（今日）</strong><span>構想をまとめる</span></div>
+      <div class="rm"><div class="no">第11回</div><strong>構想発表・制作 ①</strong><span>発表して、コメントをもらう。最初の試作を始める</span></div>
+      <div class="rm"><div class="no">第12回</div><strong>制作 ②</strong><span>最初の試作（最小ライン）を動かす</span></div>
+      <div class="rm"><div class="no">第13回</div><strong>制作 ③</strong><span>中間チェック。通して見せて、足していく</span></div>
+      <div class="rm"><div class="no">第14回</div><strong>制作 ④</strong><span>仕上げ・発表の準備</span></div>
+      <div class="rm opt"><div class="no">第15回</div><strong>発表</strong><span>作品を見せる・体験してもらう</span></div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1100px; margin-top:1rem;">
+      <p><strong>最後に出すもの</strong>：① パワーポイント（最新版）　② 作品</p>
+    </div>
+    <p class="small-note">制作の回は、毎回「作る → 試す → 直す」を 1 周する。提出は、授業の終わりの「進捗メモ」だけ（チームで 1 通）</p>
+  </div>
+
+  <!-- 27. ⑤ 構想発表（第11回） -->
+  <div class="slide theme-content">
+    <div class="tag purple">次回：第11回 構想発表</div>
+    <h2>次回、構想を発表して、コメントをもらう</h2>
+    <div class="two-col" style="max-width:1150px;">
+      <div class="col-card">
+        <h3>発表する側（各チーム 5 分）</h3>
+        <ul>
+          <li><strong>作品名</strong>と<strong>ひとこと</strong></li>
+          <li><strong>場所</strong>と<strong>ねらい</strong>：なぜそこか・その場所がどう変わるか</li>
+          <li><strong>出てくるモノと音</strong></li>
+          <li><strong>絵コンテ</strong>または<strong>体験の流れ</strong></li>
+          <li><strong>最初に作るもの</strong>：まず何を動かすか</li>
+        </ul>
+      </div>
+      <div class="col-card">
+        <h3>聞く側（相手チームと先生）</h3>
+        <ul>
+          <li><strong>よかったところ</strong>を 1 つ</li>
+          <li><strong>分からなかったところ</strong>を 1 つ（質問）</li>
+          <li><strong>こうすると、もっとよい</strong>を 1 つ（提案）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box wide" style="max-width:1150px;">
+      <p><strong>パワーポイントで発表する</strong>。スケッチや絵コンテがあれば、写真で入れる。発表のあと、コメントを受けて構想を直し、最初の試作を始める</p>
+    </div>
+  </div>
+
+  <!-- 28. 今日の課題 -->
+  <div class="slide theme-content">
+    <div class="tag purple">今日の課題</div>
+    <h2>構想をパワーポイントにまとめて、第11回に発表する</h2>
+    <div class="guide" style="grid-template-columns: 1.3fr 1fr; align-items:start;">
+      <table class="key-table wrap compact" style="margin-top:0;">
+        <tr><th></th><th>パワーポイントに入れること（5 枚くらい）</th></tr>
+        <tr><td class="k" style="min-width:2rem;">1</td><td><strong>作品名</strong>（仮で OK）と<strong>ひとこと</strong>。チームのメンバー</td></tr>
+        <tr><td class="k" style="min-width:2rem;">2</td><td><strong>場所</strong>（なぜそこ？）と<strong>ねらい</strong>（その場所がどう変わる？）</td></tr>
+        <tr><td class="k" style="min-width:2rem;">3</td><td><strong>出てくるモノと音</strong></td></tr>
+        <tr><td class="k" style="min-width:2rem;">4</td><td>MV チーム：<strong>絵コンテ</strong>（3〜5 カット）／インタラクティブ チーム：<strong>体験の流れ</strong></td></tr>
+        <tr><td class="k" style="min-width:2rem;">5</td><td><strong>役割</strong>と<strong>作る順番</strong>（最初に作るもの → 次に足すもの）</td></tr>
+        <tr><td class="k muted" style="min-width:2rem;">＋</td><td class="muted">入れてもよい：ルールとトーン、アイデアスケッチの写真</td></tr>
+      </table>
+      <div>
+        <div class="col-card">
+          <h3>提出と発表</h3>
+          <ul>
+            <li>チームで 1 つ。第11回の授業の始めに、ファイルを提出する</li>
+            <li>第11回に、それを映して発表する（各チーム 5 分）</li>
+            <li>まとめ方・進め方は、チームのやりやすい形でよい</li>
+          </ul>
+        </div>
+        <div class="highlight-box" style="max-width:none; margin-top:0.6rem; padding:0.8rem 1.2rem;"><p>今日決めきれなかったところは、次回までにチームで決めてくる。<strong>構想は、作りながら変えて OK</strong></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 29. 気をつけること -->
+  <div class="slide theme-content">
+    <div class="tag orange">気をつけること</div>
+    <h2>構想でつまずきやすいポイント</h2>
+    <table class="key-table wrap" style="max-width:1050px;">
+      <tr><td class="k">計画が大きすぎる</td><td>最小ラインを先に決める。足すのはあとで</td></tr>
+      <tr><td class="k">その場所で撮ってよいか</td><td>人が映らないようにする。映すときは、ひと声かける（第1回のルール）</td></tr>
+      <tr><td class="k">AR が出にくい場所</td><td>暗い場所・真っ白な床や壁・ガラスは苦手。明るくて、模様のある場所を選ぶ</td></tr>
+      <tr><td class="k">作業が 1 人にかたよる</td><td>役割を見直す。全員が 1 つ以上</td></tr>
+    </table>
+  </div>
+
+  <!-- 30. まとめ -->
+  <div class="slide theme-content">
+    <div class="tag green">今日のまとめ</div>
+    <h2>第10回のまとめ</h2>
+    <div class="divider left"></div>
+    <ul style="max-width:1000px;">
+      <li>テーマ：<strong>現実に重ねることで生まれる、新しい音楽体験の提案</strong>。キーワードは「場所 × 音」</li>
+      <li>2 つのチーム：<strong>AR ミュージックビデオ</strong>（見る作品）／<strong>AR インタラクティブ作品</strong>（体験する作品）</li>
+      <li>構想で必ず示すこと：<strong>なぜその場所か</strong>／<strong>その場所がどう変わるか</strong></li>
+      <li>MV チームは <strong>絵コンテ</strong>、インタラクティブ チームは <strong>体験の流れ</strong>を作る</li>
+      <li>進め方（広げる → しぼる → 組み立てる → 計画する）は参考。この通りでなくてよい</li>
+    </ul>
+    <div class="highlight-box wide" style="margin-top:0.8rem; max-width:1000px;">
+      <p>次回：第11回 <strong>構想発表</strong>。発表のパワーポイントを作ってくる。発表のあとに最初の試作を始めるので、第9回のプロジェクト・.fbx・.blend、使いたい曲や音のファイルも持ってくる</p>
+    </div>
+  </div>
+
+</div><!-- #slideshow -->
+
+<div id="nav">
+  <button type="button" id="btn-prev">&#8592;</button>
+  <span id="slide-counter">1 / 30</span>
+  <button type="button" id="btn-next">&#8594;</button>
+</div>
+<div id="progress"></div>
+
+<script>
+const slides = document.querySelectorAll(".slide");
+let current = 0;
+function showSlide(n) {
+  slides[current].classList.remove("active");
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides[current].classList.add("active");
+  document.getElementById("slide-counter").textContent = `${current + 1} / ${slides.length}`;
+  document.getElementById("btn-prev").disabled = current === 0;
+  document.getElementById("btn-next").disabled = current === slides.length - 1;
+  document.getElementById("progress").style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+function changeSlide(dir) { showSlide(current + dir); }
+
+const prevButton = document.getElementById("btn-prev");
+const nextButton = document.getElementById("btn-next");
+prevButton.addEventListener("click", () => changeSlide(-1));
+nextButton.addEventListener("click", () => changeSlide(1));
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === " ") changeSlide(1);
+  if (e.key === "ArrowLeft" || e.key === "ArrowUp") changeSlide(-1);
+  if (e.key === "Home") showSlide(0);
+  if (e.key === "End") showSlide(slides.length - 1);
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e => {
+  if (e.target.closest("#nav")) return;
+  touchStartX = e.changedTouches[0].clientX;
+});
+document.addEventListener("touchend", e => {
+  if (e.target.closest("#nav")) return;
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1);
+});
+showSlide(0);
+</script>
+</body>
+</html>
